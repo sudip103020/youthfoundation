@@ -1,0 +1,168 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f8f9fa;
+}
+
+a {
+  text-decoration: none;
+}
+
+section {
+  padding: 80px 0;
+}
+
+
+section {
+  overflow: hidden;
+}
+
+@media (min-width: 992px) {
+  .py-lg-6 {
+    padding-top: 6rem !important;
+    padding-bottom: 6rem !important;
+  }
+}
+
+/* ================= FOOTER ================= */
+
+.footer{
+    background:#0F172A;
+    color:#fff;
+    padding:20px 0 5px;   /* নিচের স্পেস কম */
+}
+
+.footer-title{
+    color:#FFC107;
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+.footer-links{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+
+.footer-links li{
+    margin-bottom:5px;
+}
+
+.footer-links a{
+    color:#E5E7EB;
+    text-decoration:none;
+    transition:.3s;
+    font-size:16px;
+}
+
+.footer-links a:hover{
+    color:#FFC107;
+    padding-left:5px;
+}
+
+.footer p{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    margin-bottom:12px;
+    color:#E5E7EB;
+    font-size:16px;
+}
+
+.footer p svg{
+    color:#FFC107;
+    min-width:18px;
+    font-size:16px;
+}
+
+.social-icons{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.social-icons a{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#1E293B;
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-decoration:none;
+    transition:.3s;
+    font-size:18px;
+}
+
+.social-icons a:hover{
+    background:#FFC107;
+    color:#000;
+    transform:translateY(-3px);
+}
+
+.copyright{
+    background:#020617;
+    color:#CBD5E1;
+    text-align:center;
+    padding:10px 0;      /* নিচের স্পেস কম */
+    font-size:14px;
+    margin:0;
+}
+
+@media(max-width:768px){
+
+.footer{
+    padding:30px 0 15px;
+}
+
+.footer-title{
+    margin-top:10px;
+}
+
+.social-icons{
+    margin-bottom:10px;
+}
+
+}
+
+.activity-card{
+    border:none;
+    overflow:hidden;
+    border-radius:15px;
+}
+
+.activity-card img{
+    transition:.4s;
+}
+
+.activity-card img:hover{
+    transform:scale(1.05);
+}
+
+.card{
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.modal-content{
+    border-radius:15px;
+}
+
+.modal img{
+    border-radius:12px;
+}
+
+.form-control{
+    border-radius:30px;
+    padding:12px 20px;
+}
+
+.form-control:focus{
+    box-shadow:none;
+    border-color:#0d6efd;
+}
