@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { Container, Row, Col, Card, Form } from "react-bootstrap";
+import { Container, Row, Col, Card } from "react-bootstrap";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { activities } from "../data/activities";
 
 const Activities = () => {
-  const [search, setSearch] = useState("");
-
   const [showModal, setShowModal] = useState(false);
   const [activeImages, setActiveImages] = useState<string[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -18,19 +16,16 @@ const Activities = () => {
   };
 
   const nextImage = () => {
-    setActiveIndex((prev) => (prev === activeImages.length - 1 ? 0 : prev + 1));
+    setActiveIndex((prev) =>
+      prev === activeImages.length - 1 ? 0 : prev + 1
+    );
   };
 
   const prevImage = () => {
-    setActiveIndex((prev) => (prev === 0 ? activeImages.length - 1 : prev - 1));
+    setActiveIndex((prev) =>
+      prev === 0 ? activeImages.length - 1 : prev - 1
+    );
   };
-
-  const filteredActivities = activities.filter(
-    (item) =>
-      item.title.toLowerCase().includes(search.toLowerCase()) ||
-      item.description.toLowerCase().includes(search.toLowerCase()) ||
-      item.date.toLowerCase().includes(search.toLowerCase()),
-  );
 
   return (
     <>
@@ -38,15 +33,21 @@ const Activities = () => {
 
       <Container className="py-5">
         <Row className="g-4">
-          {filteredActivities.map((activity) => (
+          {activities.map((activity) => (
             <Col lg={6} md={6} xs={12} key={activity.id}>
               <Card className="shadow-sm rounded-4 border-0 h-100">
                 <Card.Body>
-                  <h3 className="text-primary fw-bold">{activity.title}</h3>
+                  <h3 className="text-primary fw-bold">
+                    {activity.title}
+                  </h3>
 
-                  <small className="text-muted">📅 {activity.date}</small>
+                  <small className="text-muted">
+                    📅 {activity.date}
+                  </small>
 
-                  <p className="mt-3">{activity.description}</p>
+                  <p className="mt-3">
+                    {activity.description}
+                  </p>
 
                   <Row className="g-2">
                     {activity.images.map((img, index) => (
@@ -72,25 +73,27 @@ const Activities = () => {
           ))}
         </Row>
       </Container>
+
       {/* Image Modal */}
       {showModal && (
         <div
           className="modal fade show d-block"
           tabIndex={-1}
-          style={{ backgroundColor: "rgba(0,0,0,.9)" }}
+          style={{ backgroundColor: "rgba(0,0,0,0.9)" }}
         >
           <div
             className={`modal-dialog modal-dialog-centered ${
-              window.innerWidth < 576 ? "modal-fullscreen" : "modal-xl"
+              window.innerWidth < 576
+                ? "modal-fullscreen"
+                : "modal-xl"
             }`}
           >
             <div className="modal-content bg-dark border-0">
+
               {/* Header */}
               <div className="modal-header border-0">
                 <h5 className="modal-title text-white">
-                  📸{" "}
-                  {filteredActivities.find((a) => a.images === activeImages)
-                    ?.title || "Activity"}
+                  📸 {activities.find((a) => a.images === activeImages)?.title || "Activity"}
                 </h5>
 
                 <button
@@ -100,7 +103,6 @@ const Activities = () => {
               </div>
 
               {/* Body */}
-
               <div className="modal-body d-flex justify-content-center align-items-center">
                 <img
                   src={activeImages[activeIndex]}
@@ -115,7 +117,6 @@ const Activities = () => {
               </div>
 
               {/* Footer */}
-
               <div className="modal-footer border-0 justify-content-between">
                 <button className="btn btn-warning" onClick={prevImage}>
                   ◀ Previous
@@ -129,6 +130,7 @@ const Activities = () => {
                   Next ▶
                 </button>
               </div>
+
             </div>
           </div>
         </div>
