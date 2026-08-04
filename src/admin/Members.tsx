@@ -12,7 +12,7 @@ const Members = () => {
   const [email, setEmail] = useState("");
   const [bloodGroup, setBloodGroup] = useState("");
   const [address, setAddress] = useState("");
-  const [photo, setPhoto] = useState<File | null>(null);
+ // const [photo, setPhoto] = useState<File | null>(null);
   const [status, setStatus] = useState("Active");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,7 +52,7 @@ const Members = () => {
     setBloodGroup("");
     setAddress("");
     setEmail("");
-    setPhoto(null);
+    
     setStatus("Active");
 
   } catch (error) {
@@ -206,7 +206,7 @@ const Members = () => {
                 </div>
 
                 {/* Photo */}
-                <div className="col-md-6 mb-3">
+                {/* <div className="col-md-6 mb-3">
                   <label className="form-label">
                     Photo <small>(Optional)</small>
                   </label>
@@ -218,7 +218,7 @@ const Members = () => {
                       setPhoto(e.target.files ? e.target.files[0] : null)
                     }
                   />
-                </div>
+                </div> */}
 
                 {/* Status */}
                 <div className="col-md-6 mb-3">
