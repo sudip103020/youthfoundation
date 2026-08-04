@@ -80,4 +80,19 @@ export const activities: Activity[] = [
     
     ],
   },
+
+   {
+    id: 6,
+    date: "june 2026",
+    title: " 🌱 বৃক্ষবিতরণ কর্মসূচি",
+    description:
+      "বাদোখালী ইয়ুথ ফাউন্ডেশন এর  উদ্যোগে  বৃক্ষবিতরণ  কর্মসূচি পরিচালিত হয়।",
+    images: [
+      "treeg1.jpeg",
+      "treeg2.jpeg",
+      "treeg3.jpeg",
+      "treeg4.jpeg",
+    
+    ],
+  },
 ];

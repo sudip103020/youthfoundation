@@ -1,18 +1,12 @@
-import { Container, Nav, Navbar, Button } from "react-bootstrap";
+import { Container, Nav, Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 const Navigation = () => {
   return (
     <Navbar bg="white" expand="lg" sticky="top" className="shadow-sm">
       <Container>
-
         <Navbar.Brand as={Link} to="/">
-          <img
-            src="/logo.png"
-            alt="Logo"
-            width="45"
-            className="me-2"
-          />
+          <img src="/logo.png" alt="Logo" width="45" className="me-2" />
           <strong>Badokhali Youth Foundation</strong>
         </Navbar.Brand>
 
@@ -20,7 +14,6 @@ const Navigation = () => {
 
         <Navbar.Collapse id="navbar">
           <Nav className="ms-auto align-items-center">
-
             <Nav.Link as={Link} to="/">
               Home
             </Nav.Link>
@@ -33,21 +26,18 @@ const Navigation = () => {
               Activities
             </Nav.Link>
 
-            <Nav.Link as={Link} to="/contact">
+            <Nav.Link as={Link} to="/notice">
+              Notice
+            </Nav.Link>
+
+            <Nav.Link as={Link} to="/contact" className="ms-lg-3">
               Contact
             </Nav.Link>
-
-            <Nav.Link as={Link} to="/admin">
-              Admin Panel
+            <Nav.Link as={Link} to="/Donation" className="ms-lg-3">
+              Donation
             </Nav.Link>
-
-            <Button className="ms-lg-3" variant="success">
-              Donate
-            </Button>
-
           </Nav>
         </Navbar.Collapse>
-
       </Container>
     </Navbar>
   );
