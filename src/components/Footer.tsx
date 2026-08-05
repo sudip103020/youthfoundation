@@ -23,7 +23,7 @@ const Footer = () => {
               <ul className="footer-links">
                 <li><a href="/about">About Us</a></li>
                 <li><a href="/activities">Activities</a></li>
-                <li><a href="/gallery">Gallery</a></li>
+                <li><a href="/admin/login">Admin Site</a></li>
 
               </ul>
             </Col>
@@ -34,7 +34,7 @@ const Footer = () => {
 
               <p><FaMapMarkerAlt /> Badokhali, Mograhat-9300, Bagerhat</p>
 
-              <p><FaPhoneAlt /> +8801738126875</p>
+              <p><FaPhoneAlt /> +8801738126875, +8801714597343</p>
 
               <p><FaEnvelope /> badokhaliyouthfoundation@gmail.com</p>
 
