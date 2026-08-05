@@ -13,22 +13,18 @@ const Footer = () => {
     <>
       <footer className="footer">
         <Container>
+
           <Row className="gy-3">
+
             {/* Quick Links */}
             <Col lg={4} md={4}>
               <h5 className="footer-title">Quick Links</h5>
 
               <ul className="footer-links">
-                <li>
-                  <a href="/about">About Us</a>
-                </li>
-                <li>
-                  <a href="/activities">Activities</a>
-                </li>
-        
-                 <li>
-                  <a href="/admin/login">Admin Panel</a>
-                </li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/activities">Activities</a></li>
+                <li><a href="/gallery">Gallery</a></li>
+
               </ul>
             </Col>
 
@@ -36,18 +32,14 @@ const Footer = () => {
             <Col lg={5} md={5}>
               <h5 className="footer-title">Contact Info</h5>
 
-              <p>
-                <FaMapMarkerAlt /> Badokhali, Mograhat, Bagerhat
-              </p>
+              <p><FaMapMarkerAlt /> Badokhali, Mograhat-9300, Bagerhat</p>
 
-              <p>
-                <FaPhoneAlt /> 01738126875, 01714597343
-              </p>
+              <p><FaPhoneAlt /> +8801738126875</p>
 
-              
-              <p>
-                <FaEnvelope /> badokhaliyouthfoundation@gmail.com
-              </p>
+              <p><FaEnvelope /> badokhaliyouthfoundation@gmail.com</p>
+
+
+
             </Col>
 
             {/* Social */}
@@ -55,6 +47,7 @@ const Footer = () => {
               <h5 className="footer-title">Follow Us</h5>
 
               <div className="social-icons">
+
                 <a href="https://www.facebook.com/badokhaliyouthfoundation">
                   <FaFacebookF />
                 </a>
@@ -63,16 +56,18 @@ const Footer = () => {
                   <FaYoutube />
                 </a>
 
-                <a
-                  href="https://wa.me/8801738126875"
+                <a href="https://wa.me/8801738126875"
                   target="_blank"
-                  rel="noopener noreferrer"
-                >
+                  rel="noopener noreferrer">
                   <FaWhatsapp />
                 </a>
+
               </div>
+
             </Col>
+
           </Row>
+
         </Container>
       </footer>
 

@@ -37,6 +37,8 @@ const Sidebar = () => {
     >
       <h4 className="text-center mb-4">BYF Admin</h4>
 
+      
+
       <ul className="nav flex-column">
 
         <li className="nav-item mb-2">
@@ -145,20 +147,18 @@ const Sidebar = () => {
           </NavLink>
         </li>
 
-      </ul>
-
-      <div className="mt-auto">
-
-        <hr className="text-secondary" />
-
-        <button
+        <li className="nav-item mb-2">
+          <button
           onClick={handleLogout}
           className="btn btn-danger w-100"
         >
           🚪 Logout
         </button>
+        </li>
 
-      </div>
+      </ul>
+
+   
 
     </div>
   );

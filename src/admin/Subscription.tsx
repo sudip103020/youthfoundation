@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useRef } from "react";
+import html2canvas from "html2canvas";
 import { db } from "../firebase/firebase";
 import AdminLayout from "./AdminLayout";
 
@@ -8,6 +10,9 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  query,
+  orderBy,
+  serverTimestamp,
 } from "firebase/firestore";
 
 interface Member {
@@ -40,6 +45,9 @@ const Subscription = () => {
   const [amount, setAmount] = useState("");
   const [selectedMember, setSelectedMember] = useState("");
 
+  const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 15;
+
   // Filter
 
   const [filterMonth, setFilterMonth] = useState("");
@@ -47,6 +55,8 @@ const Subscription = () => {
   const [filterMember, setFilterMember] = useState("");
 
   const [showReport, setShowReport] = useState(false);
+
+  const reportRef = useRef<HTMLDivElement>(null);
 
   // Fetch Members
 
@@ -69,20 +79,24 @@ const Subscription = () => {
   // Fetch Subscription
 
   const fetchSubscriptions = async () => {
-    const snapshot = await getDocs(collection(db, "subscriptions"));
+  const q = query(
+    collection(db, "subscriptions"),
+    orderBy("createdAt", "desc")
+  );
 
-    const data: Subscription[] = [];
+  const snapshot = await getDocs(q);
 
-    snapshot.forEach((item) => {
-      data.push({
-        id: item.id,
+  const data: Subscription[] = [];
 
-        ...(item.data() as Omit<Subscription, "id">),
-      });
+  snapshot.forEach((item) => {
+    data.push({
+      id: item.id,
+      ...(item.data() as Omit<Subscription, "id">),
     });
+  });
 
-    setSubscriptions(data);
-  };
+  setSubscriptions(data);
+};
 
   useEffect(() => {
     fetchMembers();
@@ -108,22 +122,15 @@ const Subscription = () => {
     }
 
     await addDoc(collection(db, "subscriptions"), {
-      memberId: member.id,
-
-      name: member.name,
-
-      designation: member.designation,
-
-      phone: member.phone,
-
-      month,
-
-      year,
-
-      amount,
-
-      date: new Date(),
-    });
+  memberId: member.id,
+  name: member.name,
+  designation: member.designation,
+  phone: member.phone,
+  month,
+  year,
+  amount,
+  createdAt: serverTimestamp(),
+});
 
     alert("Subscription Added");
 
@@ -156,10 +163,39 @@ const Subscription = () => {
     );
   });
 
-  const totalSubscription = filteredSubscriptions.reduce(
-  (sum, item) => sum + Number(item.amount),
-  0
+  const indexOfLastItem = currentPage * itemsPerPage;
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+const currentSubscriptions = filteredSubscriptions.slice(
+  indexOfFirstItem,
+  indexOfLastItem
 );
+
+const totalPages = Math.ceil(
+  filteredSubscriptions.length / itemsPerPage
+);
+
+  const totalSubscription = filteredSubscriptions.reduce(
+    (sum, item) => sum + Number(item.amount),
+    0
+  );
+
+  const downloadReport = async () => {
+    if (!reportRef.current) return;
+
+    const canvas = await html2canvas(reportRef.current, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    const image = canvas.toDataURL("image/png");
+
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = `Subscription-${filterMonth || "All"}-${filterYear || "All"}.png`;
+    link.click();
+  };
 
   return (
     <AdminLayout>
@@ -251,26 +287,26 @@ const Subscription = () => {
 
 
         <div className="row mb-4">
-  <div className="col-md-4">
-    <div className="card bg-success text-white shadow-sm">
-      <div className="card-body">
-        <h6>Total Subscription</h6>
-        <h3>৳ {totalSubscription}</h3>
-      </div>
-    </div>
-  </div>
+          <div className="col-md-4">
+            <div className="card bg-success text-white shadow-sm">
+              <div className="card-body">
+                <h6>Total Subscription</h6>
+                <h3>৳ {totalSubscription}</h3>
+              </div>
+            </div>
+          </div>
 
-  <div className="col-md-4">
-    <div className="card bg-primary text-white shadow-sm">
-      <div className="card-body">
-        <h6>Count</h6>
-        <h3>{filteredSubscriptions.length}</h3>
-      </div>
-    </div>
-  </div>
+          <div className="col-md-4">
+            <div className="card bg-primary text-white shadow-sm">
+              <div className="card-body">
+                <h6>Count</h6>
+                <h3>{filteredSubscriptions.length}</h3>
+              </div>
+            </div>
+          </div>
 
-  
-</div>
+
+        </div>
 
         {/* Filter */}
 
@@ -311,7 +347,7 @@ const Subscription = () => {
               >
                 <option value="">All Year</option>
 
-                
+
                 <option>2026</option>
                 <option>2027</option>
               </select>
@@ -361,10 +397,13 @@ const Subscription = () => {
                 </div>
 
                 <div
+                  ref={reportRef}
                   className="modal-body"
                   style={{
                     position: "relative",
                     overflow: "hidden",
+                    background: "#fff",
+                    padding: "20px",
                   }}
                 >
                   {/* Background Watermark Logo */}
@@ -412,8 +451,6 @@ const Subscription = () => {
 
                           <th>Designation</th>
 
-                          <th>Mobile</th>
-
                           <th>Month</th>
 
                           <th>Amount</th>
@@ -425,7 +462,7 @@ const Subscription = () => {
                           <tr key={item.id}>
                             <td>{item.name}</td>
 
-                            <td>{item.designation}</td>                         
+                            <td>{item.designation}</td>
 
                             <td>
                               {item.month}-{item.year}
@@ -463,7 +500,7 @@ const Subscription = () => {
                           }}
                         />
 
-                        
+
                       </div>
 
                       {/* Right Signature */}
@@ -485,6 +522,13 @@ const Subscription = () => {
                 </div>
 
                 <div className="modal-footer">
+                  <button
+                    className="btn btn-success"
+                    onClick={downloadReport}
+                  >
+                    📥 Download Image
+                  </button>
+
                   <button
                     className="btn btn-secondary"
                     onClick={() => setShowReport(false)}
@@ -514,9 +558,9 @@ const Subscription = () => {
           </thead>
 
           <tbody>
-            {filteredSubscriptions.map((item, index) => (
+            {currentSubscriptions.map((item, index) => (
               <tr key={item.id}>
-                <td>{index + 1}</td>
+                <td>{indexOfFirstItem + index + 1}</td>
 
                 <td>{item.name}</td>
 
@@ -544,6 +588,27 @@ const Subscription = () => {
             ))}
           </tbody>
         </table>
+        <div className="d-flex justify-content-center mt-3">
+  <button
+    className="btn btn-outline-primary me-2"
+    disabled={currentPage === 1}
+    onClick={() => setCurrentPage(currentPage - 1)}
+  >
+    Previous
+  </button>
+
+  <span className="align-self-center px-3">
+    Page {currentPage} of {totalPages}
+  </span>
+
+  <button
+    className="btn btn-outline-primary ms-2"
+    disabled={currentPage === totalPages}
+    onClick={() => setCurrentPage(currentPage + 1)}
+  >
+    Next
+  </button>
+</div>
       </div>
     </AdminLayout>
   );

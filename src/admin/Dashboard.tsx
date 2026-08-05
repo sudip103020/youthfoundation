@@ -182,24 +182,14 @@ const Dashboard = () => {
       className="mb-3"
     />
 
+     <h5 className="mt-4">
+      Welcome to Admin Dashboard 👋
+    </h5>
+
     <h2 className="fw-bold text-success">
       Badokhali Youth Foundation
     </h2>
 
-    <p className="text-muted fs-5">
-      Foundation Management System
-    </p>
-
-    <hr />
-
-    <h5 className="mt-4">
-      Welcome to Admin Dashboard 👋
-    </h5>
-
-    <p className="text-muted mb-0">
-      Manage Members, Subscriptions, Donations,
-      Expenses and Reports from one place.
-    </p>
 
   </div>
 </div>

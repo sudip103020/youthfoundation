@@ -61,11 +61,13 @@ const Location = () => {
                     Address:
                   </strong>
                   <br/>
-                  Badokhali,
+                  Village: Badokhali,
                   <br/>
-                  Mograhat,
+                  Post: Mograhat-9300,
                   <br/>
-                  Bagerhat, Bangladesh
+                  Upzila: Bagerhat Sadar,
+                  <br/>
+                  Bagerhat, khulna.
                 </p>
 
 
