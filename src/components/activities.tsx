@@ -1,13 +1,62 @@
-import { useState } from "react";
+
 import { Container, Row, Col, Card } from "react-bootstrap";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { activities } from "../data/activities";
+import { useEffect, useState } from "react";
+import { db } from "../firebase/firebase";
+
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from "firebase/firestore";
+
+interface Activity {
+  id: string;
+  title: string;
+  date: string;
+  description: string;
+  images: string[];
+}
 
 const Activities = () => {
   const [showModal, setShowModal] = useState(false);
   const [activeImages, setActiveImages] = useState<string[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+
+  const fetchActivities = async () => {
+
+    const q = query(
+      collection(db, "activities"),
+      orderBy("createdAt", "desc")
+    );
+
+    const snapshot = await getDocs(q);
+
+    const data: Activity[] = [];
+
+    snapshot.forEach((item)=>{
+
+      data.push({
+        id:item.id,
+        ...(item.data() as Omit<Activity,"id">)
+      });
+
+    });
+
+
+    setActivities(data);
+
+  };
+
+
+  fetchActivities();
+
+}, []);
 
   const openAlbum = (images: string[], index: number) => {
     setActiveImages(images);

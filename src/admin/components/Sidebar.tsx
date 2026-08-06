@@ -148,6 +148,21 @@ const Sidebar = () => {
         </li>
 
         <li className="nav-item mb-2">
+          <NavLink
+            to="/admin/AdminActivities"
+            className={({ isActive }) =>
+              `nav-link ${
+                isActive
+                  ? "bg-primary text-white rounded"
+                  : "text-white"
+              }`
+            }
+          >
+            💰 Activists
+          </NavLink>
+        </li>
+
+        <li className="nav-item mb-2">
           <button
           onClick={handleLogout}
           className="btn btn-danger w-100"

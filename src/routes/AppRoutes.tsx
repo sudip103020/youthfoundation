@@ -16,6 +16,8 @@ import Notice from "../admin/Notice";
 import NoticePage from "../pages/Notice";
 import Contact from "../pages/contact";
 import DonationPage from "../pages/Donation";
+import Adminactivities from "../admin/AdminActivities";
+
 
 
 
@@ -101,6 +103,19 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } 
         />
+
+         <Route 
+          path="/admin/adminactivities" 
+          element={
+            <ProtectedRoute>
+              <Adminactivities/>
+            </ProtectedRoute>
+          } 
+        />
+
+       
+
+         
 
       </Routes>
     </BrowserRouter>
