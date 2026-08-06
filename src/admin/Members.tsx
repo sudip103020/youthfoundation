@@ -12,11 +12,12 @@ const Members = () => {
   const [email, setEmail] = useState("");
   const [bloodGroup, setBloodGroup] = useState("");
   const [address, setAddress] = useState("");
- // const [photo, setPhoto] = useState<File | null>(null);
+const [photo, setPhoto] = useState<File | null>(null);
   const [status, setStatus] = useState("Active");
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
+  const photoUrl = await uploadPhoto();
 
   try {
     await addDoc(collection(db, "members"), {
@@ -31,7 +32,7 @@ const Members = () => {
       status,
 
       // Photo পরে Storage-এ Upload করব
-      photo: "",
+      photo: photoUrl,
 
       joiningDate: new Date().toISOString(),
 
@@ -59,6 +60,27 @@ const Members = () => {
     console.error(error);
     alert("Failed to save member.");
   }
+};
+
+
+const uploadPhoto = async () => {
+  if (!photo) return "";
+
+  const formData = new FormData();
+  formData.append("file", photo);
+  formData.append("upload_preset", "badokhali_youth_foundation");
+
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dvpfixfd/image/upload",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  const data = await res.json();
+
+  return data.secure_url;
 };
 
   return (
@@ -206,19 +228,22 @@ const Members = () => {
                 </div>
 
                 {/* Photo */}
-                {/* <div className="col-md-6 mb-3">
-                  <label className="form-label">
-                    Photo <small>(Optional)</small>
-                  </label>
-                  <input
-                    type="file"
-                    className="form-control"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setPhoto(e.target.files ? e.target.files[0] : null)
-                    }
-                  />
-                </div> */}
+                <div className="col-md-6 mb-3">
+  <label className="form-label">
+    Member Photo
+  </label>
+
+  <input
+    type="file"
+    className="form-control"
+    accept="image/*"
+    onChange={(e) =>
+      setPhoto(
+        e.target.files ? e.target.files[0] : null
+      )
+    }
+  />
+</div>
 
                 {/* Status */}
                 <div className="col-md-6 mb-3">

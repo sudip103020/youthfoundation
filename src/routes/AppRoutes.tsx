@@ -1,9 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import Home from "../pages/Home";
 import About from "../pages/About";
 import Activities from "../components/activities";
-
 import Login from "../admin/Login";
 import Dashboard from "../admin/Dashboard";
 import Members from "../admin/Members";
@@ -17,6 +15,7 @@ import NoticePage from "../pages/Notice";
 import Contact from "../pages/contact";
 import DonationPage from "../pages/Donation";
 import Adminactivities from "../admin/AdminActivities";
+import RoleRoute from "../admin/RoleRoute";
 
 
 
@@ -41,81 +40,87 @@ const AppRoutes = () => {
 
 
         {/* Protected Admin */}
-        <Route 
-          path="/admin/dashboard" 
+        <Route
+          path="/admin/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/admin/members" 
+        <Route
+          path="/admin/members"
           element={
             <ProtectedRoute>
               <Members />
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/admin/viewmembers" 
+        <Route
+          path="/admin/viewmembers"
           element={
             <ProtectedRoute>
               <ViewMembers />
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/admin/subscription" 
+        <Route
+          path="/admin/subscription"
           element={
             <ProtectedRoute>
-              <Subscription />
+              <RoleRoute roles={["admin"]}>
+                <Subscription />
+              </RoleRoute>
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/admin/donation" 
+        <Route
+          path="/admin/donation"
           element={
             <ProtectedRoute>
-              <Donation />
+              <RoleRoute roles={["admin"]}>
+                <Donation />
+              </RoleRoute>
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/admin/expense" 
+        <Route
+          path="/admin/expense"
           element={
             <ProtectedRoute>
-              <Expense />
+              <RoleRoute roles={["admin"]}>
+                <Expense />
+              </RoleRoute>
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/admin/notice" 
+        <Route
+          path="/admin/notice"
           element={
             <ProtectedRoute>
               <Notice />
             </ProtectedRoute>
-          } 
+          }
         />
 
-         <Route 
-          path="/admin/adminactivities" 
+        <Route
+          path="/admin/adminactivities"
           element={
             <ProtectedRoute>
-              <Adminactivities/>
+              <Adminactivities />
             </ProtectedRoute>
-          } 
+          }
         />
 
-       
 
-         
+
+
 
       </Routes>
     </BrowserRouter>

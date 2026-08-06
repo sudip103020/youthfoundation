@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase/firebase";
+import { auth, db } from "../firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 
 
@@ -21,35 +22,41 @@ const Login = () => {
     e.preventDefault();
 
     try {
+  const result = await signInWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
 
-      const result = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+  const user = result.user;
 
+  // Firestore থেকে user data আনো
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
 
-      const user = result.user;
+  if (!userSnap.exists()) {
+    alert("এই ইউজারের কোনো Role পাওয়া যায়নি।");
+    return;
+  }
 
+  const userData = userSnap.data();
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          uid: user.uid,
-          email: user.email
-        })
-      );
+  localStorage.setItem(
+    "user",
+    JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      name: userData.name,
+      role: userData.role,
+    })
+  );
 
+  navigate("/admin/dashboard");
 
-      navigate("/admin/dashboard");
-
-
-    } catch (err) {
-
-      alert("ইমেইল অথবা পাসওয়ার্ড ভুল।");
-      console.error(err);
-
-    }
+} catch (err) {
+  alert("ইমেইল অথবা পাসওয়ার্ড ভুল।");
+  console.error(err);
+}
 
   };
 

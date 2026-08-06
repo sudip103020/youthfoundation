@@ -28,6 +28,7 @@ const ViewMembers = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [newPhoto, setNewPhoto] = useState<File | null>(null);
 
   const fetchMembers = async () => {
     try {
@@ -70,31 +71,57 @@ const ViewMembers = () => {
     setShowModal(true);
   };
 
-  const handleUpdate = async () => {
-    if (!selectedMember) return;
+  const uploadPhoto = async () => {
+  if (!newPhoto) return selectedMember?.photo || "";
 
-    try {
-      await updateDoc(doc(db, "members", selectedMember.id), {
-        name: selectedMember.name,
-        designation: selectedMember.designation,
-        memberType: selectedMember.memberType,
-        phone: selectedMember.phone,
-        bloodGroup: selectedMember.bloodGroup,
-        address: selectedMember.address,
-        email: selectedMember.email,
-        status: selectedMember.status,
-      });
+  const formData = new FormData();
+  formData.append("file", newPhoto);
+  formData.append("upload_preset", "badokhali_youth_foundation");
 
-      alert("Member updated successfully.");
-
-      setShowModal(false);
-
-      fetchMembers();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to update member.");
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dvpfixfd/image/upload",
+    {
+      method: "POST",
+      body: formData,
     }
-  };
+  );
+
+  const data = await res.json();
+
+  return data.secure_url;
+};
+
+  const handleUpdate = async () => {
+  if (!selectedMember) return;
+
+  try {
+
+    const photoUrl = await uploadPhoto();
+
+    await updateDoc(doc(db, "members", selectedMember.id), {
+      name: selectedMember.name,
+      designation: selectedMember.designation,
+      memberType: selectedMember.memberType,
+      phone: selectedMember.phone,
+      bloodGroup: selectedMember.bloodGroup,
+      address: selectedMember.address,
+      email: selectedMember.email,
+      status: selectedMember.status,
+      photo: photoUrl,
+    });
+
+    alert("Member updated successfully.");
+
+    setShowModal(false);
+    setNewPhoto(null);
+
+    fetchMembers();
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to update member.");
+  }
+};
 
   useEffect(() => {
     fetchMembers();
@@ -218,6 +245,47 @@ const ViewMembers = () => {
                 <option>Inactive</option>
               </select>
             </div>
+
+            <div className="col-md-6 mb-3">
+  <label>Photo</label>
+
+  <input
+    type="file"
+    className="form-control"
+    accept="image/*"
+    onChange={(e) =>
+      setNewPhoto(
+        e.target.files ? e.target.files[0] : null
+      )
+    }
+  />
+
+  <div className="mt-2">
+
+    {newPhoto ? (
+      <img
+        src={URL.createObjectURL(newPhoto)}
+        alt="Preview"
+        width={80}
+        height={80}
+        className="rounded-circle"
+        style={{ objectFit: "cover" }}
+      />
+    ) : selectedMember.photo ? (
+      <img
+        src={selectedMember.photo}
+        alt="Member"
+        width={80}
+        height={80}
+        className="rounded-circle"
+        style={{ objectFit: "cover" }}
+      />
+    ) : (
+      <span className="text-muted">No Photo</span>
+    )}
+
+  </div>
+</div>
 
           </div>
 
