@@ -41,12 +41,12 @@ const Feedback = () => {
           minHeight: "calc(100vh - 70px)",
           background:
             "linear-gradient(135deg, #f0fff7 0%, #f8fffb 50%, #eefaf4 100%)",
-          padding: "70px 15px",
+          padding: "15px 15px",
         }}
       >
         <Container style={{ maxWidth: "850px" }}>
           {/* Heading */}
-          <div className="text-center mb-5">
+          <div className="text-center mb-2">
             <div
               className="mx-auto mb-3 d-flex align-items-center justify-content-center"
               style={{

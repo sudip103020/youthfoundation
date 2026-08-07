@@ -14,7 +14,7 @@ const Donation = () => {
     <>
       <Navbar />
 
-      <Container className="py-5">
+      <Container className="py-2">
 
 
         {/* Header */}
@@ -23,7 +23,7 @@ const Donation = () => {
 
 
           <h2 className="fw-bold mt-3">
-            ❤️ Support Our Foundation
+            ❤️ Support Our Foundation 
           </h2>
 
           <p>

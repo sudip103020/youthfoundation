@@ -8,7 +8,7 @@ const Location = () => {
     <>
       <Navbar />
 
-      <Container className="py-5">
+      <Container className="py-2">
 
         <div className="text-center mb-5">
 
@@ -44,7 +44,7 @@ const Location = () => {
                     Name:
                   </strong>
                   <br/>
-                  Badokhali Youth Foundation 
+                  Badokhali Youth Foundation-বাদোখালী ইয়ুথ ফাউন্ডেশন 
                 </p>
 
 

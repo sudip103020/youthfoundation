@@ -2,7 +2,7 @@ import { Col, Container, Row } from "react-bootstrap";
 
 const Hero = () => {
   return (
-    <section className="py-5 bg-light">
+    <section className="py-2 bg-light">
       <Container>
         <Row className="align-items-center g-5">
           {/* Left Content */}
@@ -11,23 +11,15 @@ const Hero = () => {
 
             <div className="bg-white p-4 rounded shadow-sm mb-4">
 
-              
-             
-              <p
-                className="lead mb-0"
-                style={{
-                  fontSize: "clamp(1.05rem, 2vw, 1.0rem)",
-                  textAlign: "justify",
-                  lineHeight: "1.6",
-                }}
-              >
 
-                
-            <span className="text-success">Badokhali Youth Foundation</span> is a voluntary, non-profit organization
-            committed to education, healthcare, humanitarian assistance,
-            environmental protection and youth empowerment.
-          
-                
+
+              <p className="lead mb-0" style={{
+                fontSize: "1.0rem",
+                textAlign: "justify",
+                lineHeight: "1.6",
+              }}
+              >
+                <span className="text-success">Badokhali Youth Foundation</span> is a voluntary, non-profit organization committed to building a better society through education, healthcare, humanitarian aid, environment, and youth empowerment.
               </p>
             </div>
 

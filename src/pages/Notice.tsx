@@ -92,7 +92,7 @@ const Notice = () => {
     <>
       <Navbar />
 
-      <Container className="py-5">
+      <Container className="py-2">
         <div className="text-center mb-5">
 
           <h2 className="fw-bold mt-3">📢 Notice Board</h2>

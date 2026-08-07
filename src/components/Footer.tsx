@@ -23,57 +23,74 @@ import { db } from "../firebase/firebase";
 
 
 const Footer = () => {
-
-    const [visitorCount, setVisitorCount] = useState(0);
+  const [visitorCount, setVisitorCount] = useState(0);
 
   useEffect(() => {
-
-    const updateVisitorCount = async () => {
-
+    const updateUniqueVisitor = async () => {
       try {
+        // Check if this browser already visited
+        let visitorId = localStorage.getItem("byf_visitor_id");
 
-        const visitorRef = doc(
-          db,
-          "siteStats",
-          "visitors"
-        );
+        // First visit from this browser
+        if (!visitorId) {
+          visitorId =
+            crypto.randomUUID();
 
-        const snapshot = await getDoc(visitorRef);
-
-        if (snapshot.exists()) {
-
-          await updateDoc(visitorRef, {
-            count: increment(1),
-          });
-
-          setVisitorCount(
-            Number(snapshot.data().count || 0) + 1
+          localStorage.setItem(
+            "byf_visitor_id",
+            visitorId
           );
 
+          const visitorRef = doc(
+            db,
+            "siteStats",
+            "visitors"
+          );
+
+          const snapshot = await getDoc(visitorRef);
+
+          if (snapshot.exists()) {
+            await updateDoc(visitorRef, {
+              count: increment(1),
+            });
+
+            setVisitorCount(
+              Number(snapshot.data().count || 0) + 1
+            );
+          } else {
+            await setDoc(visitorRef, {
+              count: 1,
+            });
+
+            setVisitorCount(1);
+          }
         } else {
+          // Existing visitor
+          const visitorRef = doc(
+            db,
+            "siteStats",
+            "visitors"
+          );
 
-          await setDoc(visitorRef, {
-            count: 1,
-          });
+          const snapshot = await getDoc(visitorRef);
 
-          setVisitorCount(1);
-
+          if (snapshot.exists()) {
+            setVisitorCount(
+              Number(snapshot.data().count || 0)
+            );
+          }
         }
-
       } catch (error) {
-
         console.error(
-          "Visitor count error:",
+          "Unique visitor error:",
           error
         );
-
       }
-
     };
 
-    updateVisitorCount();
-
+    updateUniqueVisitor();
   }, []);
+
   return (
     <>
       <footer className="footer">
@@ -134,9 +151,9 @@ const Footer = () => {
                 </a>
 
                 <div className="visitor-count">
-                <FaEye />
+                <FaEye /> 
 
-                <span>
+                <span style={{ marginLeft: "10px" }}>
     
                   <strong>
                          {visitorCount.toLocaleString()}

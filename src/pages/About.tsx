@@ -145,7 +145,7 @@ export default function About() {
     <>
       <Header />
 
-      <main className="py-5 bg-light">
+      <main className="py-2 bg-light">
         <Container>
           <div className="text-center mb-5">
             <h1 className="fw-bold">
