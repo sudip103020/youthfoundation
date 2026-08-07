@@ -16,7 +16,7 @@ const Hero = () => {
               <p
                 className="lead mb-0"
                 style={{
-                  fontSize: "1.0rem",
+                  fontSize: "clamp(1.05rem, 2vw, 1.0rem)",
                   textAlign: "justify",
                   lineHeight: "1.6",
                 }}

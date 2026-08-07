@@ -180,11 +180,11 @@ section {
 
     background: #ffffff;
 
-    min-height:130px;
+    min-height:120px;
 
-    padding:25px;
+   padding: 18px 20px;
 
-    border-radius:22px;
+    border-radius:14px;
 
     display:flex;
 
@@ -446,3 +446,4 @@ object-fit:cover;
     font-size:15px;
     font-weight:500;
 }
+

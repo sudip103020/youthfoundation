@@ -28,35 +28,35 @@ const Activities = () => {
 
   useEffect(() => {
 
-  const fetchActivities = async () => {
+    const fetchActivities = async () => {
 
-    const q = query(
-      collection(db, "activities"),
-      orderBy("createdAt", "desc")
-    );
+      const q = query(
+        collection(db, "activities"),
+        orderBy("createdAt", "desc")
+      );
 
-    const snapshot = await getDocs(q);
+      const snapshot = await getDocs(q);
 
-    const data: Activity[] = [];
+      const data: Activity[] = [];
 
-    snapshot.forEach((item)=>{
+      snapshot.forEach((item) => {
 
-      data.push({
-        id:item.id,
-        ...(item.data() as Omit<Activity,"id">)
+        data.push({
+          id: item.id,
+          ...(item.data() as Omit<Activity, "id">)
+        });
+
       });
 
-    });
+
+      setActivities(data);
+
+    };
 
 
-    setActivities(data);
+    fetchActivities();
 
-  };
-
-
-  fetchActivities();
-
-}, []);
+  }, []);
 
   const openAlbum = (images: string[], index: number) => {
     setActiveImages(images);
@@ -79,6 +79,17 @@ const Activities = () => {
   return (
     <>
       <Navbar />
+
+      <div className="text-center">
+        <h2 className="fw-bold mt-3">
+          🤝 Our Activities
+        </h2>
+
+        <p>
+          We are working together to build a better community through
+          various social and humanitarian activities.
+        </p>
+      </div>
 
       <Container className="py-5">
         <Row className="g-4">
@@ -131,11 +142,10 @@ const Activities = () => {
           style={{ backgroundColor: "rgba(0,0,0,0.9)" }}
         >
           <div
-            className={`modal-dialog modal-dialog-centered ${
-              window.innerWidth < 576
+            className={`modal-dialog modal-dialog-centered ${window.innerWidth < 576
                 ? "modal-fullscreen"
                 : "modal-xl"
-            }`}
+              }`}
           >
             <div className="modal-content bg-dark border-0">
 

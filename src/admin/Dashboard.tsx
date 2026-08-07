@@ -19,6 +19,8 @@ const Dashboard = () => {
   const [totalExpense, setTotalExpense] = useState(0);
   const [profile, setProfile] = useState<any>(null);
 
+  const [mySubscriptionAmount, setMySubscriptionAmount] = useState(0);
+
 
   const loadDashboard = async () => {
 
@@ -80,7 +82,6 @@ const Dashboard = () => {
   };
 
   const loadProfile = async (user: any) => {
-
     const q = query(
       collection(db, "members"),
       where("uid", "==", user.uid)
@@ -89,7 +90,28 @@ const Dashboard = () => {
     const snapshot = await getDocs(q);
 
     if (!snapshot.empty) {
-      setProfile(snapshot.docs[0].data());
+      const memberDoc = snapshot.docs[0];
+
+      setProfile(memberDoc.data());
+
+      // Logged-in member document ID
+      const memberId = memberDoc.id;
+
+      // Get this member's subscriptions
+      const subscriptionQuery = query(
+        collection(db, "subscriptions"),
+        where("memberId", "==", memberId)
+      );
+
+      const subscriptionSnapshot = await getDocs(subscriptionQuery);
+
+      let totalAmount = 0;
+
+      subscriptionSnapshot.forEach((doc) => {
+        totalAmount += Number(doc.data().amount || 0);
+      });
+
+      setMySubscriptionAmount(totalAmount);
     }
   };
 
@@ -120,6 +142,31 @@ const Dashboard = () => {
   const currentBalance =
     totalIncome - totalExpense;
 
+
+  const subscriptionPercentage =
+    totalSubscription > 0
+      ? (mySubscriptionAmount / totalSubscription) * 100
+      : 0;
+
+  const calculateAge = (dob: string) => {
+    if (!dob) return "N/A";
+
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
 
 
   return (
@@ -156,8 +203,6 @@ const Dashboard = () => {
 
               </div>
 
-
-
               <h4>
                 {profile?.name || "Admin"}
               </h4>
@@ -168,9 +213,9 @@ const Dashboard = () => {
 
 
                 <div className="designation-badge">
-  <i className="bi bi-patch-check-fill me-2"></i>
-  {profile?.designation || "No Designation"}
-</div>
+                  <i className="bi bi-patch-check-fill me-2"></i>
+                  {profile?.designation || "No Designation"}
+                </div>
 
 
                 <p>
@@ -186,20 +231,18 @@ const Dashboard = () => {
                 </p>
 
                 <p>
-  🎂 DOB : {profile?.dateOfBirth || "N/A"}
-</p>
+                  🎂 DOB : {profile?.dateOfBirth || "N/A"}
+                </p>
 
-                
+                <p>
+                  🎈 Age : {calculateAge(profile?.dateOfBirth)}
+                </p>
 
               </div>
 
             </div>
 
           </div>
-
-
-
-
 
           {/* Statistics */}
 
@@ -234,7 +277,7 @@ const Dashboard = () => {
                   <div className="stat-box subscription">
 
                     <span>
-                      💳 Subscription
+                      💳 Total Subscription
                     </span>
 
                     <h3>
@@ -254,7 +297,7 @@ const Dashboard = () => {
                   <div className="stat-box donation">
 
                     <span>
-                      🤲 Donation
+                      🤲 Total Donation
                     </span>
 
                     <h3>
@@ -264,9 +307,6 @@ const Dashboard = () => {
                   </div>
 
                 </div>
-
-
-
 
                 <div className="col-md-6">
 
@@ -290,7 +330,7 @@ const Dashboard = () => {
                   <div className="stat-box expense">
 
                     <span>
-                      💸 Expense
+                      💸 Total Expense
                     </span>
 
                     <h3>
@@ -300,16 +340,6 @@ const Dashboard = () => {
                   </div>
 
                 </div>
-
-
-
-
-
-
-
-
-
-
 
                 <div className="col-md-6">
 
@@ -325,6 +355,74 @@ const Dashboard = () => {
 
                   </div>
 
+                </div>
+
+                <div className="col-md-6">
+                  <div
+                    className="stat-box contribution"
+                    style={{
+                      background: "linear-gradient(135deg, #d011d0, #d011d0)",
+                      color: "#fff",
+                    }}
+                  >
+
+                    <span>
+                      💳 My Subscription
+                    </span>
+
+                    <h3 className="mb-1">
+                      ৳ {mySubscriptionAmount.toLocaleString()}
+                    </h3>
+
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div
+                    className="stat-box contribution"
+                    style={{
+                      background: "linear-gradient(135deg, #16e4d3, #16e4d3)",
+                      color: "#fff",
+                    }}
+                  >
+
+                    <span>
+                      📊 % of Contribution
+                    </span>
+
+                    <div className="mt-3">
+
+                      <div className="d-flex justify-content-between mb-1">
+
+                        <small className="fw-bold text-white">
+                          {subscriptionPercentage.toFixed(1)}%
+                        </small>
+
+                      </div>
+
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "15px",
+                          background: "rgba(255,255,255,0.3)",
+                          borderRadius: "10px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${Math.min(subscriptionPercentage, 100)}%`,
+                            height: "100%",
+                            background: "#fff",
+                            borderRadius: "10px",
+                            transition: "width 0.6s ease",
+                          }}
+                        />
+                      </div>
+
+                    </div>
+
+                  </div>
                 </div>
 
 

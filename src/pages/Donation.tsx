@@ -21,11 +21,6 @@ const Donation = () => {
 
         <div className="text-center mb-5">
 
-          <img
-            src="/logo.png"
-            alt="Logo"
-            width="80"
-          />
 
           <h2 className="fw-bold mt-3">
             ❤️ Support Our Foundation
@@ -239,9 +234,9 @@ const Donation = () => {
 
             <Button
               variant="success"
-              href="/contact"
+              href="/feedback"
             >
-              Contact Us
+              send feedback
             </Button>
 
 

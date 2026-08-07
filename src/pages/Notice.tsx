@@ -94,11 +94,10 @@ const Notice = () => {
 
       <Container className="py-5">
         <div className="text-center mb-5">
-          <img src="/logo.png" alt="Logo" width="80" />
 
           <h2 className="fw-bold mt-3">📢 Notice Board</h2>
 
-          <p>Badokhali Youth Foundation</p>
+          
         </div>
 
         {/* Search */}
@@ -169,7 +168,7 @@ const Notice = () => {
       <Modal
         show={showModal}
         onHide={() => setShowModal(false)}
-        size="lg"
+        size="sm"
         centered
       >
         <Modal.Header closeButton>

@@ -16,6 +16,7 @@ import Contact from "../pages/contact";
 import DonationPage from "../pages/Donation";
 import Adminactivities from "../admin/AdminActivities";
 import RoleRoute from "../admin/RoleRoute";
+import Feedback from "../pages/Feedback";
 
 
 
@@ -33,6 +34,8 @@ const AppRoutes = () => {
         <Route path="/notice" element={<NoticePage />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/donation" element={<DonationPage />} />
+        <Route path="/feedback" element={<Feedback />} />
+        
 
 
         {/* Admin Login */}

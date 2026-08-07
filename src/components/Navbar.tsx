@@ -25,16 +25,17 @@ const Navigation = () => {
             <Nav.Link as={Link} to="/activities">
               Activities
             </Nav.Link>
-
             <Nav.Link as={Link} to="/notice">
               Notice
             </Nav.Link>
-
-            <Nav.Link as={Link} to="/contact" className="ms-lg-3">
+            <Nav.Link as={Link} to="/contact" >
               Contact
             </Nav.Link>
-            <Nav.Link as={Link} to="/Donation" className="ms-lg-3">
+            <Nav.Link as={Link} to="/Donation">
               Donation
+            </Nav.Link>
+            <Nav.Link as={Link} to="/Feedback">
+              Feedback
             </Nav.Link>
           </Nav>
         </Navbar.Collapse>

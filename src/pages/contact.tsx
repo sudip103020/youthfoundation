@@ -12,19 +12,11 @@ const Location = () => {
 
         <div className="text-center mb-5">
 
-          <img
-            src="/logo.png"
-            alt="Logo"
-            width="80"
-          />
-
           <h2 className="fw-bold mt-3">
             📍 Our Location
           </h2>
 
-          <p>
-            Badokhali Youth Foundation
-          </p>
+          
 
         </div>
 

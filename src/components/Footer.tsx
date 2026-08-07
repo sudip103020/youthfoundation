@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import {
   FaFacebookF,
@@ -6,9 +7,73 @@ import {
   FaMapMarkerAlt,
   FaPhoneAlt,
   FaEnvelope,
+  FaComments,
+  FaEye,
 } from "react-icons/fa";
 
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  increment,
+} from "firebase/firestore";
+
+import { db } from "../firebase/firebase";
+
+
 const Footer = () => {
+
+    const [visitorCount, setVisitorCount] = useState(0);
+
+  useEffect(() => {
+
+    const updateVisitorCount = async () => {
+
+      try {
+
+        const visitorRef = doc(
+          db,
+          "siteStats",
+          "visitors"
+        );
+
+        const snapshot = await getDoc(visitorRef);
+
+        if (snapshot.exists()) {
+
+          await updateDoc(visitorRef, {
+            count: increment(1),
+          });
+
+          setVisitorCount(
+            Number(snapshot.data().count || 0) + 1
+          );
+
+        } else {
+
+          await setDoc(visitorRef, {
+            count: 1,
+          });
+
+          setVisitorCount(1);
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Visitor count error:",
+          error
+        );
+
+      }
+
+    };
+
+    updateVisitorCount();
+
+  }, []);
   return (
     <>
       <footer className="footer">
@@ -61,6 +126,23 @@ const Footer = () => {
                   rel="noopener noreferrer">
                   <FaWhatsapp />
                 </a>
+
+                <a href="/feedback"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  <FaComments />
+                </a>
+
+                <div className="visitor-count">
+                <FaEye />
+
+                <span>
+    
+                  <strong>
+                         {visitorCount.toLocaleString()}
+                  </strong>
+                </span>
+              </div>
 
               </div>
 
