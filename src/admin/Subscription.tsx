@@ -46,7 +46,7 @@ const Subscription = () => {
   const [selectedMember, setSelectedMember] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-const itemsPerPage = 15;
+  const itemsPerPage = 15;
 
   // Filter
 
@@ -79,24 +79,24 @@ const itemsPerPage = 15;
   // Fetch Subscription
 
   const fetchSubscriptions = async () => {
-  const q = query(
-    collection(db, "subscriptions"),
-    orderBy("createdAt", "desc")
-  );
+    const q = query(
+      collection(db, "subscriptions"),
+      orderBy("createdAt", "desc")
+    );
 
-  const snapshot = await getDocs(q);
+    const snapshot = await getDocs(q);
 
-  const data: Subscription[] = [];
+    const data: Subscription[] = [];
 
-  snapshot.forEach((item) => {
-    data.push({
-      id: item.id,
-      ...(item.data() as Omit<Subscription, "id">),
+    snapshot.forEach((item) => {
+      data.push({
+        id: item.id,
+        ...(item.data() as Omit<Subscription, "id">),
+      });
     });
-  });
 
-  setSubscriptions(data);
-};
+    setSubscriptions(data);
+  };
 
   useEffect(() => {
     fetchMembers();
@@ -122,15 +122,15 @@ const itemsPerPage = 15;
     }
 
     await addDoc(collection(db, "subscriptions"), {
-  memberId: member.id,
-  name: member.name,
-  designation: member.designation,
-  phone: member.phone,
-  month,
-  year,
-  amount,
-  createdAt: serverTimestamp(),
-});
+      memberId: member.id,
+      name: member.name,
+      designation: member.designation,
+      phone: member.phone,
+      month,
+      year,
+      amount,
+      createdAt: serverTimestamp(),
+    });
 
     alert("Subscription Added");
 
@@ -164,16 +164,16 @@ const itemsPerPage = 15;
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
-const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
-const currentSubscriptions = filteredSubscriptions.slice(
-  indexOfFirstItem,
-  indexOfLastItem
-);
+  const currentSubscriptions = filteredSubscriptions.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
-const totalPages = Math.ceil(
-  filteredSubscriptions.length / itemsPerPage
-);
+  const totalPages = Math.ceil(
+    filteredSubscriptions.length / itemsPerPage
+  );
 
   const totalSubscription = filteredSubscriptions.reduce(
     (sum, item) => sum + Number(item.amount),
@@ -487,6 +487,8 @@ const totalPages = Math.ceil(
                     {/* Seal & Signature */}
 
                     <div className="row mt-5">
+
+                      
                       {/* Left Seal */}
 
                       <div className="col-md-6 text-start">
@@ -500,23 +502,57 @@ const totalPages = Math.ceil(
                           }}
                         />
 
+                        
+
+                        <div
+                          style={{
+                            border: "2px solid #0b6ff3",
+                            padding: "7px 16px",
+                            display: "inline-block",
+                            fontSize: "17px",
+                            fontWeight: "bold",
+                            letterSpacing: "1.5px",
+                            color: "#0b6ff3",
+                            fontFamily: "Arial, sans-serif",
+                            transform: "rotate(-6deg)",
+                            opacity: 0.8,
+                            borderRadius: "2px",
+                            textTransform: "uppercase",
+                            marginLeft: "100px",
+                          }}
+                        >
+                          RECEIVED
+                        </div>
+
+
+
 
                       </div>
+
+
 
                       {/* Right Signature */}
 
                       <div className="col-md-6 text-end">
-                        <br />
-                        <br />
-                        <br />
-                        ____________________
-                        <br />
+
                         Suman Roy
                         <br />
                         Treasurer
                         <br />
                         Badokhali Youth Foundation
                       </div>
+                      <p
+                        className="mb-0"
+                        style={{
+                          fontSize: "12px",
+                          color: "#777",
+                        }}
+                      >
+                        This report is digitally generated and does not require a physical
+                        signature.
+                      </p>
+
+
                     </div>
                   </div>
                 </div>
@@ -589,26 +625,26 @@ const totalPages = Math.ceil(
           </tbody>
         </table>
         <div className="d-flex justify-content-center mt-3">
-  <button
-    className="btn btn-outline-primary me-2"
-    disabled={currentPage === 1}
-    onClick={() => setCurrentPage(currentPage - 1)}
-  >
-    Previous
-  </button>
+          <button
+            className="btn btn-outline-primary me-2"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            Previous
+          </button>
 
-  <span className="align-self-center px-3">
-    Page {currentPage} of {totalPages}
-  </span>
+          <span className="align-self-center px-3">
+            Page {currentPage} of {totalPages}
+          </span>
 
-  <button
-    className="btn btn-outline-primary ms-2"
-    disabled={currentPage === totalPages}
-    onClick={() => setCurrentPage(currentPage + 1)}
-  >
-    Next
-  </button>
-</div>
+          <button
+            className="btn btn-outline-primary ms-2"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </AdminLayout>
   );
