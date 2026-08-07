@@ -74,7 +74,7 @@ const AppRoutes = () => {
           path="/admin/subscription"
           element={
             <ProtectedRoute>
-              <RoleRoute roles={["admin"]}>
+              <RoleRoute roles={["admin","account"]}>
                 <Subscription />
               </RoleRoute>
             </ProtectedRoute>
@@ -96,7 +96,7 @@ const AppRoutes = () => {
           path="/admin/expense"
           element={
             <ProtectedRoute>
-              <RoleRoute roles={["admin"]}>
+              <RoleRoute roles={["admin","account"]}>
                 <Expense />
               </RoleRoute>
             </ProtectedRoute>
