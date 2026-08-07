@@ -149,24 +149,34 @@ const Dashboard = () => {
       : 0;
 
   const calculateAge = (dob: string) => {
-    if (!dob) return "N/A";
+  if (!dob) return "N/A";
 
-    const birthDate = new Date(dob);
-    const today = new Date();
+  const birthDate = new Date(dob);
+  const today = new Date();
 
-    let age = today.getFullYear() - birthDate.getFullYear();
+  let years = today.getFullYear() - birthDate.getFullYear();
+  let months = today.getMonth() - birthDate.getMonth();
+  let days = today.getDate() - birthDate.getDate();
 
-    const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (days < 0) {
+    months--;
 
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
+    const previousMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      0
+    );
 
-    return age;
-  };
+    days += previousMonth.getDate();
+  }
+
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  return `${years} Year ${months} Month ${days} Day`;
+};
 
 
   return (

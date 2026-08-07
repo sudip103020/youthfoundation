@@ -92,7 +92,7 @@ const Sidebar = () => {
           </li>
         )}
 
-        {role === "admin" && (
+        {(role === "admin" || role === "account") && (
           <li className="nav-item mb-2">
             <NavLink
               to="/admin/subscription"
@@ -141,7 +141,7 @@ const Sidebar = () => {
           </li>
         )}
 
-        {role === "admin" && (
+        {(role === "admin" || role === "account") && (
           <li className="nav-item mb-2">
             <NavLink
               to="/admin/expense"
