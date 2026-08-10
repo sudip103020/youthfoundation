@@ -173,6 +173,22 @@ const Sidebar = () => {
           </li>
         )}
 
+         {(role === "admin" || role === "editor") && (
+          <li className="nav-item mb-2">
+            <NavLink
+              to="/admin/medical-info"
+              className={({ isActive }) =>
+                `nav-link ${isActive
+                  ? "bg-primary text-white rounded"
+                  : "text-white"
+                }`
+              }
+            >
+              🩺 Medical Info
+            </NavLink>
+          </li>
+        )}
+
         <li className="nav-item mb-2">
           <button
             onClick={handleLogout}

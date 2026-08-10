@@ -103,8 +103,8 @@ const Footer = () => {
               <h5 className="footer-title">Quick Links</h5>
 
               <ul className="footer-links">
-                <li><a href="/about">About Us</a></li>
-                <li><a href="/activities">Activities</a></li>
+                <li><a href="/medical">Blood Bank</a></li>
+                <li><a href="/donors">Donors</a></li>
                 <li><a href="/admin/login">Admin Site</a></li>
 
               </ul>
@@ -114,11 +114,13 @@ const Footer = () => {
             <Col lg={5} md={5}>
               <h5 className="footer-title">Contact Info</h5>
 
-              <p><FaMapMarkerAlt /> Badokhali, Mograhat-9300, Bagerhat</p>
+             
 
               <p><FaPhoneAlt /> +8801738126875, +8801714597343</p>
-
               <p><FaEnvelope /> badokhaliyouthfoundation@gmail.com</p>
+               <p><FaMapMarkerAlt /> Badokhali, Mograhat-9300, Bagerhat</p>
+
+              
 
 
 

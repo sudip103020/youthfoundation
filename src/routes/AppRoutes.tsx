@@ -17,10 +17,9 @@ import DonationPage from "../pages/Donation";
 import Adminactivities from "../admin/AdminActivities";
 import RoleRoute from "../admin/RoleRoute";
 import Feedback from "../pages/Feedback";
-
-
-
-
+import MedicalInfo from "../admin/MedicalInfo";
+import DonorList from "../pages/DonorList";
+import MedicalList from "../pages/MedicalList";
 
 const AppRoutes = () => {
   return (
@@ -35,8 +34,16 @@ const AppRoutes = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/donation" element={<DonationPage />} />
         <Route path="/feedback" element={<Feedback />} />
-        
+        <Route
+  path="/donors"
+  element={<DonorList />}
+/>
 
+<Route
+  path="/medical"
+  element={<MedicalList />}
+/>
+        
 
         {/* Admin Login */}
         <Route path="/admin/login" element={<Login />} />
@@ -121,6 +128,15 @@ const AppRoutes = () => {
           }
         />
 
+
+    <Route
+  path="/admin/medical-info"
+  element={
+    <RoleRoute roles={["admin","editor"]}>
+      <MedicalInfo />
+    </RoleRoute>
+  }
+/>
 
 
 
