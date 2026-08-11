@@ -68,7 +68,7 @@ const DonorList = () => {
       <div className="text-center mb-4">
 
         <h2 className="fw-bold">
-          Our Donors
+          ⭐ Our Donors
         </h2>
 
         <p className="text-muted mb-0">
@@ -179,7 +179,7 @@ const DonorList = () => {
               <div className="d-flex justify-content-between align-items-center">
 
                 <h5 className="mb-0">
-                  🤝 Donor List
+                  List
                 </h5>
 
                 <span className="badge bg-light text-dark">
@@ -322,7 +322,7 @@ const DonorList = () => {
                           {donor.phone ? (
 
                             <span>
-                              📱 {donor.phone}
+                               {donor.phone}
                             </span>
 
                           ) : (

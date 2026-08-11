@@ -88,7 +88,7 @@ const MedicalList = () => {
         <div className="text-center mb-4">
 
           <h2 className="fw-bold">
-            🩸 Medical Information
+            🩸 Blood Information
           </h2>
 
           <p className="text-muted mb-0">
@@ -105,7 +105,7 @@ const MedicalList = () => {
           <div className="col-md-5">
 
             <label className="form-label fw-semibold">
-              🩸 Filter by Blood Group
+              🔎 Serach Blood Group
             </label>
 
             <select
@@ -163,7 +163,7 @@ const MedicalList = () => {
         {/* ================= LOADING ================= */}
 
         {loading && (
-          <div className="text-center py-5">
+          <div className="text-center py-2">
 
             <div
               className="spinner-border text-danger"
@@ -226,7 +226,7 @@ const MedicalList = () => {
                 <div className="d-flex justify-content-between align-items-center">
 
                   <h5 className="mb-0">
-                    🩸 Blood Donor List
+                     List
                   </h5>
 
                   <span className="badge bg-light text-dark">
@@ -360,7 +360,7 @@ const MedicalList = () => {
                             {member.phone ? (
 
                               <span>
-                                📱{" "}
+                                {" "}
                                 {member.phone}
                               </span>
 

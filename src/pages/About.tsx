@@ -37,60 +37,60 @@ export default function About() {
 
       // শুধু Active member দেখাবে
 
-// শুধু Active member দেখাবে
-const activeMembers = data.filter(
-  (member) =>
-    !member.status ||
-    member.status.toLowerCase() === "active"
-);
+      // শুধু Active member দেখাবে
+      const activeMembers = data.filter(
+        (member) =>
+          !member.status ||
+          member.status.toLowerCase() === "active"
+      );
 
-// ======================================
-// DESIGNATION অনুযায়ী SORT
-// ======================================
+      // ======================================
+      // DESIGNATION অনুযায়ী SORT
+      // ======================================
 
-const designationOrder = [
-  "President",
-  "Vice President",
-  "General Secretary",
-  "Joint Secretary",
-  "Treasurer",
-  "Legal Secretary",
-  "Health Secretary",
-  "Organizing Secretary",
-  "Social Service Secretary",
-  "Education and Literature Secretary",
-  "Cultural Secretary",
-  "Information and Technology Secretary",
-  "Office Secretary",
-  "Sports Secretary",
-  "Publicity and Publication Secretary",
-];
+      const designationOrder = [
+        "President",
+        "Vice President",
+        "General Secretary",
+        "Joint Secretary",
+        "Treasurer",
+        "Legal Secretary",
+        "Health Secretary",
+        "Organizing Secretary",
+        "Social Service Secretary",
+        "Education and Literature Secretary",
+        "Cultural Secretary",
+        "Information and Technology Secretary",
+        "Office Secretary",
+        "Sports Secretary",
+        "Publicity and Publication Secretary",
+      ];
 
-activeMembers.sort((a, b) => {
-  const indexA = designationOrder.findIndex(
-    (designation) =>
-      designation.toLowerCase() ===
-      (a.designation || "").toLowerCase()
-  );
+      activeMembers.sort((a, b) => {
+        const indexA = designationOrder.findIndex(
+          (designation) =>
+            designation.toLowerCase() ===
+            (a.designation || "").toLowerCase()
+        );
 
-  const indexB = designationOrder.findIndex(
-    (designation) =>
-      designation.toLowerCase() ===
-      (b.designation || "").toLowerCase()
-  );
+        const indexB = designationOrder.findIndex(
+          (designation) =>
+            designation.toLowerCase() ===
+            (b.designation || "").toLowerCase()
+        );
 
-  // যাদের designation list-এ নেই
-  // তাদের শেষে দেখাবে
-  const orderA =
-    indexA === -1 ? 999 : indexA;
+        // যাদের designation list-এ নেই
+        // তাদের শেষে দেখাবে
+        const orderA =
+          indexA === -1 ? 999 : indexA;
 
-  const orderB =
-    indexB === -1 ? 999 : indexB;
+        const orderB =
+          indexB === -1 ? 999 : indexB;
 
-  return orderA - orderB;
-});
+        return orderA - orderB;
+      });
 
-setMembers(activeMembers);
+      setMembers(activeMembers);
 
 
 
@@ -116,12 +116,10 @@ setMembers(activeMembers);
               HEADER
           =============================== */}
           <div className="text-center mb-5">
-            <h1 className="fw-bold">
-              Executive{" "}
-              <span className="text-success">
-                Committee
-              </span>
-            </h1>
+            <h2 className="fw-bold">
+             👥 Executive  Committee
+              
+            </h2>
 
             <p className="text-muted">
               Meet the dedicated members of

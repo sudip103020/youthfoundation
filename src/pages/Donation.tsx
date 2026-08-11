@@ -23,7 +23,7 @@ const Donation = () => {
 
 
           <h2 className="fw-bold mt-3">
-            ❤️ Support Our Foundation 
+            🪙 Support Our Foundation 
           </h2>
 
           <p>
@@ -225,11 +225,6 @@ const Donation = () => {
             </h4>
 
 
-            <p>
-              আপনার সহযোগিতা আমাদের শিক্ষা, স্বাস্থ্য,
-              যুব উন্নয়ন ও মানবিক কার্যক্রম পরিচালনায়
-              সাহায্য করবে।
-            </p>
 
 
             <Button

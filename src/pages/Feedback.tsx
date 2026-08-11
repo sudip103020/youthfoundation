@@ -47,27 +47,14 @@ const Feedback = () => {
         <Container style={{ maxWidth: "850px" }}>
           {/* Heading */}
           <div className="text-center mb-2">
-            <div
-              className="mx-auto mb-3 d-flex align-items-center justify-content-center"
-              style={{
-                width: "65px",
-                height: "65px",
-                borderRadius: "50%",
-                background: "#198754",
-                color: "#fff",
-                fontSize: "28px",
-                boxShadow: "0 8px 25px rgba(25,135,84,.25)",
-              }}
-            >
-              💬
-            </div>
+            
 
             <h1 className="fw-bold text-dark mb-2">
-              Share Your Feedback
+               💬 Share Your Feedback
             </h1>
 
             <p className="text-muted mb-0">
-              আপনার মতামত আমাদের আরও ভালোভাবে কাজ করতে সাহায্য করবে।
+             Your feedback will help us work better.
             </p>
           </div>
 

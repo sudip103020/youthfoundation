@@ -82,7 +82,7 @@ const Activities = () => {
 
       <div className="text-center">
         <h2 className="fw-bold mt-3">
-          🤝 Our Activities
+          📋 Our Activities
         </h2>
 
         <p>
