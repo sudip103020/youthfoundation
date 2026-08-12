@@ -343,11 +343,15 @@ const DonorList = () => {
                           "Cash" ? (
 
                             <span
-                              className="fw-bold text-success"
-                              style={{
-                                fontSize: "17px",
-                              }}
-                            >
+  className="badge"
+  style={{
+    fontSize: "15px",
+    padding: "8px 12px",
+    backgroundColor: "#e7f1ff",
+    color: "#0d6efd",
+    border: "1px solid #b6d4fe",
+  }}
+>
                               ৳{" "}
                               {donor.amount ||
                                 "0"}

@@ -19,7 +19,7 @@ const Hero = () => {
                 lineHeight: "1.6",
               }}
               >
-                <span className="text-success">Badokhali Youth Foundation</span> is a voluntary, non-profit organization committed to building a better society through education, healthcare, humanitarian aid, environment, and youth empowerment.
+                <span className="text-success">Badokhali Youth Foundation</span> is a voluntary, non-profit organization committed to building a better society through education, healthcare, humanitarian aid, environment and youth empowerment.
               </p>
             </div>
 

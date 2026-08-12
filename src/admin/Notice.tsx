@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import AdminLayout from "./AdminLayout";
 import { db } from "../firebase/firebase";
 
@@ -154,7 +154,7 @@ const Notice = () => {
   const filteredNotices = notices.filter((item) => {
     return (
       item.title.toLowerCase().includes(search.toLowerCase()) &&
-    
+
       (filterStatus === "" || item.status === filterStatus)
     );
   });
@@ -185,11 +185,40 @@ const Notice = () => {
                   placeholder="Notice Title"
                 />
 
-                <textarea
-                  className="form-control mb-3"
-                  rows={4}
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
+                <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  dangerouslySetInnerHTML={{
+                    __html: editDescription,
+                  }}
+                  onInput={(e) => {
+                    setEditDescription(e.currentTarget.innerHTML);
+                  }}
+                  onPaste={(e) => {
+                    e.preventDefault();
+
+                    const html = e.clipboardData.getData("text/html");
+                    const text = e.clipboardData.getData("text/plain");
+
+                    if (html) {
+                      document.execCommand("insertHTML", false, html);
+                    } else {
+                      document.execCommand("insertText", false, text);
+                    }
+
+                    setTimeout(() => {
+                      setEditDescription(e.currentTarget.innerHTML);
+                    }, 0);
+                  }}
+                  style={{
+                    minHeight: "250px",
+                    border: "1px solid #ced4da",
+                    borderRadius: "6px",
+                    padding: "12px",
+                    background: "#fff",
+                    outline: "none",
+                    overflowY: "auto",
+                  }}
                 />
 
                 <input
@@ -303,15 +332,12 @@ const Notice = () => {
                         <strong>সারক নং:</strong> {selectedNotice.priority}
                       </p>
 
-                      <div
-                        style={{
-                          whiteSpace: "pre-wrap",
-                          fontSize: "14px",
-                          lineHeight: "1.8",
-                        }}
-                      >
-                        {selectedNotice.description}
-                      </div>
+                     <div
+  className="notice-content"
+  dangerouslySetInnerHTML={{
+    __html: selectedNotice.description,
+  }}
+/>
                     </>
                   )}
 
@@ -331,7 +357,7 @@ const Notice = () => {
                       <br />
                       <br />
                       <br />
-                                স্বাক্ষরিত    
+                      স্বাক্ষরিত
                       <br />
                       <strong>সুদীপ কুমার হালদার</strong>
                       <br />
@@ -394,7 +420,7 @@ const Notice = () => {
                 type="text"
                 className="form-control"
                 placeholder="Enter Sarok No"
-                
+
                 onChange={(e) => setPriority(e.target.value)}
               />
             </div>
@@ -402,12 +428,38 @@ const Notice = () => {
             <div className="col-12 mb-3">
               <label>Description</label>
 
-              <textarea
-                className="form-control"
-                rows={4}
-                placeholder="Write Notice..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+              <div
+                contentEditable
+                suppressContentEditableWarning
+                onInput={(e) => {
+                  setDescription(e.currentTarget.innerHTML);
+                }}
+                onPaste={(e) => {
+                  // Word/Google Docs থেকে HTML paste করার জন্য
+                  e.preventDefault();
+
+                  const html = e.clipboardData.getData("text/html");
+                  const text = e.clipboardData.getData("text/plain");
+
+                  if (html) {
+                    document.execCommand("insertHTML", false, html);
+                  } else {
+                    document.execCommand("insertText", false, text);
+                  }
+
+                  setTimeout(() => {
+                    setDescription(e.currentTarget.innerHTML);
+                  }, 0);
+                }}
+                style={{
+                  minHeight: "250px",
+                  border: "1px solid #ced4da",
+                  borderRadius: "6px",
+                  padding: "12px",
+                  background: "#fff",
+                  outline: "none",
+                  overflowY: "auto",
+                }}
               />
             </div>
 
@@ -503,13 +555,12 @@ const Notice = () => {
 
                       <td>
                         <span
-                          className={`badge ${
-                            item.priority === "Urgent"
+                          className={`badge ${item.priority === "Urgent"
                               ? "bg-danger"
                               : item.priority === "Important"
                                 ? "bg-warning text-dark"
                                 : "bg-primary"
-                          }`}
+                            }`}
                         >
                           {item.priority}
                         </span>
@@ -517,17 +568,16 @@ const Notice = () => {
 
                       <td>
                         <span
-                          className={`badge ${
-                            item.status === "Published"
+                          className={`badge ${item.status === "Published"
                               ? "bg-success"
                               : "bg-secondary"
-                          }`}
+                            }`}
                         >
                           {item.status}
                         </span>
                       </td>
 
-                     
+
 
                       <td>
                         <button

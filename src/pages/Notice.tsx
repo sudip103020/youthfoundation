@@ -5,7 +5,7 @@ import {
   Container,
   Row,
   Col,
-  Card,
+
   Button,
   Form,
   Modal,
@@ -31,7 +31,7 @@ interface Notice {
 }
 
 const Notice = () => {
-    const reportRef = useRef<HTMLDivElement>(null);
+  const reportRef = useRef<HTMLDivElement>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [search, setSearch] = useState("");
 
@@ -63,9 +63,11 @@ const Notice = () => {
     if (!reportRef.current) return;
 
     const canvas = await html2canvas(reportRef.current, {
-      scale: 3,
+      scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
+      width: 794,
+      windowWidth: 794,
     });
 
     const image = canvas.toDataURL("image/png");
@@ -97,7 +99,7 @@ const Notice = () => {
 
           <h2 className="fw-bold mt-3">📢 Notice Board</h2>
 
-          
+
         </div>
 
         {/* Search */}
@@ -115,78 +117,203 @@ const Notice = () => {
 
         {/* Notice List */}
 
-        <Row>
-          {filteredNotices.length === 0 ? (
-            <div className="text-center">
-              <h5>No Notice Found</h5>
-            </div>
-          ) : (
-            filteredNotices.map((item) => (
-              <Col md={6} lg={4} className="mb-4" key={item.id}>
-                <Card className="shadow-sm h-100">
-                  <Card.Body>
-                    <div className="d-flex justify-content-between">
-                      <h5 className="fw-bold">📌 {item.title}</h5>
+        {/* ================= NOTICE LIST ================= */}
+
+        <Row className="justify-content-center">
+          <Col lg={10}>
+
+            <div
+              className="border rounded shadow-sm bg-white overflow-hidden"
+            >
+
+              {/* List Header */}
+
+              <div className="bg-dark text-white px-4 py-3">
+                <div className="row align-items-center">
+
+                  <div className="col-md-2 fw-semibold">
+                    তারিখ
+                  </div>
+
+                  <div className="col-md-5 fw-semibold">
+                    শিরোনাম
+                  </div>
+
+                  <div className="col-md-2 text-center fw-semibold">
+                    স্মারক নং
+                  </div>
+
+
+
+                </div>
+              </div>
+
+
+              {/* Notice Items */}
+
+              {filteredNotices.map((item) => (
+
+                <div
+                  key={item.id}
+                  className="px-4 py-3 border-bottom"
+                  style={{
+                    transition: "background 0.2s",
+                  }}
+                >
+
+                  <div className="row align-items-center">
+
+                    {/* Date */}
+
+                    <div className="col-md-2 mb-2 mb-md-0">
+
+                      <div className="d-flex align-items-center">
+
+
+
+                        <div>
+
+
+                          <div
+                            style={{
+
+                              fontSize: "12px",
+                            }}>
+                            {item.publishDate}
+                          </div>
+                        </div>
+
+                      </div>
+
                     </div>
 
-                    <p className="text-muted">📅 {item.publishDate}</p>
 
-                    <span
-                      className={`badge ${
-                        item.priority === "Urgent"
+                    {/* Notice */}
+
+                    <div className="col-md-5 mb-2 mb-md-0">
+
+                      <div className="d-flex">
+
+                        <span
+                          className="me-2"
+                          style={{
+                            fontSize: "18px",
+                          }}
+                        >
+                          📌
+                        </span>
+
+                        <div>
+
+                          <div className="fw-bold">
+                            {item.title}
+                          </div>
+
+
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+
+                    {/* Priority */}
+
+                    <div className="col-md-2 text-md-center mb-2 mb-md-0">
+
+                      <span
+                        className={`badge ${item.priority === "Urgent"
                           ? "bg-danger"
                           : item.priority === "Important"
                             ? "bg-warning text-dark"
                             : "bg-primary"
-                      }`}
-                    >
-                      {item.priority}
-                    </span>
+                          }`}
+                        style={{
+                          padding: "7px 12px",
+                          fontSize: "12px",
+                        }}
+                      >
+                        {item.priority}
+                      </span>
 
-                    <p className="mt-3">
-                      {item.description.length > 120
-                        ? item.description.substring(0, 50) + "..."
-                        : item.description}
-                    </p>
+                    </div>
 
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={() => handleView(item)}
-                    >
-                      👁 Read Details
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))
-          )}
+
+                    {/* Action */}
+
+                    <div className="col-md-3 text-md-end">
+
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={() => handleView(item)}
+                      >
+                        👁 Read Details
+                      </Button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          </Col>
         </Row>
       </Container>
       {/* Notice Details Modal */}
 
+      {/* ================= NOTICE DETAILS MODAL ================= */}
+
       <Modal
         show={showModal}
         onHide={() => setShowModal(false)}
-        size="sm"
+        size="lg"
         centered
       >
         <Modal.Header closeButton>
-          <Modal.Title>📢 Notice Details</Modal.Title>
+          <Modal.Title>
+            📢 Notice Details
+          </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body className="bg-light">
+        <Modal.Body
+          className="bg-secondary-subtle p-3"
+          style={{
+            overflowX: "auto",
+          }}
+        >
+
           {selectedNotice && (
+
             <div
               ref={reportRef}
               style={{
+               
                 position: "relative",
+                width: "794px",
+                minHeight: "1123px",
+                margin: "0 auto",
+                backgroundColor: "#ffffff",
+                padding: "42px 55px 40px",
+                boxSizing: "border-box",
                 overflow: "hidden",
-                background: "#fff",
-                padding: "20px",
+
+                fontFamily:
+                  "'Noto Serif Bengali', 'Noto Sans Bengali', sans-serif",
+
+                color: "#222",
               }}
             >
-              {/* Watermark */}
+
+              {/* ================================================= */}
+              {/* WATERMARK */}
+              {/* ================================================= */}
+
               <img
                 src="/logo.png"
                 alt="Watermark"
@@ -194,108 +321,346 @@ const Notice = () => {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  width: "320px",
-                  opacity: 0.06,
+
+                  transform:
+                    "translate(-50%, -50%)",
+
+                  width: "450px",
+
+                  opacity: 0.045,
+
                   zIndex: 0,
+
+                  pointerEvents: "none",
                 }}
               />
 
-              <div className="position-relative" style={{ zIndex: 1 }}>
-                {/* Header */}
 
-                <div className="text-center">
-                  <img src="/logo.png" alt="Logo" width="90" className="mb-2" />
+              {/* ================================================= */}
+              {/* MAIN CONTENT */}
+              {/* ================================================= */}
 
-                  <h2 className="fw-bold text-primary mb-1">
-                    বাদোখালী ইয়ুথ ফাউন্ডেশন
-                  </h2>
+              <div
+                style={{
+                   fontFamily: "'Noto Serif Bengali', serif",
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              >
 
-                  <p className="mb-1">বাদোখালী, মগরাহাট, বাগেরহাট</p>
 
-                  <small className="text-muted">
-                    "তরুণদের স্পন্দন, সেবার বন্ধন"
-                  </small>
-                </div>
-
-                <hr className="my-4" />
-
-                {/* Notice Heading */}
-
-                <div className="text-center py-2 mb-4 rounded">
-                  <h4 className="mb-0 fw-bold"> {selectedNotice.title}</h4>
-                </div>
-
-                {/* Info */}
-
-                <div className="row mb-4">
-                  <div className="col-6">
-                    <strong>তারিখ : {selectedNotice.publishDate}</strong>
-                    <br />
-                  </div>
-
-                  <div className="col-6 text-end">
-                    <strong>স্মারক নং : {selectedNotice.priority}</strong>
-                    <br />
-                  </div>
-                </div>
-
-                {/* Notice */}
+                {/* ================================================= */}
+                {/* ORGANIZATION HEADER */}
+                {/* ================================================= */}
 
                 <div
-                  className="border rounded p-4 mt-3"
+                  className="text-center"
                   style={{
-                    minHeight: "200px",
-                    whiteSpace: "pre-wrap",
-                    lineHeight: "15px",
-                    fontSize: "15px",
+                    marginBottom: "10px",
                   }}
                 >
-                  {selectedNotice.description}
-                </div>
 
-                {/* Footer */}
+                  <img
+                    src="/logo.png"
+                    alt="Badhokhali Youth Foundation"
+                    width="82"
+                    height="82"
+                    style={{
+                      objectFit: "contain",
+                      marginBottom: "7px",
+                    }}
+                  />
 
-                <div className="row mt-5 align-items-end">
-                  <div className="col-6">
-                    <img src="/roundseal.png" alt="Seal" width="130" />
+                  <h1
+                    style={{
+                       fontFamily: "'Noto Serif Bengali', serif",
+                      margin: "0",
+                      fontSize: "31px",
+                      fontWeight: "700",
+                      color: "#1464d2",
+                      lineHeight: "1.2",
+                    }}
+                  >
+                    বাদোখালী ইয়ুথ ফাউন্ডেশন
+                  </h1>
+
+
+                  <div
+                    style={{
+                       fontFamily: "'Noto Serif Bengali', serif",
+                      fontSize: "16px",
+                      marginTop: "6px",
+                    }}
+                  >
+                    বাদোখালী, মগরাহাট, বাগেরহাট
                   </div>
 
-                  <div className="col-6 text-end">
-                    <div
+
+                  
+
+                </div>
+
+
+                {/* ================================================= */}
+                {/* HEADER LINE */}
+                {/* ================================================= */}
+
+                <div
+                  style={{
+                    borderTop: "2px solid #1464d2",
+                    marginTop: "16px",
+                    marginBottom: "25px",
+                  }}
+                />
+
+
+                {/* ================================================= */}
+                {/* NOTICE TITLE */}
+                {/* ================================================= */}
+
+                <div
+                  className="text-center"
+                  style={{
+                    marginBottom: "27px",
+                  }}
+                >
+
+                  <h2
+                    style={{
+                       fontFamily: "'Noto Serif Bengali', serif",
+                      margin: "0",
+                      fontSize: "28px",
+                      fontWeight: "700",
+                      lineHeight: "1.3",
+                      color: "#222",
+                    }}
+                  >
+                    {selectedNotice.title}
+                  </h2>
+
+
+
+
+                </div>
+
+
+                {/* ================================================= */}
+                {/* DATE + MEMO */}
+                {/* ================================================= */}
+
+                <div
+                  style={{
+                     fontFamily: "'Noto Serif Bengali', serif",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    fontSize: "15px",
+                    marginBottom: "28px",
+                  }}
+                >
+
+                  {/* DATE */}
+
+                  <div
+                    style={{
+                      width: "48%",
+                    }}
+                  >
+
+                    <strong>
+                      তারিখ :
+                    </strong>
+
+                    <span
                       style={{
-                        display: "inline-block",
-                        paddingTop: "6px",
-                        minWidth: "180px",
+                         fontFamily: "'Noto Serif Bengali', serif",
+                        marginLeft: "8px",
                       }}
                     >
-                      <strong> স্বাক্ষরিত</strong>
-                      <br />
-                      <strong>সুদীপ কুমার হালদার</strong>
-                      <br />
-                      সভাপতি
-                      <br />
-                      বাদোখালী ইয়ুথ ফাউন্ডেশন
-                    </div>
+                      {selectedNotice.publishDate}
+                    </span>
+
                   </div>
+
+
+                  {/* MEMO */}
+
+                  <div
+                    style={{
+                       fontFamily: "'Noto Serif Bengali', serif",
+                      width: "48%",
+                      textAlign: "right",
+                    }}
+                  >
+
+                    <strong>
+                      স্মারক নং :
+                    </strong>
+
+                    <span
+                      style={{
+                         fontFamily: "'Noto Serif Bengali', serif",
+                        marginLeft: "8px",
+                      }}
+                    >
+                      {selectedNotice.priority}
+                    </span>
+
+                  </div>
+
                 </div>
+
+
+                {/* ================================================= */}
+                {/* NOTICE CONTENT */}
+                {/* ================================================= */}
+
+                <div
+                  className="notice-html-content"
+                  style={{
+                     fontFamily: "'Noto Serif Bengali', serif",
+                    fontSize: "17px",
+                    lineHeight: "1.75",
+                    color: "#222",
+                    padding: "0 8px",
+                    minHeight: "350px",
+                    textAlign: "justify",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: selectedNotice.description,
+                  }}
+                />
+
+
+                {/* ================================================= */}
+                {/* FOOTER */}
+                {/* ================================================= */}
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-end",
+
+                    marginTop: "60px",
+                  }}
+                >
+
+
+                  {/* ================= SEAL ================= */}
+
+                  <div
+                    style={{
+                      width: "50%",
+                    }}
+                  >
+
+                    <img
+                      src="/roundseal.png"
+                      alt="Official Seal"
+                      width="115"
+                      height="115"
+                      style={{
+                        objectFit: "contain",
+                      }}
+                    />
+
+                  </div>
+
+
+                  {/* ================= SIGNATURE ================= */}
+
+                  <div
+                    style={{
+                       fontFamily: "'Noto Serif Bengali', serif",
+                      width: "50%",
+                      textAlign: "center",
+                      fontSize: "14px",
+                      lineHeight: "1.5",
+                    }}
+                  >
+
+
+                    <strong>
+                      স্বাক্ষরিত
+                    </strong>
+                    <br />
+                    <strong>
+                      সুদীপ কুমার হালদার
+                    </strong>
+
+                    <br />
+
+                    সভাপতি
+
+                    <br />
+
+                    বাদোখালী ইয়ুথ ফাউন্ডেশন
+
+                  </div>
+
+                </div>
+
+
+                {/* ================================================= */}
+                {/* PAD FOOTER */}
+                {/* ================================================= */}
+
+                <div
+                  style={{
+                    borderTop:
+                      "1px solid #d5d5d5",
+
+                    marginTop: "35px",
+
+                    paddingTop: "8px",
+
+                    textAlign: "center",
+
+                    fontSize: "10px",
+
+                    color: "#888",
+                  }}
+                >
+
+                  “This is an electronically generated notice. No signature is required.”
+
+                </div>
+
+
               </div>
+
             </div>
+
           )}
+
         </Modal.Body>
 
-        <Modal.Footer>
-         
-            <Button variant="success" onClick={downloadNotice}>
-              📥 Download Image
-            </Button>
 
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Close
-            </Button>
-          </Modal.Footer>
-          
-        
+        {/* ================================================= */}
+        {/* MODAL FOOTER */}
+        {/* ================================================= */}
+
+        <Modal.Footer>
+
+          <Button
+            variant="success"
+            onClick={downloadNotice}
+          >
+            📥 Download Notice
+          </Button>
+
+          <Button
+            variant="secondary"
+            onClick={() =>
+              setShowModal(false)
+            }
+          >
+            Close
+          </Button>
+
+        </Modal.Footer>
+
       </Modal>
 
       <Footer />
