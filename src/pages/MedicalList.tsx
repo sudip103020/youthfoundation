@@ -387,17 +387,17 @@ const MedicalList = () => {
                             {member.bloodGroup ? (
 
                               <span
-  className="badge"
-  style={{
-    fontSize: "15px",
-    padding: "8px 12px",
-    backgroundColor: "#e7f1ff",
-    color: "#0d6efd",
-    border: "1px solid #b6d4fe",
-  }}
->
-  🩸 {member.bloodGroup}
-</span>
+                                className="badge"
+                                style={{
+                                  fontSize: "15px",
+                                  padding: "8px 12px",
+                                  backgroundColor: "#e7f1ff",
+                                  color: "#0d6efd",
+                                  border: "1px solid #b6d4fe",
+                                }}
+                              >
+                                🩸 {member.bloodGroup}
+                              </span>
 
                             ) : (
 
@@ -438,11 +438,10 @@ const MedicalList = () => {
                   {/* Previous */}
 
                   <li
-                    className={`page-item ${
-                      currentPage === 1
+                    className={`page-item ${currentPage === 1
                         ? "disabled"
                         : ""
-                    }`}
+                      }`}
                   >
 
                     <button
@@ -470,11 +469,10 @@ const MedicalList = () => {
 
                     <li
                       key={page}
-                      className={`page-item ${
-                        currentPage === page
+                      className={`page-item ${currentPage === page
                           ? "active"
                           : ""
-                      }`}
+                        }`}
                     >
 
                       <button
@@ -493,11 +491,10 @@ const MedicalList = () => {
                   {/* Next */}
 
                   <li
-                    className={`page-item ${
-                      currentPage === totalPages
+                    className={`page-item ${currentPage === totalPages
                         ? "disabled"
                         : ""
-                    }`}
+                      }`}
                   >
 
                     <button

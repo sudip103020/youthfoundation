@@ -275,6 +275,8 @@ const Notice = () => {
         size="lg"
         centered
       >
+
+
         <Modal.Header closeButton>
           <Modal.Title>
             📢 Notice Details
@@ -293,7 +295,7 @@ const Notice = () => {
             <div
               ref={reportRef}
               style={{
-               
+
                 position: "relative",
                 width: "794px",
                 minHeight: "1123px",
@@ -342,12 +344,30 @@ const Notice = () => {
 
               <div
                 style={{
-                   fontFamily: "'Noto Serif Bengali', serif",
+                  fontFamily: "'Noto Serif Bengali', serif",
                   position: "relative",
                   zIndex: 1,
                 }}
               >
+                {/* ================================================= */}
+                {/* TOP RIGHT SLOGAN */}
+                {/* ================================================= */}
 
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "-6px",
+                    right: "0px",
+                    fontFamily: "'Noto Serif Bengali', serif",
+                    fontSize: "13px",
+                    fontWeight: "600",
+                    color: "#01050b",
+                    textAlign: "right",
+                    zIndex: 2,
+                  }}
+                >
+                  তারুণ্যের স্পন্দন, সেবার বন্ধন
+                </div>
 
                 {/* ================================================= */}
                 {/* ORGANIZATION HEADER */}
@@ -373,7 +393,7 @@ const Notice = () => {
 
                   <h1
                     style={{
-                       fontFamily: "'Noto Serif Bengali', serif",
+                      fontFamily: "'Noto Serif Bengali', serif",
                       margin: "0",
                       fontSize: "31px",
                       fontWeight: "700",
@@ -387,7 +407,7 @@ const Notice = () => {
 
                   <div
                     style={{
-                       fontFamily: "'Noto Serif Bengali', serif",
+                      fontFamily: "'Noto Serif Bengali', serif",
                       fontSize: "16px",
                       marginTop: "6px",
                     }}
@@ -396,7 +416,7 @@ const Notice = () => {
                   </div>
 
 
-                  
+
 
                 </div>
 
@@ -427,7 +447,7 @@ const Notice = () => {
 
                   <h2
                     style={{
-                       fontFamily: "'Noto Serif Bengali', serif",
+                      fontFamily: "'Noto Serif Bengali', serif",
                       margin: "0",
                       fontSize: "28px",
                       fontWeight: "700",
@@ -450,7 +470,7 @@ const Notice = () => {
 
                 <div
                   style={{
-                     fontFamily: "'Noto Serif Bengali', serif",
+                    fontFamily: "'Noto Serif Bengali', serif",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "flex-start",
@@ -473,7 +493,7 @@ const Notice = () => {
 
                     <span
                       style={{
-                         fontFamily: "'Noto Serif Bengali', serif",
+                        fontFamily: "'Noto Serif Bengali', serif",
                         marginLeft: "8px",
                       }}
                     >
@@ -487,7 +507,7 @@ const Notice = () => {
 
                   <div
                     style={{
-                       fontFamily: "'Noto Serif Bengali', serif",
+                      fontFamily: "'Noto Serif Bengali', serif",
                       width: "48%",
                       textAlign: "right",
                     }}
@@ -499,7 +519,7 @@ const Notice = () => {
 
                     <span
                       style={{
-                         fontFamily: "'Noto Serif Bengali', serif",
+                        fontFamily: "'Noto Serif Bengali', serif",
                         marginLeft: "8px",
                       }}
                     >
@@ -518,7 +538,7 @@ const Notice = () => {
                 <div
                   className="notice-html-content"
                   style={{
-                     fontFamily: "'Noto Serif Bengali', serif",
+                    fontFamily: "'Noto Serif Bengali', serif",
                     fontSize: "17px",
                     lineHeight: "1.75",
                     color: "#222",
@@ -572,7 +592,7 @@ const Notice = () => {
 
                   <div
                     style={{
-                       fontFamily: "'Noto Serif Bengali', serif",
+                      fontFamily: "'Noto Serif Bengali', serif",
                       width: "50%",
                       textAlign: "center",
                       fontSize: "14px",
@@ -600,6 +620,13 @@ const Notice = () => {
                   </div>
 
                 </div>
+
+
+                {/* ================================================= */}
+{/* CONTACT FOOTER */}
+{/* ================================================= */}
+
+
 
 
                 {/* ================================================= */}
