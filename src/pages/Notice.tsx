@@ -10,8 +10,7 @@ import {
   Form,
   Modal,
 } from "react-bootstrap";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+
 import { db } from "../firebase/firebase";
 
 
@@ -92,7 +91,7 @@ const Notice = () => {
   };
   return (
     <>
-      <Navbar />
+      
 
       <Container className="py-2">
         <div className="text-center mb-5">
@@ -690,7 +689,7 @@ const Notice = () => {
 
       </Modal>
 
-      <Footer />
+     
     </>
   );
 };

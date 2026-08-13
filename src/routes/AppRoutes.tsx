@@ -20,6 +20,7 @@ import Feedback from "../pages/Feedback";
 import MedicalInfo from "../admin/MedicalInfo";
 import DonorList from "../pages/DonorList";
 import MedicalList from "../pages/MedicalList";
+import MainLayout from "../layouts/MainLayout";
 
 const AppRoutes = () => {
   return (
@@ -27,26 +28,23 @@ const AppRoutes = () => {
       <Routes>
 
         {/* Website */}
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/activities" element={<Activities />} />
-        <Route path="/notice" element={<NoticePage />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/donation" element={<DonationPage />} />
-        <Route path="/feedback" element={<Feedback />} />
-        <Route
-  path="/donors"
-  element={<DonorList />}
-/>
+        {/* Website */}
+<Route element={<MainLayout />}>
+  <Route path="/" element={<Home />} />
+  <Route path="/about" element={<About />} />
+  <Route path="/activities" element={<Activities />} />
+  <Route path="/notice" element={<NoticePage />} />
+  <Route path="/contact" element={<Contact />} />
+  <Route path="/donation" element={<DonationPage />} />
+  <Route path="/feedback" element={<Feedback />} />
+  <Route path="/donors" element={<DonorList />} />
+  <Route path="/medical" element={<MedicalList />} />
+  <Route path="/admin/login" element={<Login />} />
+</Route>
 
-<Route
-  path="/medical"
-  element={<MedicalList />}
-/>
-        
 
         {/* Admin Login */}
-        <Route path="/admin/login" element={<Login />} />
+        
 
 
         {/* Protected Admin */}
@@ -81,7 +79,7 @@ const AppRoutes = () => {
           path="/admin/subscription"
           element={
             <ProtectedRoute>
-              <RoleRoute roles={["admin","account"]}>
+              <RoleRoute roles={["admin", "account"]}>
                 <Subscription />
               </RoleRoute>
             </ProtectedRoute>
@@ -103,7 +101,7 @@ const AppRoutes = () => {
           path="/admin/expense"
           element={
             <ProtectedRoute>
-              <RoleRoute roles={["admin","account"]}>
+              <RoleRoute roles={["admin", "account"]}>
                 <Expense />
               </RoleRoute>
             </ProtectedRoute>
@@ -129,14 +127,14 @@ const AppRoutes = () => {
         />
 
 
-    <Route
-  path="/admin/medical-info"
-  element={
-    <RoleRoute roles={["admin","editor"]}>
-      <MedicalInfo />
-    </RoleRoute>
-  }
-/>
+        <Route
+          path="/admin/medical-info"
+          element={
+            <RoleRoute roles={["admin", "editor"]}>
+              <MedicalInfo />
+            </RoleRoute>
+          }
+        />
 
 
 

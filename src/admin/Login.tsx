@@ -6,8 +6,6 @@ import { doc, getDoc } from "firebase/firestore";
 
 
 
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 
 const Login = () => {
 
@@ -22,41 +20,41 @@ const Login = () => {
     e.preventDefault();
 
     try {
-  const result = await signInWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
+      const result = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-  const user = result.user;
+      const user = result.user;
 
-  // Firestore থেকে user data আনো
-  const userRef = doc(db, "users", user.uid);
-  const userSnap = await getDoc(userRef);
+      // Firestore থেকে user data আনো
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
 
-  if (!userSnap.exists()) {
-    alert("এই ইউজারের কোনো Role পাওয়া যায়নি।");
-    return;
-  }
+      if (!userSnap.exists()) {
+        alert("এই ইউজারের কোনো Role পাওয়া যায়নি।");
+        return;
+      }
 
-  const userData = userSnap.data();
+      const userData = userSnap.data();
 
-  localStorage.setItem(
-    "user",
-    JSON.stringify({
-      uid: user.uid,
-      email: user.email,
-      name: userData.name,
-      role: userData.role,
-    })
-  );
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          name: userData.name,
+          role: userData.role,
+        })
+      );
 
-  navigate("/admin/dashboard");
+      navigate("/admin/dashboard");
 
-} catch (err) {
-  alert("ইমেইল অথবা পাসওয়ার্ড ভুল।");
-  console.error(err);
-}
+    } catch (err) {
+      alert("ইমেইল অথবা পাসওয়ার্ড ভুল।");
+      console.error(err);
+    }
 
   };
 
@@ -66,14 +64,14 @@ const Login = () => {
 
     <>
 
-      <Navbar />
+   
 
 
       <div
         className="d-flex align-items-center justify-content-center"
         style={{
-          minHeight:"75vh",
-          background:"#f8f9fa"
+          minHeight: "75vh",
+          background: "#f8f9fa"
         }}
       >
 
@@ -81,8 +79,8 @@ const Login = () => {
         <div
           className="card shadow-lg border-0"
           style={{
-            width:"400px",
-            borderRadius:"20px"
+            width: "400px",
+            borderRadius: "20px"
           }}
         >
 
@@ -136,7 +134,7 @@ const Login = () => {
 
                   value={email}
 
-                  onChange={(e)=>
+                  onChange={(e) =>
                     setEmail(e.target.value)
                   }
 
@@ -168,7 +166,7 @@ const Login = () => {
 
                   value={password}
 
-                  onChange={(e)=>
+                  onChange={(e) =>
                     setPassword(e.target.value)
                   }
 
@@ -186,7 +184,7 @@ const Login = () => {
               <button
                 className="btn btn-success w-100 py-2"
                 style={{
-                  borderRadius:"10px"
+                  borderRadius: "10px"
                 }}
               >
 
@@ -211,7 +209,7 @@ const Login = () => {
 
 
 
-      <Footer />
+     
 
 
     </>

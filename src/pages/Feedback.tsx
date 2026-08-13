@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { Container, Form, Button} from "react-bootstrap";
-import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
+
 import emailjs from "@emailjs/browser";
 
 const Feedback = () => {
@@ -31,8 +30,7 @@ const Feedback = () => {
 
   return (
     <>
-      {/* ================= HEADER ================= */}
-    <Navbar />
+    
        
 
       {/* ================= FEEDBACK SECTION ================= */}
@@ -175,7 +173,7 @@ const Feedback = () => {
       </section>
 
       {/* ================= FOOTER ================= */}
-     <Footer />
+   
     </>
   );
 };

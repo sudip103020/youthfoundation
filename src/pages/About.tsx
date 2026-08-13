@@ -1,7 +1,6 @@
-
 import { useEffect, useState } from "react";
-import Header from "../components/Navbar";
-import Footer from "../components/Footer";
+
+
 import { Container, Row, Col, Card } from "react-bootstrap";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
@@ -108,7 +107,7 @@ export default function About() {
 
   return (
     <>
-      <Header />
+     
 
       <main className="py-2 bg-light">
         <Container>
@@ -252,7 +251,7 @@ export default function About() {
         </Container>
       </main>
 
-      <Footer />
+      
     </>
   );
 }

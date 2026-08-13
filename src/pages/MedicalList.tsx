@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+
 
 interface MedicalInfo {
   id: string;
@@ -124,7 +123,7 @@ const MedicalList = () => {
 
   return (
     <>
-      <Navbar />
+     
 
       <div className="container py-2">
 
@@ -566,7 +565,7 @@ const MedicalList = () => {
 
       </div>
 
-      <Footer />
+      
     </>
   );
 };

@@ -1,12 +1,10 @@
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 
 const Location = () => {
 
   return (
     <>
-      <Navbar />
+     
 
       <Container className="py-2">
 
@@ -148,7 +146,7 @@ const Location = () => {
       </Container>
 
 
-      <Footer />
+     
 
     </>
   );

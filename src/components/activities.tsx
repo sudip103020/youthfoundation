@@ -1,7 +1,6 @@
 
 import { Container, Row, Col, Card } from "react-bootstrap";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+
 import { useEffect, useState } from "react";
 import { db } from "../firebase/firebase";
 
@@ -78,7 +77,7 @@ const Activities = () => {
 
   return (
     <>
-      <Navbar />
+    
 
       <div className="text-center">
         <h2 className="fw-bold mt-3">
@@ -195,7 +194,7 @@ const Activities = () => {
         </div>
       )}
 
-      <Footer />
+      
     </>
   );
 };
