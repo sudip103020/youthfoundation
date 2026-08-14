@@ -21,6 +21,8 @@ import MedicalInfo from "../admin/MedicalInfo";
 import DonorList from "../pages/DonorList";
 import MedicalList from "../pages/MedicalList";
 import MainLayout from "../layouts/MainLayout";
+import Report from "../components/report";
+import Reportacc from "../components/ReportPadaccount"
 
 const AppRoutes = () => {
   return (
@@ -40,6 +42,9 @@ const AppRoutes = () => {
   <Route path="/donors" element={<DonorList />} />
   <Route path="/medical" element={<MedicalList />} />
   <Route path="/admin/login" element={<Login />} />
+  <Route path="/report" element={<Report />} />
+  <Route path="/reportacc" element={<Reportacc />} />
+ 
 </Route>
 
 

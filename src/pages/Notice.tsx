@@ -5,20 +5,17 @@ import {
   Container,
   Row,
   Col,
-
   Button,
   Form,
   Modal,
 } from "react-bootstrap";
 
 import { db } from "../firebase/firebase";
-
-
-
-
-
+import ReportPad from "../components/ReportPad";
 
 import { collection, getDocs } from "firebase/firestore";
+
+
 
 interface Notice {
   id: string;
@@ -208,8 +205,6 @@ const Notice = () => {
                             {item.title}
                           </div>
 
-
-
                         </div>
 
                       </div>
@@ -282,385 +277,24 @@ const Notice = () => {
           </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body
-          className="bg-secondary-subtle p-3"
-          style={{
-            overflowX: "auto",
-          }}
-        >
-
-          {selectedNotice && (
-
-            <div
-              ref={reportRef}
-              style={{
-
-                position: "relative",
-                width: "794px",
-                minHeight: "1123px",
-                margin: "0 auto",
-                backgroundColor: "#ffffff",
-                padding: "42px 55px 40px",
-                boxSizing: "border-box",
-                overflow: "hidden",
-
-                fontFamily:
-                  "'Noto Serif Bengali', 'Noto Sans Bengali', sans-serif",
-
-                color: "#222",
-              }}
-            >
-
-              {/* ================================================= */}
-              {/* WATERMARK */}
-              {/* ================================================= */}
-
-              <img
-                src="/logo.png"
-                alt="Watermark"
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-
-                  transform:
-                    "translate(-50%, -50%)",
-
-                  width: "450px",
-
-                  opacity: 0.045,
-
-                  zIndex: 0,
-
-                  pointerEvents: "none",
-                }}
-              />
-
-
-              {/* ================================================= */}
-              {/* MAIN CONTENT */}
-              {/* ================================================= */}
-
-              <div
-                style={{
-                  fontFamily: "'Noto Serif Bengali', serif",
-                  position: "relative",
-                  zIndex: 1,
-                }}
-              >
-                {/* ================================================= */}
-                {/* TOP RIGHT SLOGAN */}
-                {/* ================================================= */}
-
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "-6px",
-                    right: "0px",
-                    fontFamily: "'Noto Serif Bengali', serif",
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    color: "#01050b",
-                    textAlign: "right",
-                    zIndex: 2,
-                  }}
-                >
-                  তারুণ্যের স্পন্দন, সেবার বন্ধন
-                </div>
-
-                {/* ================================================= */}
-                {/* ORGANIZATION HEADER */}
-                {/* ================================================= */}
-
-                <div
-                  className="text-center"
-                  style={{
-                    marginBottom: "10px",
-                  }}
-                >
-
-                  <img
-                    src="/logo.png"
-                    alt="Badhokhali Youth Foundation"
-                    width="82"
-                    height="82"
-                    style={{
-                      objectFit: "contain",
-                      marginBottom: "7px",
-                    }}
-                  />
-
-                  <h1
-                    style={{
-                      fontFamily: "'Noto Serif Bengali', serif",
-                      margin: "0",
-                      fontSize: "31px",
-                      fontWeight: "700",
-                      color: "#1464d2",
-                      lineHeight: "1.2",
-                    }}
-                  >
-                    বাদোখালী ইয়ুথ ফাউন্ডেশন
-                  </h1>
-
-
-                  <div
-                    style={{
-                      fontFamily: "'Noto Serif Bengali', serif",
-                      fontSize: "16px",
-                      marginTop: "6px",
-                    }}
-                  >
-                    বাদোখালী, মগরাহাট, বাগেরহাট
-                  </div>
-
-
-
-
-                </div>
-
-
-                {/* ================================================= */}
-                {/* HEADER LINE */}
-                {/* ================================================= */}
-
-                <div
-                  style={{
-                    borderTop: "2px solid #1464d2",
-                    marginTop: "16px",
-                    marginBottom: "25px",
-                  }}
-                />
-
-
-                {/* ================================================= */}
-                {/* NOTICE TITLE */}
-                {/* ================================================= */}
-
-                <div
-                  className="text-center"
-                  style={{
-                    marginBottom: "27px",
-                  }}
-                >
-
-                  <h2
-                    style={{
-                      fontFamily: "'Noto Serif Bengali', serif",
-                      margin: "0",
-                      fontSize: "28px",
-                      fontWeight: "700",
-                      lineHeight: "1.3",
-                      color: "#222",
-                    }}
-                  >
-                    {selectedNotice.title}
-                  </h2>
-
-
-
-
-                </div>
-
-
-                {/* ================================================= */}
-                {/* DATE + MEMO */}
-                {/* ================================================= */}
-
-                <div
-                  style={{
-                    fontFamily: "'Noto Serif Bengali', serif",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    fontSize: "15px",
-                    marginBottom: "28px",
-                  }}
-                >
-
-                  {/* DATE */}
-
-                  <div
-                    style={{
-                      width: "48%",
-                    }}
-                  >
-
-                    <strong>
-                      তারিখ :
-                    </strong>
-
-                    <span
-                      style={{
-                        fontFamily: "'Noto Serif Bengali', serif",
-                        marginLeft: "8px",
-                      }}
-                    >
-                      {selectedNotice.publishDate}
-                    </span>
-
-                  </div>
-
-
-                  {/* MEMO */}
-
-                  <div
-                    style={{
-                      fontFamily: "'Noto Serif Bengali', serif",
-                      width: "48%",
-                      textAlign: "right",
-                    }}
-                  >
-
-                    <strong>
-                      স্মারক নং :
-                    </strong>
-
-                    <span
-                      style={{
-                        fontFamily: "'Noto Serif Bengali', serif",
-                        marginLeft: "8px",
-                      }}
-                    >
-                      {selectedNotice.priority}
-                    </span>
-
-                  </div>
-
-                </div>
-
-
-                {/* ================================================= */}
-                {/* NOTICE CONTENT */}
-                {/* ================================================= */}
-
-                <div
-                  className="notice-html-content"
-                  style={{
-                    fontFamily: "'Noto Serif Bengali', serif",
-                    fontSize: "17px",
-                    lineHeight: "1.75",
-                    color: "#222",
-                    padding: "0 8px",
-                    minHeight: "350px",
-                    textAlign: "justify",
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: selectedNotice.description,
-                  }}
-                />
-
-
-                {/* ================================================= */}
-                {/* FOOTER */}
-                {/* ================================================= */}
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-end",
-
-                    marginTop: "60px",
-                  }}
-                >
-
-
-                  {/* ================= SEAL ================= */}
-
-                  <div
-                    style={{
-                      width: "50%",
-                    }}
-                  >
-
-                    <img
-                      src="/roundseal.png"
-                      alt="Official Seal"
-                      width="115"
-                      height="115"
-                      style={{
-                        objectFit: "contain",
-                      }}
-                    />
-
-                  </div>
-
-
-                  {/* ================= SIGNATURE ================= */}
-
-                  <div
-                    style={{
-                      fontFamily: "'Noto Serif Bengali', serif",
-                      width: "50%",
-                      textAlign: "center",
-                      fontSize: "14px",
-                      lineHeight: "1.5",
-                    }}
-                  >
-
-
-                    <strong>
-                      স্বাক্ষরিত
-                    </strong>
-                    <br />
-                    <strong>
-                      সুদীপ কুমার হালদার
-                    </strong>
-
-                    <br />
-
-                    সভাপতি
-
-                    <br />
-
-                    বাদোখালী ইয়ুথ ফাউন্ডেশন
-
-                  </div>
-
-                </div>
-
-
-                {/* ================================================= */}
-{/* CONTACT FOOTER */}
-{/* ================================================= */}
-
-
-
-
-                {/* ================================================= */}
-                {/* PAD FOOTER */}
-                {/* ================================================= */}
-
-                <div
-                  style={{
-                    borderTop:
-                      "1px solid #d5d5d5",
-
-                    marginTop: "35px",
-
-                    paddingTop: "8px",
-
-                    textAlign: "center",
-
-                    fontSize: "10px",
-
-                    color: "#888",
-                  }}
-                >
-
-                  “This is an electronically generated notice. No signature is required.”
-
-                </div>
-
-
-              </div>
-
-            </div>
-
-          )}
-
-        </Modal.Body>
+        {selectedNotice && (
+  <div
+  ref={reportRef}
+  style={{
+    width: "794px",
+    margin: "0 auto",
+  }}
+>
+    <ReportPad
+      refNo={selectedNotice.priority}
+      date={selectedNotice.publishDate}
+      title={selectedNotice.title}
+      content={selectedNotice.description}
+      presidentName="সুদীপ কুমার হালদার"
+      secretaryName="সভাপতি"
+    />
+  </div>
+)}
 
 
         {/* ================================================= */}

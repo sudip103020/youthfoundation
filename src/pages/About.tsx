@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-
 import { Container, Row, Col, Card } from "react-bootstrap";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
@@ -56,7 +55,7 @@ export default function About() {
         "Legal Secretary",
         "Health Secretary",
         "Organizing Secretary",
-        "Social Service Secretary",
+        "Social Welfare Secretary",
         "Education and Literature Secretary",
         "Cultural Secretary",
         "Information and Technology Secretary",
@@ -107,7 +106,7 @@ export default function About() {
 
   return (
     <>
-     
+
 
       <main className="py-2 bg-light">
         <Container>
@@ -116,8 +115,8 @@ export default function About() {
           =============================== */}
           <div className="text-center mb-5">
             <h2 className="fw-bold">
-             👥 Executive  Committee
-              
+              👥 Executive  Committee
+
             </h2>
 
             <p className="text-muted">
@@ -233,15 +232,7 @@ export default function About() {
                         </p>
                       )}
 
-                      {/* BLOOD GROUP */}
-                      {member.bloodGroup && (
-                        <p className="mb-0">
-                          🩸 Blood Group:{" "}
-                          <strong className="text-danger">
-                            {member.bloodGroup}
-                          </strong>
-                        </p>
-                      )}
+              
                     </Card.Body>
                   </Card>
                 </Col>
@@ -251,7 +242,7 @@ export default function About() {
         </Container>
       </main>
 
-      
+
     </>
   );
 }

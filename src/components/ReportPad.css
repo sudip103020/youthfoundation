@@ -1,0 +1,1166 @@
+
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #eeeeee;
+  font-family: "Noto Sans Bengali", "Noto Sans", sans-serif;
+}
+
+/* =========================================
+   OUTER WRAPPER
+========================================= */
+
+.report-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* =========================================
+   A4 PAGE
+========================================= */
+
+.report-page {
+  position: relative;
+
+  width: 210mm;
+  min-height: 297mm;
+
+  background: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+/* =========================================
+   REPORT HEADER
+========================================= */
+
+.report-header {
+  position: relative;
+  z-index: 5;
+
+  width: 100%;
+
+  height: 43mm;
+
+  background:
+    linear-gradient(
+      100deg,
+      #08aeea 0%,
+      #078dbb 35%,
+      #075f7d 65%,
+      #101c31 100%
+    );
+
+  color: #ffffff;
+
+  overflow: hidden;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================
+   HEADER MAIN
+========================================= */
+
+.header-main {
+  position: relative;
+
+  width: 100%;
+  height: 39mm;
+
+  display: flex;
+  align-items: center;
+
+  padding: 5mm 11mm 3mm 25mm;
+}
+
+
+/* =========================================
+   LOGO
+========================================= */
+
+.header-logo-box {
+  position: absolute;
+
+  left: 28mm;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 22mm;
+  height: 22mm;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* সাদা গোলাকার background */
+  background: #ffffff;
+
+  border-radius: 100%;
+
+  /* একটু সুন্দর shadow */
+ 
+
+  z-index: 1;
+}
+
+.report-logo {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  display: block;
+
+  border-radius: 50%;
+}
+
+
+/* =========================================
+   ORGANIZATION TITLE
+========================================= */
+
+.header-title {
+  position: absolute;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 100mm;
+
+  text-align: center;
+
+  white-space: nowrap;
+
+  margin: 0;
+}
+
+
+/* বাংলা নাম */
+
+.bangla-name {
+  font-family:
+    "Noto Sans Bengali",
+    "Noto Sans",
+    sans-serif;
+
+  font-size: 35px;
+  font-weight: 800;
+
+  line-height: 1.25;
+
+  color: #ffffff;
+
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+
+/* English name */
+
+.english-name {
+  margin-top: 1px;
+
+  font-family:
+    Arial,
+    sans-serif;
+
+  font-size: 25px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.3px;
+
+  line-height: 1.2;
+
+  color: #ffffff;
+}
+
+
+/* =========================================
+   SLOGAN
+========================================= */
+
+.header-slogan {
+  position: absolute;
+
+  right: 11mm;
+  top: 9mm;
+
+  width: 42mm;
+
+  text-align: center;
+
+  font-family:
+    "Noto Sans Bengali",
+    "Noto Sans",
+    sans-serif;
+
+  font-size: 10px;
+
+  font-weight: 500;
+
+  line-height: 1.5;
+
+  color: #ffffff;
+
+  white-space: nowrap;
+}
+
+/* =========================================
+   BOTTOM HEADER DESIGN
+========================================= */
+
+.header-design {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 7mm;
+
+  display: flex;
+
+  align-items: stretch;
+
+  overflow: hidden;
+
+  background: #ffffff;
+}
+
+
+/* LEFT DARK/BLUE SECTION */
+
+.design-left {
+  position: relative;
+
+  width: 31%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #12324a,
+      #087b9e
+    );
+}
+
+
+/* LEFT DIAGONAL */
+
+.design-left::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  right: -11mm;
+
+  width: 17mm;
+  height: 100%;
+
+  background: #ffffff;
+
+  transform: skewX(-45deg);
+
+  z-index: 2;
+}
+
+
+/* BLUE MIDDLE */
+
+.design-blue {
+  position: relative;
+
+  width: 38%;
+
+  background: #08aeea;
+}
+
+
+/* WHITE DIAGONAL LEFT */
+
+.design-blue::before {
+  content: "";
+
+  position: absolute;
+
+  left: -8mm;
+
+  top: 0;
+
+  width: 7mm;
+  height: 100%;
+
+  background: #ffffff;
+
+  transform: skewX(-45deg);
+}
+
+
+/* WHITE DIAGONAL RIGHT */
+
+.design-blue::after {
+  content: "";
+
+  position: absolute;
+
+  right: -8mm;
+
+  top: 0;
+
+  width: 7mm;
+  height: 100%;
+
+  background: #ffffff;
+
+  transform: skewX(45deg);
+
+  z-index: 2;
+}
+
+
+/* RIGHT DARK SECTION */
+
+.design-right {
+  position: relative;
+
+  width: 31%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #087b9e,
+      #12324a
+    );
+}
+
+
+/* =========================================
+   HEADER RESPONSIVE
+========================================= */
+
+@media screen and (max-width: 800px) {
+
+  .report-header {
+    height: 49mm;
+
+    min-width: 210mm;
+  }
+
+}
+
+/* Logo */
+
+.report-logo {
+  width: 30mm;
+  height: 30mm;
+
+  object-fit: contain;
+
+  flex-shrink: 0;
+}
+
+/* Organization */
+
+.organization-name {
+  flex: 1;
+
+  text-align: center;
+
+  padding: 0 10mm;
+}
+
+
+
+
+.organization-address {
+  margin-top: 4px;
+
+  font-size: 12px;
+
+  color: #666666;
+}
+
+/* Slogan */
+
+.slogan {
+  position: absolute;
+
+  right: 0;
+  bottom: 0;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  color: #087443;
+
+  white-space: nowrap;
+}
+
+/* =========================================
+   WATERMARK
+========================================= */
+
+.watermark {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  z-index: 0;
+
+  pointer-events: none;
+
+  opacity: 0.045;
+}
+
+.watermark img {
+  width: 105mm;
+  height: 105mm;
+
+  object-fit: contain;
+}
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.report-content {
+  position: relative;
+  z-index: 2;
+
+  flex: 1;
+
+  padding: 5mm 15mm 0;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 0;
+  min-width: 0;
+}
+
+/* =========================================
+   META
+========================================= */
+
+.report-meta {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 3mm;
+
+  font-size: 13px;
+}
+
+.report-meta div {
+  display: flex;
+  gap: 5px;
+}
+
+.report-meta strong {
+  font-weight: 700;
+}
+
+/* =========================================
+   TITLE
+========================================= */
+
+.report-title {
+  text-align: center;
+
+  margin: 0 0 4mm !important;
+  padding: 0 !important;
+
+  font-size: 22px;
+  font-weight: 800;
+
+  line-height: 1.3;
+
+  color: #111111;
+
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* =========================================
+   SUBJECT
+========================================= */
+
+.report-subject {
+  margin-bottom: 6mm;
+
+  font-size: 15px;
+
+  line-height: 1.8;
+}
+
+.report-subject strong {
+  font-weight: 800;
+}
+
+/* =========================================
+   GREETING
+========================================= */
+
+.report-greeting {
+  margin-bottom: 5mm;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  line-height: 1.8;
+}
+
+/* =========================================
+   BODY
+========================================= */
+
+/* =========================================
+   BODY - FIX EXTRA GAP
+========================================= */
+/* =========================================
+   REPORT BODY
+========================================= */
+
+.report-body {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  font-size: 15px;
+  line-height: 1.8;
+
+  text-align: justify;
+
+  white-space: normal;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  display: block;
+
+  overflow: hidden;
+}
+
+
+/* =========================================
+   TABLE - FIX RIGHT SIDE OVERFLOW
+========================================= */
+
+.report-body table {
+  width: 100% !important;
+  max-width: 100% !important;
+
+  min-width: 0 !important;
+
+  margin: 8px 0 0 0 !important;
+  padding: 0 !important;
+
+  border-collapse: collapse;
+
+  table-layout: fixed !important;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================
+   TABLE CELLS
+========================================= */
+
+.report-body table th,
+.report-body table td {
+  box-sizing: border-box;
+
+  border: 1px solid #555555;
+
+  padding: 7px 6px;
+
+  vertical-align: middle;
+
+  min-width: 0 !important;
+
+  max-width: 100%;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
+/* =========================================
+   COLUMN WIDTH
+========================================= */
+
+/* Serial number */
+
+.report-body table th:first-child,
+.report-body table td:first-child {
+  width: 15% !important;
+}
+
+
+/* Discussion */
+
+.report-body table th:nth-child(2),
+.report-body table td:nth-child(2) {
+  width: 65% !important;
+
+  text-align: left;
+}
+
+
+/* Responsible */
+
+.report-body table th:nth-child(3),
+.report-body table td:nth-child(3) {
+  width: 20% !important;
+}
+
+
+/* =========================================
+   FIRST ELEMENT GAP FIX
+========================================= */
+
+.report-body > *:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.report-body p {
+  margin-top: 0 !important;
+  margin-bottom: 6px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.report-body > div {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+
+/* Heading */
+
+.report-body h1,
+.report-body h2,
+.report-body h3,
+.report-body h4,
+.report-body h5,
+.report-body h6 {
+  margin-top: 0 !important;
+}
+
+
+/* প্রথম line / paragraph */
+
+.report-body p:first-child,
+.report-body div:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+
+/* BR-এর কারণে অতিরিক্ত vertical space */
+
+.report-body br + br {
+  display: none;
+}
+
+
+/* TABLE */
+
+.report-body table {
+  width: 100% !important;
+
+  margin-top: 8px !important;
+  margin-bottom: 0 !important;
+
+  border-collapse: collapse;
+
+  table-layout: fixed;
+}
+
+
+.report-body table td,
+.report-body table th {
+  padding: 7px 6px;
+
+  border: 1px solid #555;
+
+  vertical-align: middle;
+}
+
+
+/* Image */
+
+.report-body img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.report-table-wrapper {
+  width: 100%;
+
+  margin-top: 7mm;
+
+  overflow: hidden;
+}
+
+.report-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: 12px;
+}
+
+.report-table th,
+.report-table td {
+  border: 1px solid #555555;
+
+  padding: 7px 6px;
+
+  text-align: center;
+
+  vertical-align: middle;
+}
+
+.report-table th {
+  background: #f0f5f2;
+
+  font-weight: 800;
+}
+
+.report-table td:nth-child(2) {
+  text-align: left;
+}
+
+.total-label {
+  text-align: right !important;
+
+  font-weight: 800;
+}
+
+.total-value {
+  font-weight: 800;
+}
+
+/* =========================================
+   SIGNATURE + SEAL
+========================================= */
+
+.signature-area {
+  position: relative;
+
+  margin-top: auto;
+  margin-bottom: 0mm;
+
+  min-height: 20mm;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+/* SEAL - LEFT */
+.official-seal {
+  width: 50%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding-left: 25px;
+}
+
+.official-seal img {
+  width: 115px;
+  height: 115px;
+  object-fit: contain;
+}
+
+/* SIGNATURE - RIGHT */
+.signatures {
+  width: 50%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding-right: 25px;
+}
+
+.signature {
+  width: 180px;
+  text-align: center;
+}
+
+.signature-line {
+  width: 100%;
+  border-top: 1px solid #222;
+  margin-bottom: 6px;
+}
+
+.signature strong,
+.signature span {
+  display: block;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.report-footer {
+  position: relative;
+
+  z-index: 2;
+
+  flex-shrink: 0;
+
+  padding: 2mm 15mm 4mm;
+
+  background: #ffffff;
+}
+
+.footer-info {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 8mm;
+}
+
+.footer-item {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 5px;
+
+  font-size: 9.5px;
+
+  line-height: 1.5;
+
+  color: #333333;
+}
+
+.footer-icon {
+  font-size: 14px;
+
+  color: #087443;
+
+  line-height: 1.2;
+}
+
+/* QR */
+
+.qr-wrapper {
+  flex-shrink: 0;
+}
+
+.qr-wrapper img {
+  width: 20mm;
+  height: 20mm;
+
+  object-fit: contain;
+}
+
+/* =========================================
+   FOOTER DECORATION
+========================================= */
+
+.footer-decoration {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 4px;
+
+  margin-top: 3mm;
+}
+
+.footer-decoration span {
+  display: block;
+
+  width: 35mm;
+  height: 2px;
+
+  background: #168a55;
+}
+
+.footer-decoration span:nth-child(2) {
+  width: 15mm;
+
+  background: #222222;
+}
+
+.footer-decoration span:nth-child(3) {
+  width: 35mm;
+
+  background: #168a55;
+}
+
+/* =========================================
+   PRINT
+========================================= */
+
+@media print {
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 210mm;
+    height: 297mm;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+  }
+
+  .report-wrapper {
+    width: 210mm;
+    min-height: 297mm;
+
+    margin: 0;
+    padding: 0;
+
+    display: block;
+
+    background: #ffffff;
+  }
+
+  .report-page {
+    width: 210mm;
+    min-height: 297mm;
+    height: 297mm;
+
+    margin: 0;
+
+    box-shadow: none;
+
+    overflow: hidden;
+  }
+
+  .report-header {
+    break-inside: avoid;
+  }
+
+  .report-footer {
+    break-inside: avoid;
+  }
+
+  .report-table {
+    break-inside: avoid;
+  }
+
+  .signature {
+    break-inside: avoid;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* =========================================
+   SCREEN RESPONSIVE
+========================================= */
+
+@media screen and (max-width: 800px) {
+
+  .report-wrapper {
+    padding: 10px;
+
+    overflow-x: auto;
+
+    justify-content: flex-start;
+  }
+
+  .report-page {
+    flex-shrink: 0;
+  }
+}
+
+/* =========================================
+   FOOTER DECORATION
+========================================= */
+
+.footer-decoration {
+  position: relative;
+
+  width: 100%;
+  height: 12mm;
+
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+
+  margin-top: 4mm;
+
+  overflow: hidden;
+
+  background: #ffffff;
+}
+
+
+/* =========================================
+   LEFT DARK STRIP
+========================================= */
+
+.footer-decoration span:nth-child(1) {
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 35%;
+
+  height: 4px;
+
+  background: #292929;
+}
+
+
+/* =========================================
+   MIDDLE BLUE SECTION
+========================================= */
+
+.footer-decoration span:nth-child(2) {
+  position: absolute;
+
+  left: 27%;
+  right: 27%;
+
+  top: 0;
+  bottom: 0;
+
+  width: auto;
+  height: 100%;
+
+  background: #08aeea;
+
+  margin: 0;
+
+  clip-path: polygon(
+    13% 0,
+    87% 0,
+    74% 100%,
+    26% 100%
+  );
+}
+
+
+/* =========================================
+   RIGHT DARK STRIP
+========================================= */
+
+.footer-decoration span:nth-child(3) {
+  position: absolute;
+
+  right: 0;
+  top: 0;
+
+  width: 28%;
+
+  height: 4px;
+
+  background: #292929;
+}
+
+.footer-decoration::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 27%;
+
+  width: 18mm;
+  height: 100%;
+
+  background: #ffffff;
+
+  transform: skewX(45deg);
+
+  z-index: 5;
+}
+
+
+.footer-decoration::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  right: 27%;
+
+  width: 18mm;
+  height: 100%;
+
+  background: #ffffff;
+
+  transform: skewX(-45deg);
+
+  z-index: 5;
+}
+
+.received-stamp {
+  width: 30%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+
+  color: #0b6ff3;
+  font-family: Arial, sans-serif;
+
+  border: 2px solid #0b6ff3;
+  padding: 7px 16px;
+
+  border-radius: 2px;
+
+  transform: translateY(-20px) rotate(-6deg);
+
+  opacity: 0.8;
+
+  text-transform: uppercase;
+  box-sizing: border-box;
+}

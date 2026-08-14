@@ -228,9 +228,9 @@ const Donation = () => {
 
             <Button
               variant="success"
-              href="/feedback"
+              href="/donors"
             >
-              send feedback
+              See Our Donors List
             </Button>
 
 

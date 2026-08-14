@@ -19,7 +19,7 @@ const Navigation = () => {
             </Nav.Link>
 
             <Nav.Link as={Link} to="/about">
-              About Us
+              About us
             </Nav.Link>
 
             <Nav.Link as={Link} to="/activities">
@@ -36,6 +36,9 @@ const Navigation = () => {
             </Nav.Link>
             <Nav.Link as={Link} to="/Feedback">
               Feedback
+            </Nav.Link>
+            <Nav.Link as={Link} to="/medical">
+              Blood Bank
             </Nav.Link>
           </Nav>
         </Navbar.Collapse>
