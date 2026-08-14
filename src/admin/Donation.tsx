@@ -1,5 +1,5 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import html2canvas from "html2canvas";
 import { db } from "../firebase/firebase";
 import AdminLayout from "./AdminLayout";
 
@@ -35,9 +35,12 @@ interface Donation {
 // ===============================
 
 const CLOUDINARY_CLOUD_NAME = "dvpfixfd";
-const CLOUDINARY_UPLOAD_PRESET = "badokhali_youth_foundation";
+const CLOUDINARY_UPLOAD_PRESET =
+  "badokhali_youth_foundation";
 
 const Donation = () => {
+  const reportRef = useRef<HTMLDivElement>(null);
+
   const [donations, setDonations] = useState<Donation[]>([]);
 
   // ===============================
@@ -47,7 +50,6 @@ const Donation = () => {
   const [donorName, setDonorName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-
   const [amount, setAmount] = useState("");
 
   const [donationType, setDonationType] =
@@ -62,9 +64,10 @@ const Donation = () => {
   const [purpose, setPurpose] = useState("");
   const [donationDate, setDonationDate] =
     useState("");
-  const [remarks, setRemarks] = useState("");
 
+  const [remarks, setRemarks] = useState("");
   const [photo, setPhoto] = useState("");
+
   const [photoFile, setPhotoFile] =
     useState<File | null>(null);
 
@@ -111,7 +114,6 @@ const Donation = () => {
         });
       });
 
-      // Latest first
       data.sort((a, b) => {
         const aTime =
           a.createdAt?.seconds || 0;
@@ -163,9 +165,7 @@ const Donation = () => {
   // CLOUDINARY UPLOAD
   // ===============================
 
-  const uploadPhoto = async (
-    file: File
-  ) => {
+  const uploadPhoto = async (file: File) => {
     try {
       setUploading(true);
 
@@ -187,9 +187,7 @@ const Donation = () => {
       );
 
       if (!response.ok) {
-        throw new Error(
-          "Photo upload failed"
-        );
+        throw new Error("Photo upload failed");
       }
 
       const data = await response.json();
@@ -234,19 +232,16 @@ const Donation = () => {
   // ===============================
 
   const saveDonation = async () => {
-    // Name mandatory
     if (!donorName.trim()) {
       alert("Donor Name is required");
       return;
     }
 
-    // Donation Type mandatory
     if (!donationType) {
       alert("Donation Type is required");
       return;
     }
 
-    // Cash হলে amount mandatory
     if (
       donationType === "Cash" &&
       !amount.trim()
@@ -257,7 +252,6 @@ const Donation = () => {
       return;
     }
 
-    // Others হলে details mandatory
     if (
       donationType === "Others" &&
       !otherDetails.trim()
@@ -271,7 +265,6 @@ const Donation = () => {
     try {
       let photoUrl = photo;
 
-      // New photo upload
       if (photoFile) {
         const uploadedUrl =
           await uploadPhoto(photoFile);
@@ -288,7 +281,6 @@ const Donation = () => {
         phone: phone.trim(),
         address: address.trim(),
 
-        // Cash হলে amount থাকবে
         amount:
           donationType === "Cash"
             ? amount.trim()
@@ -296,7 +288,6 @@ const Donation = () => {
 
         donationType,
 
-        // Others হলে details থাকবে
         otherDetails:
           donationType === "Others"
             ? otherDetails.trim()
@@ -309,40 +300,24 @@ const Donation = () => {
         photo: photoUrl,
       };
 
-      // ===============================
-      // UPDATE
-      // ===============================
-
       if (editingId) {
         await updateDoc(
-          doc(
-            db,
-            "donations",
-            editingId
-          ),
+          doc(db, "donations", editingId),
           {
             ...donationData,
-            updatedAt:
-              serverTimestamp(),
+            updatedAt: serverTimestamp(),
           }
         );
 
         alert(
           "Donation Updated Successfully"
         );
-      }
-
-      // ===============================
-      // ADD
-      // ===============================
-
-      else {
+      } else {
         await addDoc(
           collection(db, "donations"),
           {
             ...donationData,
-            createdAt:
-              serverTimestamp(),
+            createdAt: serverTimestamp(),
           }
         );
 
@@ -369,19 +344,12 @@ const Donation = () => {
   // EDIT
   // ===============================
 
-  const handleEdit = (
-    item: Donation
-  ) => {
+  const handleEdit = (item: Donation) => {
     setEditingId(item.id);
 
-    setDonorName(
-      item.donorName || ""
-    );
-
+    setDonorName(item.donorName || "");
     setPhone(item.phone || "");
-
     setAddress(item.address || "");
-
     setAmount(item.amount || "");
 
     setDonationType(
@@ -403,9 +371,7 @@ const Donation = () => {
     );
 
     setRemarks(item.remarks || "");
-
     setPhoto(item.photo || "");
-
     setPhotoFile(null);
 
     window.scrollTo({
@@ -418,9 +384,7 @@ const Donation = () => {
   // DELETE
   // ===============================
 
-  const handleDelete = async (
-    id: string
-  ) => {
+  const handleDelete = async (id: string) => {
     const confirmDelete =
       window.confirm(
         "Delete this donation?"
@@ -440,6 +404,55 @@ const Donation = () => {
       console.error(error);
 
       alert("Failed to delete");
+    }
+  };
+
+  // ===============================
+  // DOWNLOAD REPORT
+  // ===============================
+
+  const downloadReport = async () => {
+    if (!reportRef.current) return;
+
+    try {
+      const canvas = await html2canvas(
+        reportRef.current,
+        {
+          scale: 3,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: "#ffffff",
+          logging: false,
+        }
+      );
+
+      const image =
+        canvas.toDataURL("image/png");
+
+      const link =
+        document.createElement("a");
+
+      link.href = image;
+
+      link.download =
+        `Donation-Report-${
+          searchName || "All"
+        }-${
+          filterMethod || "All"
+        }.png`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error(
+        "Report download failed:",
+        error
+      );
+
+      alert(
+        "Failed to download report"
+      );
     }
   };
 
@@ -475,7 +488,6 @@ const Donation = () => {
 
   return (
     <AdminLayout>
-
       <div className="container-fluid p-4">
 
         <h3 className="mb-4">
@@ -489,19 +501,14 @@ const Donation = () => {
         <div className="card shadow-sm p-3 mb-4">
 
           <h5 className="mb-3">
-
             {editingId
               ? "✏️ Edit Donation"
               : "➕ Add New Donation"}
-
           </h5>
 
           <div className="row g-3">
 
-            {/* DONOR NAME */}
-
             <div className="col-md-4">
-
               <label className="form-label">
                 Donor Name{" "}
                 <span className="text-danger">
@@ -520,13 +527,9 @@ const Donation = () => {
                   )
                 }
               />
-
             </div>
 
-            {/* PHONE */}
-
             <div className="col-md-4">
-
               <label className="form-label">
                 Phone
               </label>
@@ -542,13 +545,9 @@ const Donation = () => {
                   )
                 }
               />
-
             </div>
 
-            {/* ADDRESS */}
-
             <div className="col-md-4">
-
               <label className="form-label">
                 Address
               </label>
@@ -564,13 +563,9 @@ const Donation = () => {
                   )
                 }
               />
-
             </div>
 
-            {/* DONATION TYPE */}
-
             <div className="col-md-3">
-
               <label className="form-label">
                 Donation Type{" "}
                 <span className="text-danger">
@@ -582,19 +577,14 @@ const Donation = () => {
                 className="form-select"
                 value={donationType}
                 onChange={(e) => {
-
                   setDonationType(
                     e.target.value
                   );
 
-                  // Type change করলে
-                  // পুরোনো value clear
                   setAmount("");
                   setOtherDetails("");
-
                 }}
               >
-
                 <option value="Cash">
                   Cash
                 </option>
@@ -602,18 +592,11 @@ const Donation = () => {
                 <option value="Others">
                   Others
                 </option>
-
               </select>
-
             </div>
 
-            {/* CASH AMOUNT */}
-
-            {donationType ===
-              "Cash" && (
-
+            {donationType === "Cash" && (
               <div className="col-md-3">
-
                 <label className="form-label">
                   Donation Amount{" "}
                   <span className="text-danger">
@@ -633,18 +616,11 @@ const Donation = () => {
                     )
                   }
                 />
-
               </div>
-
             )}
 
-            {/* OTHER DONATION */}
-
-            {donationType ===
-              "Others" && (
-
+            {donationType === "Others" && (
               <div className="col-md-3">
-
                 <label className="form-label">
                   Donation Details{" "}
                   <span className="text-danger">
@@ -663,15 +639,10 @@ const Donation = () => {
                     )
                   }
                 />
-
               </div>
-
             )}
 
-            {/* PAYMENT METHOD */}
-
             <div className="col-md-3">
-
               <label className="form-label">
                 Payment Method
               </label>
@@ -685,35 +656,17 @@ const Donation = () => {
                   )
                 }
               >
-
-                <option>
-                  Cash
-                </option>
-
-                <option>
-                  bKash
-                </option>
-
-                <option>
-                  Nagad
-                </option>
-
-                <option>
-                  Rocket
-                </option>
-
+                <option>Cash</option>
+                <option>bKash</option>
+                <option>Nagad</option>
+                <option>Rocket</option>
                 <option>
                   Bank Transfer
                 </option>
-
               </select>
-
             </div>
 
-            {/* DONATION DATE */}
-
             <div className="col-md-3">
-
               <label className="form-label">
                 Donation Date
               </label>
@@ -728,13 +681,9 @@ const Donation = () => {
                   )
                 }
               />
-
             </div>
 
-            {/* PURPOSE */}
-
             <div className="col-md-3">
-
               <label className="form-label">
                 Purpose
               </label>
@@ -750,13 +699,9 @@ const Donation = () => {
                   )
                 }
               />
-
             </div>
 
-            {/* PHOTO */}
-
             <div className="col-md-4">
-
               <label className="form-label">
                 Donor Photo
               </label>
@@ -777,11 +722,8 @@ const Donation = () => {
                 </small>
               )}
 
-              {/* Existing Photo */}
-
               {photo &&
                 !photoFile && (
-
                   <div className="mt-2">
 
                     <img
@@ -800,17 +742,11 @@ const Donation = () => {
                     <small className="ms-2 text-muted">
                       Current Photo
                     </small>
-
                   </div>
-
                 )}
-
             </div>
 
-            {/* REMARKS */}
-
             <div className="col-md-8">
-
               <label className="form-label">
                 Remarks
               </label>
@@ -826,46 +762,34 @@ const Donation = () => {
                   )
                 }
               />
-
             </div>
 
           </div>
-
-          {/* BUTTONS */}
 
           <div className="mt-3">
 
             <button
               className="btn btn-success me-2"
-              onClick={
-                saveDonation
-              }
+              onClick={saveDonation}
               disabled={uploading}
             >
-
               {uploading
                 ? "Uploading Photo..."
                 : editingId
                 ? "💾 Update Donation"
                 : "➕ Save Donation"}
-
             </button>
 
             {editingId && (
-
               <button
                 className="btn btn-secondary"
-                onClick={
-                  resetForm
-                }
+                onClick={resetForm}
               >
                 Cancel Edit
               </button>
-
             )}
 
           </div>
-
         </div>
 
         {/* ===============================
@@ -875,11 +799,8 @@ const Donation = () => {
         <div className="row mb-4">
 
           <div className="col-md-4">
-
             <div className="card bg-success text-white shadow-sm">
-
               <div className="card-body">
-
                 <h6>
                   Total Cash Donation
                 </h6>
@@ -887,19 +808,13 @@ const Donation = () => {
                 <h3>
                   ৳ {totalDonation}
                 </h3>
-
               </div>
-
             </div>
-
           </div>
 
           <div className="col-md-4">
-
             <div className="card bg-primary text-white shadow-sm">
-
               <div className="card-body">
-
                 <h6>
                   Total Donations
                 </h6>
@@ -907,11 +822,8 @@ const Donation = () => {
                 <h3>
                   {filteredDonations.length}
                 </h3>
-
               </div>
-
             </div>
-
           </div>
 
         </div>
@@ -929,7 +841,6 @@ const Donation = () => {
           <div className="row g-3">
 
             <div className="col-md-6">
-
               <label className="form-label">
                 Search Donor
               </label>
@@ -945,11 +856,9 @@ const Donation = () => {
                   )
                 }
               />
-
             </div>
 
             <div className="col-md-4">
-
               <label className="form-label">
                 Payment Method
               </label>
@@ -963,37 +872,21 @@ const Donation = () => {
                   )
                 }
               >
-
                 <option value="">
                   All
                 </option>
 
-                <option>
-                  Cash
-                </option>
-
-                <option>
-                  bKash
-                </option>
-
-                <option>
-                  Nagad
-                </option>
-
-                <option>
-                  Rocket
-                </option>
-
+                <option>Cash</option>
+                <option>bKash</option>
+                <option>Nagad</option>
+                <option>Rocket</option>
                 <option>
                   Bank Transfer
                 </option>
-
               </select>
-
             </div>
 
             <div className="col-md-2 d-flex align-items-end">
-
               <button
                 className="btn btn-primary w-100"
                 onClick={() =>
@@ -1002,11 +895,9 @@ const Donation = () => {
               >
                 👁 Report
               </button>
-
             </div>
 
           </div>
-
         </div>
 
         {/* ===============================
@@ -1016,11 +907,9 @@ const Donation = () => {
         <div className="card shadow-sm">
 
           <div className="card-header bg-dark text-white">
-
             <h5 className="mb-0">
               Donation History
             </h5>
-
           </div>
 
           <div className="table-responsive">
@@ -1030,7 +919,6 @@ const Donation = () => {
               <thead className="table-dark">
 
                 <tr>
-
                   <th>#</th>
                   <th>Photo</th>
                   <th>Donor</th>
@@ -1041,25 +929,21 @@ const Donation = () => {
                   <th>Purpose</th>
                   <th>Date</th>
                   <th>Action</th>
-
                 </tr>
 
               </thead>
 
               <tbody>
 
-                {filteredDonations.length ===
-                0 ? (
+                {filteredDonations.length === 0 ? (
 
                   <tr>
-
                     <td
                       colSpan={10}
                       className="text-center"
                     >
                       No Donation Found
                     </td>
-
                   </tr>
 
                 ) : (
@@ -1067,24 +951,16 @@ const Donation = () => {
                   filteredDonations.map(
                     (item, index) => (
 
-                      <tr
-                        key={item.id}
-                      >
+                      <tr key={item.id}>
 
                         <td>
                           {index + 1}
                         </td>
 
-                        {/* PHOTO */}
-
                         <td>
-
                           {item.photo ? (
-
                             <img
-                              src={
-                                item.photo
-                              }
+                              src={item.photo}
                               alt={
                                 item.donorName
                               }
@@ -1097,32 +973,22 @@ const Donation = () => {
                                   "50%",
                               }}
                             />
-
                           ) : (
-
                             <span>
                               👤
                             </span>
-
                           )}
-
                         </td>
 
                         <td>
-                          {
-                            item.donorName
-                          }
+                          {item.donorName}
                         </td>
 
                         <td>
-                          {
-                            item.phone ||
-                            "-"
-                          }
+                          {item.phone || "-"}
                         </td>
 
                         <td>
-
                           <span
                             className={`badge ${
                               item.donationType ===
@@ -1135,29 +1001,17 @@ const Donation = () => {
                               item.donationType
                             }
                           </span>
-
                         </td>
 
                         <td>
-
                           {item.donationType ===
-                          "Cash" ? (
-
-                            <>
-                              ৳{" "}
-                              {
+                          "Cash"
+                            ? `৳ ${
                                 item.amount ||
                                 "0"
-                              }
-                            </>
-
-                          ) : (
-
-                            item.otherDetails ||
-                            "-"
-
-                          )}
-
+                              }`
+                            : item.otherDetails ||
+                              "-"}
                         </td>
 
                         <td>
@@ -1167,10 +1021,7 @@ const Donation = () => {
                         </td>
 
                         <td>
-                          {
-                            item.purpose ||
-                            "-"
-                          }
+                          {item.purpose || "-"}
                         </td>
 
                         <td>
@@ -1185,9 +1036,7 @@ const Donation = () => {
                           <button
                             className="btn btn-sm btn-primary me-2"
                             onClick={() =>
-                              handleEdit(
-                                item
-                              )
+                              handleEdit(item)
                             }
                           >
                             Edit
@@ -1207,10 +1056,8 @@ const Donation = () => {
                         </td>
 
                       </tr>
-
                     )
                   )
-
                 )}
 
               </tbody>
@@ -1218,12 +1065,11 @@ const Donation = () => {
             </table>
 
           </div>
-
         </div>
 
-        {/* ===============================
-            REPORT MODAL
-        =============================== */}
+        {/* =========================================================
+            DONATION REPORT MODAL
+        ========================================================= */}
 
         {showReport && (
 
@@ -1231,130 +1077,525 @@ const Donation = () => {
             className="modal fade show d-block"
             style={{
               backgroundColor:
-                "rgba(0,0,0,0.5)",
+                "rgba(0,0,0,0.6)",
+              zIndex: 1055,
             }}
           >
 
-            <div className="modal-dialog modal-xl">
+            <div
+              className="modal-dialog modal-xl modal-dialog-centered"
+              style={{
+                maxWidth: "1100px",
+              }}
+            >
 
               <div className="modal-content">
+
+                {/* ===============================
+                    MODAL HEADER
+                =============================== */}
 
                 <div className="modal-header">
 
                   <h5 className="modal-title">
-                    Donation Report
+                    📄 Donation Report
                   </h5>
 
                   <button
                     className="btn-close"
                     onClick={() =>
-                      setShowReport(
-                        false
-                      )
+                      setShowReport(false)
                     }
                   />
 
                 </div>
 
+                {/* ===============================
+                    REPORT AREA
+                =============================== */}
+
                 <div
                   className="modal-body"
                   style={{
-                    position:
-                      "relative",
-                    overflow:
-                      "hidden",
+                    background: "#eeeeee",
+                    padding: "25px",
+                    overflowX: "auto",
                   }}
                 >
 
-                  {/* WATERMARK */}
-
-                  <img
-                    src="/logo.png"
-                    alt="Watermark"
-                    style={{
-                      position:
-                        "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform:
-                        "translate(-50%, -50%)",
-                      width: "420px",
-                      opacity: 0.1,
-                      zIndex: 0,
-                    }}
-                  />
-
                   <div
+                    ref={reportRef}
                     style={{
-                      position:
-                        "relative",
-                      zIndex: 1,
+                      width: "210mm",
+                      minHeight: "297mm",
+                      margin: "0 auto",
+                      background: "#ffffff",
+                      position: "relative",
+                      overflow: "hidden",
+                      boxSizing: "border-box",
+                      fontFamily:
+                        '"Noto Sans Bengali", "Noto Sans", Arial, sans-serif',
+                      color: "#222",
+                      boxShadow:
+                        "0 0 15px rgba(0,0,0,0.15)",
                     }}
                   >
 
-                    {/* HEADER */}
+                    {/* =================================================
+                        NEW EXPENSE STYLE HEADER
+                    ================================================= */}
 
-                    <div className="text-center mb-4">
+                    <div
+                      style={{
+                        height: "43mm",
+                        background:
+                          "linear-gradient(100deg, #08aeea 0%, #078dbb 35%, #075f7d 65%, #101c31 100%)",
+                        color: "#ffffff",
+                        position: "relative",
+                        overflow: "hidden",
+                      }}
+                    >
 
-                      <img
-                        src="/logo.png"
-                        width="80"
-                        alt="Logo"
-                      />
+                      {/* HEADER MAIN */}
 
-                      <h3>
-                        Badokhali Youth Foundation
-                      </h3>
+                      <div
+                        style={{
+                          height: "36mm",
+                          position: "relative",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
 
-                      <p>
-                        Badokhali, Mograhat, Bagerhat
-                      </p>
+                        {/* LOGO */}
 
-                      <h5>
-                        Donation Report
-                      </h5>
+                        <div
+                          style={{
+                            position: "absolute",
+                            left: "28mm",
+                            top: "50%",
+                            transform:
+                              "translateY(-50%)",
+                            width: "18mm",
+                            height: "18mm",
+                            background:
+                              "#ffffff",
+                            borderRadius:
+                              "50%",
+                            display: "flex",
+                            alignItems:
+                              "center",
+                            justifyContent:
+                              "center",
+                            padding: "2px",
+                          }}
+                        >
+
+                          <img
+                            src="/logo.png"
+                            alt="Badokhali Youth Foundation"
+                            crossOrigin="anonymous"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit:
+                                "contain",
+                              borderRadius:
+                                "50%",
+                            }}
+                          />
+
+                        </div>
+
+                        {/* ORGANIZATION NAME */}
+
+                        <div
+                          style={{
+                            textAlign: "center",
+                            marginTop: "2mm",
+                          }}
+                        >
+
+                          <div
+                            style={{
+                              fontSize: "35px",
+                              fontWeight: 800,
+                              lineHeight: 1.2,
+                              whiteSpace:
+                                "nowrap",
+                            }}
+                          >
+                            বাদোখালী ইয়ুথ ফাউন্ডেশন
+                          </div>
+
+                          <div
+                            style={{
+                              fontFamily:
+                                "Arial, sans-serif",
+                              fontSize: "25px",
+                              fontWeight: 700,
+                              lineHeight: 1.2,
+                              marginTop: "2px",
+                              whiteSpace:
+                                "nowrap",
+                            }}
+                          >
+                            Badokhali Youth Foundation
+                          </div>
+
+                        </div>
+
+                        {/* SLOGAN */}
+
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            right: "11mm",
+                            top: "3mm",
+                            fontSize: "10px",
+                            fontWeight: 500,
+                            whiteSpace:
+                              "nowrap",
+                          }}
+                        >
+                          তারুণ্যের স্পন্দন, সেবার বন্ধন
+                        </div>
+
+                      </div>
+
+                      {/* HEADER DESIGN */}
+
+                      <div
+                        style={{
+                          position:
+                            "absolute",
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: "7mm",
+                          display: "flex",
+                          background:
+                            "#ffffff",
+                        }}
+                      >
+
+                        <div
+                          style={{
+                            width: "31%",
+                            background:
+                              "linear-gradient(90deg, #12324a, #087b9e)",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            width: "38%",
+                            background:
+                              "#08aeea",
+                            clipPath:
+                              "polygon(8% 0, 92% 0, 84% 100%, 16% 100%)",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            width: "31%",
+                            background:
+                              "linear-gradient(90deg, #087b9e, #12324a)",
+                          }}
+                        />
+
+                      </div>
 
                     </div>
 
-                    {/* REPORT TABLE */}
+                    {/* ===============================
+                        WATERMARK
+                    =============================== */}
 
-                    <div className="table-responsive">
+                    <img
+                      src="/logo.png"
+                      alt="Watermark"
+                      crossOrigin="anonymous"
+                      style={{
+                        position:
+                          "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform:
+                          "translate(-50%, -50%)",
+                        width: "105mm",
+                        height: "105mm",
+                        objectFit:
+                          "contain",
+                        opacity: 0.045,
+                        filter:
+                          "grayscale(100%)",
+                        pointerEvents:
+                          "none",
+                        zIndex: 0,
+                      }}
+                    />
 
-                      <table className="table table-bordered">
+                    {/* ===============================
+                        CONTENT
+                    =============================== */}
 
-                        <thead className="table-light">
+                    <div
+                      style={{
+                        position:
+                          "relative",
+                        zIndex: 2,
+                        padding:
+                          "8mm 15mm 5mm",
+                      }}
+                    >
 
-                          <tr>
+                      {/* REPORT INFO */}
 
-                            <th>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent:
+                            "space-between",
+                          fontSize: "13px",
+                          marginBottom:
+                            "5mm",
+                        }}
+                      >
+
+                        <div>
+                          <strong>
+                            রিপোর্ট:
+                          </strong>{" "}
+                          Donation Collection
+                        </div>
+
+                        <div>
+                          <strong>
+                            তারিখ:
+                          </strong>{" "}
+                          {new Date().toLocaleDateString(
+                            "en-GB"
+                          )}
+                        </div>
+
+                      </div>
+
+                      {/* TITLE */}
+
+                      <h2
+                        style={{
+                          textAlign:
+                            "center",
+                          fontSize: "23px",
+                          fontWeight: 800,
+                          textDecoration:
+                            "underline",
+                          textUnderlineOffset:
+                            "5px",
+                          margin:
+                            "0 0 7mm",
+                        }}
+                      >
+                        Donation Report
+                      </h2>
+
+                      {/* FILTER INFO */}
+
+                      {(searchName ||
+                        filterMethod) && (
+
+                        <div
+                          style={{
+                            border:
+                              "1px solid #ccc",
+                            padding:
+                              "8px 12px",
+                            marginBottom:
+                              "15px",
+                            fontSize:
+                              "13px",
+                            background:
+                              "#f8f9fa",
+                          }}
+                        >
+
+                          <strong>
+                            Filter Applied:
+                          </strong>{" "}
+
+                          {searchName && (
+                            <>
+                              Donor:{" "}
+                              <strong>
+                                {searchName}
+                              </strong>
+                            </>
+                          )}
+
+                          {searchName &&
+                            filterMethod && (
+                              <>
+                                {" "}
+                                &nbsp; | &nbsp;
+                              </>
+                            )}
+
+                          {filterMethod && (
+                            <>
+                              Payment Method:{" "}
+                              <strong>
+                                {
+                                  filterMethod
+                                }
+                              </strong>
+                            </>
+                          )}
+
+                        </div>
+                      )}
+
+                      {/* ===============================
+                          TABLE
+                      =============================== */}
+
+                      <table
+                        style={{
+                          width: "100%",
+                          borderCollapse:
+                            "collapse",
+                          fontSize: "11px",
+                          tableLayout:
+                            "fixed",
+                        }}
+                      >
+
+                        <thead>
+
+                          <tr
+                            style={{
+                              background:
+                                "#f1f1f1",
+                            }}
+                          >
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #222",
+                                padding:
+                                  "7px 4px",
+                                width:
+                                  "30px",
+                              }}
+                            >
                               #
                             </th>
 
-                            <th>
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #222",
+                                padding:
+                                  "7px 4px",
+                                width:
+                                  "50px",
+                              }}
+                            >
                               Photo
                             </th>
 
-                            <th>
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #222",
+                                padding:
+                                  "7px 5px",
+                                width:
+                                  "105px",
+                              }}
+                            >
                               Donor
                             </th>
 
-                            <th>
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #222",
+                                padding:
+                                  "7px 5px",
+                                width:
+                                  "90px",
+                              }}
+                            >
                               Phone
                             </th>
 
-                            <th>
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #222",
+                                padding:
+                                  "7px 5px",
+                                width:
+                                  "65px",
+                              }}
+                            >
                               Type
                             </th>
 
-                            <th>
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #222",
+                                padding:
+                                  "7px 5px",
+                                width:
+                                  "120px",
+                              }}
+                            >
                               Amount / Details
                             </th>
 
-                            <th>
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #222",
+                                padding:
+                                  "7px 5px",
+                                width:
+                                  "85px",
+                              }}
+                            >
                               Method
                             </th>
 
-                            <th>
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #222",
+                                padding:
+                                  "7px 5px",
+                                width:
+                                  "90px",
+                              }}
+                            >
+                              Purpose
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #222",
+                                padding:
+                                  "7px 5px",
+                                width:
+                                  "75px",
+                              }}
+                            >
                               Date
                             </th>
 
@@ -1364,144 +1605,606 @@ const Donation = () => {
 
                         <tbody>
 
-                          {filteredDonations.map(
-                            (
-                              item,
-                              index
-                            ) => (
+                          {filteredDonations.length ===
+                          0 ? (
 
-                              <tr
-                                key={
-                                  item.id
-                                }
+                            <tr>
+
+                              <td
+                                colSpan={9}
+                                style={{
+                                  border:
+                                    "1px solid #222",
+                                  textAlign:
+                                    "center",
+                                  padding:
+                                    "20px",
+                                }}
                               >
+                                No Donation Found
+                              </td>
 
-                                <td>
-                                  {
-                                    index +
-                                    1
+                            </tr>
+
+                          ) : (
+
+                            filteredDonations.map(
+                              (
+                                item,
+                                index
+                              ) => (
+
+                                <tr
+                                  key={
+                                    item.id
                                   }
-                                </td>
+                                >
 
-                                <td>
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #222",
+                                      padding:
+                                        "6px 4px",
+                                      textAlign:
+                                        "center",
+                                    }}
+                                  >
+                                    {index + 1}
+                                  </td>
 
-                                  {item.photo ? (
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #222",
+                                      padding:
+                                        "4px",
+                                      textAlign:
+                                        "center",
+                                    }}
+                                  >
 
-                                    <img
-                                      src={
-                                        item.photo
-                                      }
-                                      alt={
-                                        item.donorName
-                                      }
-                                      width="40"
-                                      height="40"
-                                      style={{
-                                        objectFit:
-                                          "cover",
-                                        borderRadius:
-                                          "50%",
-                                      }}
-                                    />
+                                    {item.photo ? (
 
-                                  ) : (
-                                    "👤"
-                                  )}
+                                      <img
+                                        src={
+                                          item.photo
+                                        }
+                                        alt={
+                                          item.donorName
+                                        }
+                                        crossOrigin="anonymous"
+                                        width="35"
+                                        height="35"
+                                        style={{
+                                          objectFit:
+                                            "cover",
+                                          borderRadius:
+                                            "50%",
+                                        }}
+                                      />
 
-                                </td>
+                                    ) : (
+                                      "👤"
+                                    )}
 
-                                <td>
-                                  {
-                                    item.donorName
-                                  }
-                                </td>
+                                  </td>
 
-                                <td>
-                                  {
-                                    item.phone ||
-                                    "-"
-                                  }
-                                </td>
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #222",
+                                      padding:
+                                        "6px 5px",
+                                      wordBreak:
+                                        "break-word",
+                                    }}
+                                  >
+                                    {
+                                      item.donorName
+                                    }
+                                  </td>
 
-                                <td>
-                                  {
-                                    item.donationType
-                                  }
-                                </td>
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #222",
+                                      padding:
+                                        "6px 5px",
+                                    }}
+                                  >
+                                    {
+                                      item.phone ||
+                                      "-"
+                                    }
+                                  </td>
 
-                                <td>
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #222",
+                                      padding:
+                                        "6px 5px",
+                                      textAlign:
+                                        "center",
+                                    }}
+                                  >
+                                    {
+                                      item.donationType
+                                    }
+                                  </td>
 
-                                  {item.donationType ===
-                                  "Cash"
-                                    ? `৳ ${
-                                        item.amount ||
-                                        "0"
-                                      }`
-                                    : item.otherDetails ||
-                                      "-"}
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #222",
+                                      padding:
+                                        "6px 5px",
+                                      wordBreak:
+                                        "break-word",
+                                    }}
+                                  >
+                                    {item.donationType ===
+                                    "Cash"
+                                      ? `৳ ${
+                                          item.amount ||
+                                          "0"
+                                        }`
+                                      : item.otherDetails ||
+                                        "-"}
+                                  </td>
 
-                                </td>
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #222",
+                                      padding:
+                                        "6px 5px",
+                                    }}
+                                  >
+                                    {
+                                      item.paymentMethod
+                                    }
+                                  </td>
 
-                                <td>
-                                  {
-                                    item.paymentMethod
-                                  }
-                                </td>
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #222",
+                                      padding:
+                                        "6px 5px",
+                                      wordBreak:
+                                        "break-word",
+                                    }}
+                                  >
+                                    {
+                                      item.purpose ||
+                                      "-"
+                                    }
+                                  </td>
 
-                                <td>
-                                  {
-                                    item.donationDate ||
-                                    "-"
-                                  }
-                                </td>
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #222",
+                                      padding:
+                                        "6px 5px",
+                                      textAlign:
+                                        "center",
+                                    }}
+                                  >
+                                    {
+                                      item.donationDate ||
+                                      "-"
+                                    }
+                                  </td>
 
-                              </tr>
-
+                                </tr>
+                              )
                             )
+
                           )}
 
                         </tbody>
 
                       </table>
 
-                    </div>
+                      {/* ===============================
+                          SUMMARY
+                      =============================== */}
 
-                    <h5 className="text-end">
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent:
+                            "flex-end",
+                          marginTop:
+                            "18px",
+                        }}
+                      >
 
-                      Total Cash Donation :
-                      ৳{" "}
-                      {totalDonation}
+                        <div
+                          style={{
+                            width:
+                              "260px",
+                            borderTop:
+                              "2px solid #222",
+                            borderBottom:
+                              "1px solid #222",
+                            padding:
+                              "8px 0",
+                            fontSize:
+                              "14px",
+                          }}
+                        >
 
-                    </h5>
+                          <div
+                            style={{
+                              display:
+                                "flex",
+                              justifyContent:
+                                "space-between",
+                            }}
+                          >
 
-                    {/* FOOTER */}
+                            <strong>
+                              Total Cash Donation:
+                            </strong>
 
-                    <div className="row mt-5">
+                            <strong>
+                              ৳{" "}
+                              {
+                                totalDonation
+                              }
+                            </strong>
 
-                      <div className="col-md-6">
+                          </div>
 
-                        <img
-                          src="/roundseal.png"
-                          width="120"
-                          alt="Seal"
-                        />
+                        </div>
 
                       </div>
 
-                      <div className="col-md-6 text-end">
+                      {/* ===============================
+                          SIGNATURE / SEAL
+                      =============================== */}
 
-                        <br />
-                        <br />
+                      <div
+                        style={{
+                          display:
+                            "flex",
+                          justifyContent:
+                            "space-between",
+                          alignItems:
+                            "flex-end",
+                          marginTop:
+                            "12mm",
+                          minHeight:
+                            "35mm",
+                        }}
+                      >
 
-                        _______________________
+                        {/* LEFT */}
 
-                        <br />
+                        <div
+                          style={{
+                            width: "50%",
+                            paddingLeft:
+                              "10px",
+                            display:
+                              "flex",
+                            alignItems:
+                              "center",
+                            gap: "10px",
+                          }}
+                        >
 
-                        Treasurer
+                          <img
+                            src="/roundseal.png"
+                            alt="Seal"
+                            width="90"
+                            height="90"
+                            style={{
+                              objectFit:
+                                "contain",
+                            }}
+                          />
 
-                        <br />
+                          <div
+                            style={{
+                              display:
+                                "inline-block",
+                              border:
+                                "2px solid #0b6ff3",
+                              padding:
+                                "5px 12px",
+                              fontSize:
+                                "13px",
+                              fontWeight:
+                                "bold",
+                              color:
+                                "#0b6ff3",
+                              transform:
+                                "rotate(-6deg)",
+                              opacity: 0.8,
+                            }}
+                          >
+                            RECEIVED
+                          </div>
 
-                        Badokhali Youth Foundation
+                        </div>
+
+                        {/* RIGHT */}
+
+                        <div
+                          style={{
+                            width: "50%",
+                            textAlign:
+                              "center",
+                            fontSize:
+                              "13px",
+                          }}
+                        >
+
+                          <div
+                            style={{
+                              width:
+                                "180px",
+                              margin:
+                                "0 auto 5px",
+                              borderTop:
+                                "1px solid #222",
+                            }}
+                          />
+
+                          <strong>
+                            Suman Roy
+                          </strong>
+
+                          <div>
+                            Treasurer
+                          </div>
+
+                          <div>
+                            Badokhali Youth Foundation
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* =================================================
+                        NEW EXPENSE STYLE FOOTER
+                    ================================================= */}
+
+                    <div
+                      style={{
+                        position:
+                          "relative",
+                        zIndex: 2,
+                        padding:
+                          "3mm 15mm 0",
+                        background:
+                          "#ffffff",
+                      }}
+                    >
+
+                      {/* ELECTRONIC NOTICE */}
+
+                      <div
+                        style={{
+                          borderTop:
+                            "1px solid #d5d5d5",
+                          paddingTop:
+                            "8px",
+                          textAlign:
+                            "center",
+                          fontSize:
+                            "10px",
+                          color:
+                            "#888",
+                        }}
+                      >
+                        “This is electronically generated. No signature is required.”
+                      </div>
+
+                      {/* FOOTER INFORMATION */}
+
+                      <div
+                        style={{
+                          display:
+                            "flex",
+                          alignItems:
+                            "center",
+                          justifyContent:
+                            "space-between",
+                          gap: "8mm",
+                          marginTop:
+                            "4mm",
+                        }}
+                      >
+
+                        {/* PHONE */}
+
+                        <div
+                          style={{
+                            display:
+                              "flex",
+                            gap: "5px",
+                            fontSize:
+                              "9.5px",
+                            lineHeight:
+                              1.5,
+                          }}
+                        >
+
+                          <span
+                            style={{
+                              fontSize:
+                                "14px",
+                            }}
+                          >
+                            ☎
+                          </span>
+
+                          <div>
+                            <div>
+                              +8801738126875
+                            </div>
+
+                            <div>
+                              +8801714597343
+                            </div>
+                          </div>
+
+                        </div>
+
+                        {/* ADDRESS */}
+
+                        <div
+                          style={{
+                            display:
+                              "flex",
+                            gap: "5px",
+                            fontSize:
+                              "9.5px",
+                            lineHeight:
+                              1.5,
+                          }}
+                        >
+
+                          <span
+                            style={{
+                              fontSize:
+                                "14px",
+                            }}
+                          >
+                            📍
+                          </span>
+
+                          <div>
+                            Badokhali, Mograhat-9300,
+                            <br />
+                            Bagerhat
+                          </div>
+
+                        </div>
+
+                        {/* EMAIL */}
+
+                        <div
+                          style={{
+                            display:
+                              "flex",
+                            gap: "5px",
+                            fontSize:
+                              "9.5px",
+                            lineHeight:
+                              1.5,
+                          }}
+                        >
+
+                          <span
+                            style={{
+                              fontSize:
+                                "14px",
+                            }}
+                          >
+                            ✉
+                          </span>
+
+                          <div>
+                            badokhaliyouthfoundation@gmail.com
+                            <br />
+                            youtube.com/@badokhaliyyouthfoundation
+                          </div>
+
+                        </div>
+
+                        {/* QR */}
+
+                        <div>
+
+                          <img
+                            src="/qr-code.jpeg"
+                            alt="QR Code"
+                            crossOrigin="anonymous"
+                            style={{
+                              width:
+                                "20mm",
+                              height:
+                                "20mm",
+                              objectFit:
+                                "contain",
+                            }}
+                          />
+
+                        </div>
+
+                      </div>
+
+                      {/* FOOTER DESIGN */}
+
+                      <div
+                        style={{
+                          height:
+                            "12mm",
+                          marginTop:
+                            "4mm",
+                          position:
+                            "relative",
+                          overflow:
+                            "hidden",
+                        }}
+                      >
+
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            left: 0,
+                            top: 0,
+                            width:
+                              "35%",
+                            height:
+                              "4px",
+                            background:
+                              "#292929",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            left:
+                              "27%",
+                            right:
+                              "27%",
+                            top: 0,
+                            bottom: 0,
+                            background:
+                              "#08aeea",
+                            clipPath:
+                              "polygon(13% 0, 87% 0, 74% 100%, 26% 100%)",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            right: 0,
+                            top: 0,
+                            width:
+                              "28%",
+                            height:
+                              "4px",
+                            background:
+                              "#292929",
+                          }}
+                        />
 
                       </div>
 
@@ -1511,14 +2214,25 @@ const Donation = () => {
 
                 </div>
 
+                {/* ===============================
+                    MODAL FOOTER
+                =============================== */}
+
                 <div className="modal-footer">
+
+                  <button
+                    className="btn btn-success"
+                    onClick={
+                      downloadReport
+                    }
+                  >
+                    📥 Download Report
+                  </button>
 
                   <button
                     className="btn btn-secondary"
                     onClick={() =>
-                      setShowReport(
-                        false
-                      )
+                      setShowReport(false)
                     }
                   >
                     Close
@@ -1535,10 +2249,8 @@ const Donation = () => {
         )}
 
       </div>
-
     </AdminLayout>
   );
 };
 
 export default Donation;
-

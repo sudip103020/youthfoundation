@@ -16,7 +16,6 @@ const MedicalList = () => {
   const [members, setMembers] = useState<MedicalInfo[]>([]);
   const [bloodFilter, setBloodFilter] = useState("");
   const [loading, setLoading] = useState(true);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // ===============================
   // PAGINATION
@@ -362,43 +361,21 @@ const MedicalList = () => {
 
                       
                           {/* Mobile */}
-                          <td>
-                            {member.phone ? (
-                              <div className="d-flex align-items-center gap-2">
-                                <span>{member.phone}</span>
-
-                                <button
-                                  type="button"
-                                  className={`btn btn-sm ${copiedId === member.id
-                                      ? "btn-success"
-                                      : "btn-outline-secondary"
-                                    }`}
-                                  onClick={async () => {
-                                    try {
-                                      await navigator.clipboard.writeText(member.phone!);
-
-                                      setCopiedId(member.id);
-
-                                      setTimeout(() => {
-                                        setCopiedId(null);
-                                      }, 1500);
-                                    } catch (error) {
-                                      console.error("Failed to copy number:", error);
-                                    }
-                                  }}
-                                  title={
-                                    copiedId === member.id
-                                      ? "Copied"
-                                      : "Copy phone number"
-                                  }
-                                >
-                                  {copiedId === member.id ? "✓ Copied" : "Copy Number"}
-                                </button>
-                              </div>
-                            ) : (
-                              <span className="text-muted">-</span>
-                            )}
-                          </td>
+                          {/* Mobile */}
+<td>
+  {member.phone} {"  "}
+  {member.phone ? (
+    <a
+      href={`tel:${member.phone}`}
+      className="btn btn-sm btn-outline-success"
+      title="Call"
+    >
+      📞 Call 
+    </a>
+  ) : (
+    <span className="text-muted">-</span>
+  )}
+</td>
 
                           {/* Blood Group */}
 

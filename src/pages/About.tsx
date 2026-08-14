@@ -216,23 +216,35 @@ export default function About() {
                       </h6>
 
                       {/* PHONE */}
-                      {member.phone && (
-                        <p className="mb-2">
-                          📞{" "}
-                          <strong>
-                            {member.phone}
-                          </strong>
-                        </p>
+
+                      {member.phone ? (
+                        <a
+                          href={`tel:${member.phone}`}
+                          className="btn btn-sm btn-outline-success"
+                          title="Call"
+                        >
+                          📞 Call
+                        </a>
+                      ) : (
+                        <span className="text-muted">-</span>
                       )}
+                      {"  "}{member.phone}
 
                       {/* EMAIL */}
-                      {member.email && (
-                        <p className="mb-2 text-break">
-                          ✉️ {member.email}
-                        </p>
-                      )}
+                     {member.email && (
+  <p className="mb-2 text-break">
+    ✉️{" "}
+    <a
+      href={`mailto:${member.email}`}
+      className="text-decoration-none"
+      title="Send Email"
+    >
+      {member.email}
+    </a>
+  </p>
+)}
 
-              
+
                     </Card.Body>
                   </Card>
                 </Col>

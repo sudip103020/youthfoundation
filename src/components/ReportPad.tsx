@@ -102,7 +102,7 @@ const ReportPad: React.FC<ReportPadProps> = ({
 
             {/* SLOGAN */}
             <div className="header-slogan">
-              তারুণ্যের সম্পদ, সেবার বন্ধন
+              তারুণ্যের স্পন্দন , সেবার বন্ধন
             </div>
 
           </div>
@@ -140,12 +140,12 @@ const ReportPad: React.FC<ReportPadProps> = ({
           <div className="report-meta">
 
             <div>
-              <span>স্মারক নং / Ref No. :</span>
+              <span>স্মারক নং:</span>
               <strong>{refNo}</strong>
             </div>
 
             <div>
-              <span>তারিখ / Date :</span>
+              <span>তারিখ:</span>
               <strong>{date}</strong>
             </div>
 

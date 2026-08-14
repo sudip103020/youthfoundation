@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
+
 import {
   FaFacebookF,
   FaYoutube,
@@ -21,8 +23,9 @@ import {
 
 import { db } from "../firebase/firebase";
 
-
 const Footer = () => {
+  const { t } = useTranslation();
+
   const [visitorCount, setVisitorCount] = useState(0);
 
   useEffect(() => {
@@ -33,13 +36,9 @@ const Footer = () => {
 
         // First visit from this browser
         if (!visitorId) {
-          visitorId =
-            crypto.randomUUID();
+          visitorId = crypto.randomUUID();
 
-          localStorage.setItem(
-            "byf_visitor_id",
-            visitorId
-          );
+          localStorage.setItem("byf_visitor_id", visitorId);
 
           const visitorRef = doc(
             db,
@@ -95,85 +94,149 @@ const Footer = () => {
     <>
       <footer className="footer">
         <Container>
-
           <Row className="gy-3">
 
-            {/* Quick Links */}
+            {/* ================= QUICK LINKS ================= */}
             <Col lg={4} md={4}>
-              <h5 className="footer-title">Quick Links</h5>
+              <h5 className="footer-title">
+                {t("quickLinks")}
+              </h5>
 
               <ul className="footer-links">
-                <li><a href="/about">About us</a></li>
-                <li><a href="/donors">Donors</a></li>
-                <li><a href="/admin/login">Admin Site</a></li>
+                <li>
+                  <a href="/about">
+                    {t("about")}
+                  </a>
+                </li>
 
+                <li>
+                  <a href="/donors">
+                    {t("donors")}
+                  </a>
+                </li>
+
+                <li>
+                  <a href="/admin/login">
+                    {t("adminSite")}
+                  </a>
+                </li>
               </ul>
             </Col>
 
-            {/* Contact */}
+            {/* ================= CONTACT ================= */}
             <Col lg={5} md={5}>
-              <h5 className="footer-title">Contact Info</h5>
+              <h5 className="footer-title">
+                {t("contactInfo")}
+              </h5>
 
-             
+              <p>
+                <FaPhoneAlt />{" "}
+                <a
+                  href="tel:+8801738126875"
+                  className="text-decoration-none"
+                >
+                  +8801738126875
+                </a>
+                ,{" "}
+                <a
+                  href="tel:+8801714597343"
+                  className="text-decoration-none"
+                >
+                  +8801714597343
+                </a>
+              </p>
 
-              <p><FaPhoneAlt /> +8801738126875, +8801714597343</p>
-              <p><FaEnvelope /> badokhaliyouthfoundation@gmail.com</p>
-               <p><FaMapMarkerAlt /> Badokhali, Mograhat-9300, Bagerhat Sadar, Bagerhat</p>
+              <p>
+                <FaEnvelope />{" "}
+                <a
+                  href="mailto:badokhaliyouthfoundation@gmail.com"
+                  className="text-decoration-none"
+                >
+                  badokhaliyouthfoundation@gmail.com
+                </a>
+              </p>
 
-              
-
-
-
+              <p>
+                <FaMapMarkerAlt />{" "}
+                {t("address")}
+              </p>
             </Col>
 
-            {/* Social */}
+            {/* ================= SOCIAL ================= */}
             <Col lg={3} md={3}>
-              <h5 className="footer-title">Follow Us</h5>
+              <h5 className="footer-title">
+                {t("followUs")}
+              </h5>
 
               <div className="social-icons">
 
-                <a href="https://www.facebook.com/badokhaliyouthfoundation">
+                {/* Facebook */}
+                <a
+                  href="https://www.facebook.com/badokhaliyouthfoundation"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                >
                   <FaFacebookF />
                 </a>
 
-                <a href="https://youtube.com/@badhokhaliyouthfoundation">
+                {/* YouTube */}
+                <a
+                  href="https://youtube.com/@badhokhaliyouthfoundation"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                >
                   <FaYoutube />
                 </a>
 
-                <a href="https://wa.me/8801738126875"
+                {/* WhatsApp */}
+                <a
+                  href="https://wa.me/8801738126875"
                   target="_blank"
-                  rel="noopener noreferrer">
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                >
                   <FaWhatsapp />
                 </a>
 
-                <a href="/feedback"
-                  target="_blank"
-                  rel="noopener noreferrer">
+                {/* Feedback */}
+                <a
+                  href="/feedback"
+                  aria-label={t("feedback")}
+                >
                   <FaComments />
                 </a>
 
-                <div className="visitor-count">
-                <FaEye /> 
+                {/* Visitor Count */}
+                <div
+                  className="visitor-count"
+                  title={t("visitors")}
+                >
+                  <FaEye />
 
-                <span style={{ marginLeft: "10px" }}>
-    
-                  <strong>
-                         {visitorCount.toLocaleString()}
-                  </strong>
-                </span>
+                  <span
+                    style={{
+                      marginLeft: "10px",
+                    }}
+                  >
+                    <strong>
+                      {visitorCount.toLocaleString()}
+                    </strong>
+                  </span>
+                </div>
+
               </div>
-
-              </div>
-
             </Col>
 
           </Row>
-
         </Container>
       </footer>
 
+      {/* ================= COPYRIGHT ================= */}
       <div className="copyright">
-        © 2026 Badokhali Youth Foundation. All Rights Reserved.
+        © {t("year")} {t("foundationName")}.{" "}
+        {t("allRightsReserved")}
       </div>
     </>
   );

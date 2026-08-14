@@ -86,6 +86,35 @@ const Notice = () => {
     setSelectedNotice(notice);
     setShowModal(true);
   };
+
+  const toBanglaDate = (date: string) => {
+  if (!date) return "—";
+
+  const months = [
+    "জানুয়ারি",
+    "ফেব্রুয়ারি",
+    "মার্চ",
+    "এপ্রিল",
+    "মে",
+    "জুন",
+    "জুলাই",
+    "আগস্ট",
+    "সেপ্টেম্বর",
+    "অক্টোবর",
+    "নভেম্বর",
+    "ডিসেম্বর",
+  ];
+
+  const [year, month, day] = date.split("-");
+
+  const banglaNumber = (value: string) =>
+    value.replace(
+      /\d/g,
+      (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]
+    );
+
+  return `${banglaNumber(day)} ${months[Number(month) - 1]} ${banglaNumber(year)}`;
+};
   return (
     <>
       
@@ -263,65 +292,63 @@ const Notice = () => {
 
       {/* ================= NOTICE DETAILS MODAL ================= */}
 
-      <Modal
-        show={showModal}
-        onHide={() => setShowModal(false)}
-        size="lg"
-        centered
-      >
-
-
-        <Modal.Header closeButton>
-          <Modal.Title>
-            📢 Notice Details
-          </Modal.Title>
-        </Modal.Header>
-
-        {selectedNotice && (
-  <div
-  ref={reportRef}
-  style={{
-    width: "794px",
-    margin: "0 auto",
-  }}
+      ```tsx
+<Modal
+  show={showModal}
+  onHide={() => setShowModal(false)}
+  size="lg"
+  centered
+  dialogClassName="notice-modal"
 >
-    <ReportPad
-      refNo={selectedNotice.priority}
-      date={selectedNotice.publishDate}
-      title={selectedNotice.title}
-      content={selectedNotice.description}
-      presidentName="সুদীপ কুমার হালদার"
-      secretaryName="সভাপতি"
-    />
-  </div>
-)}
+  <Modal.Header closeButton>
+    <Modal.Title>
+      📢 Notice Details
+    </Modal.Title>
+  </Modal.Header>
+
+  {selectedNotice && (
+    <Modal.Body className="notice-modal-body">
+      <div
+        ref={reportRef}
+        className="report-download-area"
+      >
+        <ReportPad
+          refNo={selectedNotice.priority
+                          ? selectedNotice.priority
+                            .split("-")
+                            .map((part) =>
+                              part.replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)])
+                            )
+                            .join("-")
+                          : "—"}
+       date={toBanglaDate(selectedNotice.publishDate)}
+          title={selectedNotice.title}
+          content={selectedNotice.description}
+          presidentName="সুদীপ কুমার হালদার"
+          secretaryName="সভাপতি"
+        />
+      </div>
+    </Modal.Body>
+  )}
+
+  <Modal.Footer>
+    <Button
+      variant="success"
+      onClick={downloadNotice}
+    >
+      📥 Download Notice
+    </Button>
+
+    <Button
+      variant="secondary"
+      onClick={() => setShowModal(false)}
+    >
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
 
 
-        {/* ================================================= */}
-        {/* MODAL FOOTER */}
-        {/* ================================================= */}
-
-        <Modal.Footer>
-
-          <Button
-            variant="success"
-            onClick={downloadNotice}
-          >
-            📥 Download Notice
-          </Button>
-
-          <Button
-            variant="secondary"
-            onClick={() =>
-              setShowModal(false)
-            }
-          >
-            Close
-          </Button>
-
-        </Modal.Footer>
-
-      </Modal>
 
      
     </>

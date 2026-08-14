@@ -380,202 +380,822 @@ const Subscription = () => {
           </div>
         </div>
 
-        {showReport && (
+      
+{/* ================= SUBSCRIPTION REPORT MODAL ================= */}
+
+{showReport && (
+  <div
+    className="modal fade show d-block"
+    style={{
+      backgroundColor: "rgba(0,0,0,0.6)",
+      zIndex: 1055,
+    }}
+  >
+    <div
+      className="modal-dialog modal-xl modal-dialog-centered"
+      style={{
+        maxWidth: "95%",
+      }}
+    >
+      <div className="modal-content">
+
+        {/* MODAL HEADER */}
+
+        <div className="modal-header">
+
+          <h5 className="modal-title">
+            💰 Subscription Report
+          </h5>
+
+          <button
+            className="btn-close"
+            onClick={() => setShowReport(false)}
+          />
+
+        </div>
+
+
+        {/* ================= REPORT VIEW ================= */}
+
+        <div
+          className="modal-body"
+          style={{
+            padding: "20px",
+            overflowX: "auto",
+            background: "#eeeeee",
+          }}
+        >
+
           <div
-            className="modal fade show d-block"
+            ref={reportRef}
             style={{
-              backgroundColor: "rgba(0,0,0,0.5)",
+              width: "210mm",
+              minWidth: "210mm",
+              margin: "0 auto",
+              background: "#ffffff",
+              position: "relative",
+              overflow: "hidden",
+              fontFamily:
+                '"Noto Sans Bengali", "Noto Sans", sans-serif',
+              boxShadow:
+                "0 0 15px rgba(0,0,0,0.15)",
             }}
           >
-            <div className="modal-dialog modal-lg">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <button
-                    className="btn-close"
-                    onClick={() => setShowReport(false)}
-                  ></button>
-                </div>
+
+            {/* ================= HEADER ================= */}
+
+            <div
+              style={{
+                height: "43mm",
+                background:
+                  "linear-gradient(100deg, #08aeea 0%, #078dbb 35%, #075f7d 65%, #101c31 100%)",
+                color: "#ffffff",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+
+              {/* HEADER MAIN */}
+
+              <div
+                style={{
+                  height: "36mm",
+                  position: "relative",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+
+                {/* LOGO */}
 
                 <div
-                  ref={reportRef}
-                  className="modal-body"
                   style={{
-                    position: "relative",
-                    overflow: "hidden",
-                    background: "#fff",
-                    padding: "20px",
+                    position: "absolute",
+                    left: "28mm",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    width: "18mm",
+                    height: "18mm",
+                    background: "#ffffff",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  {/* Background Watermark Logo */}
 
                   <img
                     src="/logo.png"
-                    alt="Watermark"
+                    alt="Badokhali Youth Foundation"
                     style={{
-                      position: "absolute",
-                      top: "55%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "420px",
-                      opacity: 0.15,
-                      filter: "grayscale(100%)",
-                      zIndex: 2,
-                      pointerEvents: "none",
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      borderRadius: "50%",
                     }}
                   />
 
-                  {/* Report Content */}
+                </div>
+
+
+                {/* ORGANIZATION NAME */}
+
+                <div
+                  style={{
+                    textAlign: "center",
+                    marginTop: "2mm",
+                  }}
+                >
 
                   <div
                     style={{
-                      position: "relative",
-                      zIndex: 1,
+                      fontSize: "35px",
+                      fontWeight: 800,
+                      lineHeight: 1.2,
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    {/* Header */}
+                    বাদোখালী ইয়ুথ ফাউন্ডেশন
+                  </div>
 
-                    <div className="text-center mb-4">
-                      <img src="/logo.png" width="80" alt="Logo" />
+                  <div
+                    style={{
+                      fontFamily: "Arial, sans-serif",
+                      fontSize: "25px",
+                      fontWeight: 700,
+                      lineHeight: 1.2,
+                      marginTop: "2px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Badokhali Youth Foundation
+                  </div>
 
-                      <h3>Badokhali Youth Foundation</h3>
-
-                      <p>Badokhali, Mograhat, Bagerhat</p>
-                    </div>
-
-                    {/* Table */}
-
-                    <table className="table table-bordered">
-                      <thead className="table-light">
-                        <tr>
-                          <th>Name</th>
-
-                          <th>Designation</th>
-
-                          <th>Month</th>
-
-                          <th>Amount</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {filteredSubscriptions.map((item) => (
-                          <tr key={item.id}>
-                            <td>{item.name}</td>
-
-                            <td>{item.designation}</td>
-
-                            <td>
-                              {item.month}-{item.year}
-                            </td>
-
-                            <td>৳ {item.amount}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
-                    {/* Total */}
-
-                    <h5 className="text-end mt-4">
-                      Total Collection: ৳{" "}
-                      {filteredSubscriptions.reduce(
-                        (total, item) => total + Number(item.amount),
-                        0,
-                      )}
-                    </h5>
-
-                    {/* Seal & Signature */}
-
-                    <div className="row mt-5">
-
-                      
-                      {/* Left Seal */}
-
-                      <div className="col-md-6 text-start">
-                        <img
-                          src="/roundseal.png"
-                          alt="Office Seal"
-                          width="120"
-                          height="120"
-                          style={{
-                            objectFit: "contain",
-                          }}
-                        />
-
-                        
-
-                        <div
-                          style={{
-                            border: "2px solid #0b6ff3",
-                            padding: "7px 16px",
-                            display: "inline-block",
-                            fontSize: "17px",
-                            fontWeight: "bold",
-                            letterSpacing: "1.5px",
-                            color: "#0b6ff3",
-                            fontFamily: "Arial, sans-serif",
-                            transform: "rotate(-6deg)",
-                            opacity: 0.8,
-                            borderRadius: "2px",
-                            textTransform: "uppercase",
-                            marginLeft: "100px",
-                          }}
-                        >
-                          RECEIVED
-                        </div>
+                </div>
 
 
+                {/* SLOGAN */}
+
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "11mm",
+                    top: "3mm",
+                    fontSize: "10px",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  তারুণ্যের স্পন্দন, সেবার বন্ধন
+                </div>
+
+              </div>
 
 
-                      </div>
+              {/* HEADER DESIGN */}
+
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: "7mm",
+                  display: "flex",
+                  background: "#ffffff",
+                }}
+              >
+
+                <div
+                  style={{
+                    width: "31%",
+                    background:
+                      "linear-gradient(90deg, #12324a, #087b9e)",
+                  }}
+                />
+
+                <div
+                  style={{
+                    width: "38%",
+                    background: "#08aeea",
+                    clipPath:
+                      "polygon(8% 0, 92% 0, 84% 100%, 16% 100%)",
+                  }}
+                />
+
+                <div
+                  style={{
+                    width: "31%",
+                    background:
+                      "linear-gradient(90deg, #087b9e, #12324a)",
+                  }}
+                />
+
+              </div>
+
+            </div>
 
 
+            {/* ================= WATERMARK ================= */}
 
-                      {/* Right Signature */}
+            <img
+              src="/logo.png"
+              alt=""
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "105mm",
+                height: "105mm",
+                objectFit: "contain",
+                opacity: 0.045,
+                pointerEvents: "none",
+                zIndex: 0,
+              }}
+            />
 
-                      <div className="col-md-6 text-end">
 
-                        Suman Roy
-                        <br />
-                        Treasurer
-                        <br />
-                        Badokhali Youth Foundation
-                      </div>
-                      <p
-                        className="mb-0"
+            {/* ================= CONTENT ================= */}
+
+            <div
+              style={{
+                position: "relative",
+                zIndex: 2,
+                padding: "8mm 15mm 5mm",
+              }}
+            >
+
+              {/* REPORT META */}
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "13px",
+                  marginBottom: "5mm",
+                }}
+              >
+
+                <div>
+                  <strong>রিপোর্ট:</strong>{" "}
+                  Subscription Collection
+                </div>
+
+                <div>
+                  <strong>তারিখ:</strong>{" "}
+                  {new Date().toLocaleDateString("en-GB")}
+                </div>
+
+              </div>
+
+
+              {/* TITLE */}
+
+              <h2
+                style={{
+                  textAlign: "center",
+                  fontSize: "23px",
+                  fontWeight: 800,
+                  textDecoration: "underline",
+                  textUnderlineOffset: "5px",
+                  margin: "0 0 7mm",
+                }}
+              >
+                Monthly Subscription Report
+              </h2>
+
+
+              {/* FILTER INFORMATION */}
+
+              {(filterMonth || filterYear || filterMember) && (
+                <div
+                  style={{
+                    textAlign: "center",
+                    fontSize: "12px",
+                    marginBottom: "5mm",
+                    color: "#555",
+                  }}
+                >
+
+                  {filterMonth && (
+                    <span>
+                      Month: <strong>{filterMonth}</strong>
+                    </span>
+                  )}
+
+                  {filterYear && (
+                    <span style={{ marginLeft: "15px" }}>
+                      Year: <strong>{filterYear}</strong>
+                    </span>
+                  )}
+
+                  {filterMember && (
+                    <span style={{ marginLeft: "15px" }}>
+                      Member:{" "}
+                      <strong>
+                        {
+                          members.find(
+                            (member) =>
+                              member.id === filterMember
+                          )?.name
+                        }
+                      </strong>
+                    </span>
+                  )}
+
+                </div>
+              )}
+
+
+              {/* ================= TABLE ================= */}
+
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  tableLayout: "fixed",
+                  fontSize: "12px",
+                }}
+              >
+
+                <thead>
+
+                  <tr>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "7%",
+                        background: "#f0f5f2",
+                        textAlign: "center",
+                      }}
+                    >
+                      #
+                    </th>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "30%",
+                        background: "#f0f5f2",
+                      }}
+                    >
+                      Name
+                    </th>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "25%",
+                        background: "#f0f5f2",
+                      }}
+                    >
+                      Designation
+                    </th>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "18%",
+                        background: "#f0f5f2",
+                        textAlign: "center",
+                      }}
+                    >
+                      Month
+                    </th>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "20%",
+                        background: "#f0f5f2",
+                        textAlign: "right",
+                      }}
+                    >
+                      Amount
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  {filteredSubscriptions.length === 0 ? (
+
+                    <tr>
+
+                      <td
+                        colSpan={5}
                         style={{
-                          fontSize: "12px",
-                          color: "#777",
+                          border: "1px solid #555",
+                          padding: "15px",
+                          textAlign: "center",
                         }}
                       >
-                        This report is digitally generated and does not require a physical
-                        signature.
-                      </p>
+                        No Subscription Found
+                      </td>
+
+                    </tr>
+
+                  ) : (
+
+                    filteredSubscriptions.map(
+                      (item, index) => (
+
+                        <tr key={item.id}>
+
+                          <td
+                            style={{
+                              border: "1px solid #555",
+                              padding: "7px 5px",
+                              textAlign: "center",
+                              verticalAlign: "middle",
+                            }}
+                          >
+                            {index + 1}
+                          </td>
+
+                          <td
+                            style={{
+                              border: "1px solid #555",
+                              padding: "7px 5px",
+                              verticalAlign: "middle",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {item.name}
+                          </td>
+
+                          <td
+                            style={{
+                              border: "1px solid #555",
+                              padding: "7px 5px",
+                              verticalAlign: "middle",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {item.designation}
+                          </td>
+
+                          <td
+                            style={{
+                              border: "1px solid #555",
+                              padding: "7px 5px",
+                              textAlign: "center",
+                              verticalAlign: "middle",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {item.month}-{item.year}
+                          </td>
+
+                          <td
+                            style={{
+                              border: "1px solid #555",
+                              padding: "7px 5px",
+                              textAlign: "right",
+                              verticalAlign: "middle",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            ৳ {item.amount}
+                          </td>
+
+                        </tr>
+
+                      )
+                    )
+
+                  )}
+
+                </tbody>
+
+              </table>
 
 
-                    </div>
-                  </div>
-                </div>
+              {/* ================= TOTAL ================= */}
 
-                <div className="modal-footer">
-                  <button
-                    className="btn btn-success"
-                    onClick={downloadReport}
-                  >
-                    📥 Download Image
-                  </button>
-
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => setShowReport(false)}
-                  >
-                    Close
-                  </button>
-                </div>
+              <div
+                style={{
+                  marginTop: "6mm",
+                  textAlign: "right",
+                  fontSize: "16px",
+                  fontWeight: 800,
+                }}
+              >
+                Total Collection : ৳{" "}
+                {totalSubscription}
               </div>
+
+
+              {/* ================= SIGNATURE ================= */}
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-end",
+                  marginTop: "12mm",
+                  minHeight: "35mm",
+                }}
+              >
+
+                {/* SEAL + RECEIVED */}
+
+                <div
+                  style={{
+                    width: "50%",
+                    paddingLeft: "10px",
+                    position: "relative",
+                  }}
+                >
+
+                  <img
+                    src="/roundseal.png"
+                    alt="Office Seal"
+                    style={{
+                      width: "90px",
+                      height: "90px",
+                      objectFit: "contain",
+                    }}
+                  />
+
+                  <div
+                    style={{
+                      border: "2px solid #0b6ff3",
+                      padding: "7px 16px",
+                      display: "inline-block",
+                      fontSize: "17px",
+                      fontWeight: "bold",
+                      letterSpacing: "1.5px",
+                      color: "#0b6ff3",
+                      fontFamily: "Arial, sans-serif",
+                      transform: "rotate(-6deg)",
+                      opacity: 0.8,
+                      borderRadius: "2px",
+                      textTransform: "uppercase",
+                      marginLeft: "10px",
+                    }}
+                  >
+                    RECEIVED
+                  </div>
+
+                </div>
+
+
+                {/* SIGNATURE */}
+
+                <div
+                  style={{
+                    width: "50%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                  }}
+                >
+
+                  <div
+                    style={{
+                      width: "180px",
+                      margin: "0 auto 5px",
+                      borderTop: "1px solid #222",
+                    }}
+                  />
+
+                  <strong>
+                    Suman Roy
+                  </strong>
+
+                  <div>
+                    Treasurer
+                  </div>
+
+                  <div>
+                    Badokhali Youth Foundation
+                  </div>
+
+                </div>
+
+              </div>
+
             </div>
+
+
+            {/* ================= FOOTER ================= */}
+
+            <div
+              style={{
+                position: "relative",
+                zIndex: 2,
+                padding: "3mm 15mm 0",
+                background: "#ffffff",
+              }}
+            >
+
+              {/* ELECTRONIC NOTICE */}
+
+              <div
+                style={{
+                  borderTop: "1px solid #d5d5d5",
+                  paddingTop: "8px",
+                  textAlign: "center",
+                  fontSize: "10px",
+                  color: "#888",
+                }}
+              >
+                “This is electronically generated. No signature is required.”
+              </div>
+
+
+              {/* FOOTER INFORMATION */}
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "8mm",
+                  marginTop: "4mm",
+                }}
+              >
+
+                {/* PHONE */}
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    fontSize: "9.5px",
+                    lineHeight: 1.5,
+                  }}
+                >
+
+                  <span style={{ fontSize: "14px" }}>
+                    ☎
+                  </span>
+
+                  <div>
+                    <div>+8801738126875</div>
+                    <div>+8801714597343</div>
+                  </div>
+
+                </div>
+
+
+                {/* ADDRESS */}
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    fontSize: "9.5px",
+                    lineHeight: 1.5,
+                  }}
+                >
+
+                  <span style={{ fontSize: "14px" }}>
+                    📍
+                  </span>
+
+                  <div>
+                    Badokhali, Mograhat-9300,
+                    <br />
+                    Bagerhat
+                  </div>
+
+                </div>
+
+
+                {/* EMAIL */}
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    fontSize: "9.5px",
+                    lineHeight: 1.5,
+                  }}
+                >
+
+                  <span style={{ fontSize: "14px" }}>
+                    ✉
+                  </span>
+
+                  <div>
+                    badokhaliyouthfoundation@gmail.com
+                    <br />
+                    youtube.com/@badokhaliyyouthfoundation
+                  </div>
+
+                </div>
+
+
+                {/* QR */}
+
+                <div>
+                  <img
+                    src="/qr-code.jpeg"
+                    alt="QR Code"
+                    style={{
+                      width: "20mm",
+                      height: "20mm",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+
+              </div>
+
+
+              {/* FOOTER DESIGN */}
+
+              <div
+                style={{
+                  height: "12mm",
+                  marginTop: "4mm",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
+                    width: "35%",
+                    height: "4px",
+                    background: "#292929",
+                  }}
+                />
+
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "27%",
+                    right: "27%",
+                    top: 0,
+                    bottom: 0,
+                    background: "#08aeea",
+                    clipPath:
+                      "polygon(13% 0, 87% 0, 74% 100%, 26% 100%)",
+                  }}
+                />
+
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: 0,
+                    width: "28%",
+                    height: "4px",
+                    background: "#292929",
+                  }}
+                />
+
+              </div>
+
+            </div>
+
           </div>
-        )}
+
+        </div>
+
+
+        {/* ================= MODAL FOOTER ================= */}
+
+        <div className="modal-footer">
+
+          <button
+            className="btn btn-success"
+            onClick={downloadReport}
+          >
+            📥 Download Report
+          </button>
+
+          <button
+            className="btn btn-secondary"
+            onClick={() => setShowReport(false)}
+          >
+            Close
+          </button>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
+
+
         {/* History */}
 
         <h5>Subscription History</h5>

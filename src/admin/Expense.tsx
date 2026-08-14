@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import html2canvas from "html2canvas";
 import { db } from "../firebase/firebase";
 import AdminLayout from "./AdminLayout";
 
@@ -23,6 +24,7 @@ interface Expense {
 
 const Expense = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const reportRef = useRef<HTMLDivElement>(null);
 
   // Add Form
 
@@ -134,6 +136,23 @@ const Expense = () => {
     (sum, item) => sum + Number(item.amount),
     0,
   );
+
+  const downloadExpenseReport = async () => {
+  if (!reportRef.current) return;
+
+  const canvas = await html2canvas(reportRef.current, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+  });
+
+  const image = canvas.toDataURL("image/png");
+
+  const link = document.createElement("a");
+  link.href = image;
+  link.download = "Expense-Report.png";
+  link.click();
+};
 
   return (
     <AdminLayout>
@@ -302,122 +321,747 @@ const Expense = () => {
         </div>
         {/* Report Modal */}
 
-        {showReport && (
-          <div
-            className="modal fade show d-block"
-            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-          >
-            <div className="modal-dialog modal-lg">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Expense Report</h5>
+    
+{/* ================= EXPENSE REPORT MODAL ================= */}
 
-                  <button
-                    className="btn-close"
-                    onClick={() => setShowReport(false)}
+{showReport && (
+  <div
+    className="modal fade show d-block"
+    style={{
+      backgroundColor: "rgba(0,0,0,0.6)",
+      zIndex: 1055,
+    }}
+  >
+    <div
+      className="modal-dialog modal-xl modal-dialog-centered"
+      style={{
+        maxWidth: "95%",
+      }}
+    >
+      <div className="modal-content">
+
+        {/* MODAL HEADER */}
+        <div className="modal-header">
+          <h5 className="modal-title">
+            💸 Expense Report
+          </h5>
+
+          <button
+            className="btn-close"
+            onClick={() => setShowReport(false)}
+          />
+        </div>
+
+
+        {/* ================= REPORT AREA ================= */}
+
+        <div
+          className="modal-body"
+          style={{
+            padding: "20px",
+            overflowX: "auto",
+            background: "#eeeeee",
+          }}
+        >
+
+          <div
+            ref={reportRef}
+            style={{
+              width: "210mm",
+              minWidth: "210mm",
+              margin: "0 auto",
+              background: "#ffffff",
+              fontFamily: '"Noto Sans Bengali", "Noto Sans", sans-serif',
+              boxShadow: "0 0 15px rgba(0,0,0,0.15)",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+
+            {/* ================= HEADER ================= */}
+
+            <div
+              style={{
+                height: "43mm",
+                background:
+                  "linear-gradient(100deg, #08aeea 0%, #078dbb 35%, #075f7d 65%, #101c31 100%)",
+                color: "#ffffff",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+
+              {/* HEADER MAIN */}
+
+              <div
+                style={{
+                  height: "36mm",
+                  position: "relative",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+
+                {/* LOGO */}
+
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "28mm",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    width: "18mm",
+                    height: "18mm",
+                    background: "#ffffff",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <img
+                    src="/logo.png"
+                    alt="Badokhali Youth Foundation"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      borderRadius: "50%",
+                    }}
                   />
                 </div>
 
+
+                {/* ORGANIZATION NAME */}
+
                 <div
-                  className="modal-body"
                   style={{
-                    position: "relative",
-                    overflow: "hidden",
+                    textAlign: "center",
+                    marginTop: "2mm",
                   }}
                 >
-                  {/* Watermark */}
 
-                  <img
-                    src="/logo.png"
-                    alt="Watermark"
+                  <div
                     style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "420px",
-                      opacity: 0.12,
-                      zIndex: 0,
+                      fontSize: "35px",
+                      fontWeight: 800,
+                      lineHeight: 1.2,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    বাদোখালী ইয়ুথ ফাউন্ডেশন
+                  </div>
+
+                  <div
+                    style={{
+                      fontFamily: "Arial, sans-serif",
+                      fontSize: "25px",
+                      fontWeight: 700,
+                      lineHeight: 1.2,
+                      marginTop: "2px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Badokhali Youth Foundation
+                  </div>
+
+                </div>
+
+
+                {/* SLOGAN */}
+
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "11mm",
+                    top: "3mm",
+                    fontSize: "10px",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  তারুণ্যের স্পন্দন, সেবার বন্ধন
+                </div>
+
+              </div>
+
+
+              {/* HEADER DESIGN */}
+
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: "7mm",
+                  display: "flex",
+                  background: "#ffffff",
+                }}
+              >
+
+                <div
+                  style={{
+                    width: "31%",
+                    background:
+                      "linear-gradient(90deg, #12324a, #087b9e)",
+                  }}
+                />
+
+                <div
+                  style={{
+                    width: "38%",
+                    background: "#08aeea",
+                    clipPath:
+                      "polygon(8% 0, 92% 0, 84% 100%, 16% 100%)",
+                  }}
+                />
+
+                <div
+                  style={{
+                    width: "31%",
+                    background:
+                      "linear-gradient(90deg, #087b9e, #12324a)",
+                  }}
+                />
+
+              </div>
+
+            </div>
+
+
+            {/* ================= WATERMARK ================= */}
+
+            <img
+              src="/logo.png"
+              alt=""
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "105mm",
+                height: "105mm",
+                objectFit: "contain",
+                opacity: 0.045,
+                pointerEvents: "none",
+                zIndex: 0,
+              }}
+            />
+
+
+            {/* ================= CONTENT ================= */}
+
+            <div
+              style={{
+                position: "relative",
+                zIndex: 2,
+                padding: "8mm 15mm 5mm",
+              }}
+            >
+
+              {/* META */}
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "13px",
+                  marginBottom: "5mm",
+                }}
+              >
+
+                <div>
+                  <strong>রিপোর্ট:</strong> Expense Report
+                </div>
+
+                <div>
+                  <strong>তারিখ:</strong>{" "}
+                  {new Date().toLocaleDateString("en-GB")}
+                </div>
+
+              </div>
+
+
+              {/* TITLE */}
+
+              <h2
+                style={{
+                  textAlign: "center",
+                  fontSize: "23px",
+                  fontWeight: 800,
+                  textDecoration: "underline",
+                  textUnderlineOffset: "5px",
+                  margin: "0 0 7mm",
+                }}
+              >
+                Expense Report
+              </h2>
+
+
+              {/* TABLE */}
+
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  tableLayout: "fixed",
+                  fontSize: "12px",
+                }}
+              >
+
+                <thead>
+
+                  <tr>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "7%",
+                        background: "#f0f5f2",
+                      }}
+                    >
+                      #
+                    </th>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "27%",
+                        background: "#f0f5f2",
+                      }}
+                    >
+                      Title
+                    </th>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "16%",
+                        background: "#f0f5f2",
+                      }}
+                    >
+                      Category
+                    </th>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "15%",
+                        background: "#f0f5f2",
+                      }}
+                    >
+                      Amount
+                    </th>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "17%",
+                        background: "#f0f5f2",
+                      }}
+                    >
+                      Method
+                    </th>
+
+                    <th
+                      style={{
+                        border: "1px solid #555",
+                        padding: "8px 5px",
+                        width: "18%",
+                        background: "#f0f5f2",
+                      }}
+                    >
+                      Date
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  {filteredExpenses.map((item, index) => (
+
+                    <tr key={item.id}>
+
+                      <td
+                        style={{
+                          border: "1px solid #555",
+                          padding: "7px 5px",
+                          textAlign: "center",
+                          verticalAlign: "middle",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {index + 1}
+                      </td>
+
+                      <td
+                        style={{
+                          border: "1px solid #555",
+                          padding: "7px 5px",
+                          verticalAlign: "middle",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {item.title}
+                      </td>
+
+                      <td
+                        style={{
+                          border: "1px solid #555",
+                          padding: "7px 5px",
+                          textAlign: "center",
+                          verticalAlign: "middle",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {item.category}
+                      </td>
+
+                      <td
+                        style={{
+                          border: "1px solid #555",
+                          padding: "7px 5px",
+                          textAlign: "right",
+                          verticalAlign: "middle",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        ৳ {item.amount}
+                      </td>
+
+                      <td
+                        style={{
+                          border: "1px solid #555",
+                          padding: "7px 5px",
+                          textAlign: "center",
+                          verticalAlign: "middle",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {item.paymentMethod}
+                      </td>
+
+                      <td
+                        style={{
+                          border: "1px solid #555",
+                          padding: "7px 5px",
+                          textAlign: "center",
+                          verticalAlign: "middle",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {item.expenseDate}
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+
+
+              {/* TOTAL */}
+
+              <div
+                style={{
+                  marginTop: "6mm",
+                  textAlign: "right",
+                  fontSize: "16px",
+                  fontWeight: 800,
+                }}
+              >
+                Total Expense : ৳ {totalExpense}
+              </div>
+
+
+              {/* SIGNATURE AREA */}
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-end",
+                  marginTop: "12mm",
+                  minHeight: "35mm",
+                }}
+              >
+
+                {/* SEAL */}
+
+                <div
+                  style={{
+                    width: "50%",
+                    paddingLeft: "10px",
+                  }}
+                >
+                  <img
+                    src="/roundseal.png"
+                    alt="Official Seal"
+                    style={{
+                      width: "90px",
+                      height: "90px",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+
+
+                {/* SIGNATURE */}
+
+                <div
+                  style={{
+                    width: "50%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                  }}
+                >
+
+                  <div
+                    style={{
+                      width: "180px",
+                      margin: "0 auto 5px",
+                      borderTop: "1px solid #222",
                     }}
                   />
 
-                  <div style={{ position: "relative", zIndex: 1 }}>
-                    <div className="text-center mb-4">
-                      <img src="/logo.png" width="80" alt="Logo" />
+                  <strong>
+                    Suman Roy
+                  </strong>
 
-                      <h3>Badokhali Youth Foundation</h3>
-
-                      <p>Badokhali, Mograhat, Bagerhat</p>
-
-                      <h5>Expense Report</h5>
-                    </div>
-
-                    <table className="table table-bordered">
-                      <thead className="table-light">
-                        <tr>
-                          <th>#</th>
-                          <th>Title</th>
-                          <th>Category</th>
-                          <th>Amount</th>
-                          <th>Method</th>
-                          <th>Date</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {filteredExpenses.map((item, index) => (
-                          <tr key={item.id}>
-                            <td>{index + 1}</td>
-                            <td>{item.title}</td>
-                            <td>{item.category}</td>
-                            <td>৳ {item.amount}</td>
-                            <td>{item.paymentMethod}</td>
-                            <td>{item.expenseDate}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
-                    <h5 className="text-end mt-4">
-                      Total Expense : ৳ {totalExpense}
-                    </h5>
-
-                    <div className="row mt-5">
-                      <div className="col-md-6">
-                        <img
-                          src="/roundseal.png"
-                          alt="Office Seal"
-                          width="120"
-                        />
-                      </div>
-
-                      <div className="col-md-6 text-end">
-                        <br />
-                        <br />
-                        _______________________
-                        <br />
-                        Suman Roy
-                        <br />
-                        Treasurer
-                        <br />
-                        Badokhali Youth Foundation
-                      </div>
-                    </div>
+                  <div>
+                    Treasurer
                   </div>
+
+                  <div>
+                    Badokhali Youth Foundation
+                  </div>
+
                 </div>
 
-                <div className="modal-footer">
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => setShowReport(false)}
-                  >
-                    Close
-                  </button>
-                </div>
               </div>
+
             </div>
+
+
+            {/* ================= FOOTER ================= */}
+
+            <div
+              style={{
+                position: "relative",
+                zIndex: 2,
+                padding: "3mm 15mm 0",
+                background: "#ffffff",
+              }}
+            >
+
+              {/* ELECTRONIC NOTICE */}
+
+              <div
+                style={{
+                  borderTop: "1px solid #d5d5d5",
+                  paddingTop: "8px",
+                  textAlign: "center",
+                  fontSize: "10px",
+                  color: "#888",
+                }}
+              >
+                “This is electronically generated. No signature is required.”
+              </div>
+
+
+              {/* FOOTER INFORMATION */}
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "8mm",
+                  marginTop: "4mm",
+                }}
+              >
+
+                {/* PHONE */}
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    fontSize: "9.5px",
+                    lineHeight: 1.5,
+                  }}
+                >
+
+                  <span style={{ fontSize: "14px" }}>
+                    ☎
+                  </span>
+
+                  <div>
+                    <div>+8801738126875</div>
+                    <div>+8801714597343</div>
+                  </div>
+
+                </div>
+
+
+                {/* ADDRESS */}
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    fontSize: "9.5px",
+                    lineHeight: 1.5,
+                  }}
+                >
+
+                  <span style={{ fontSize: "14px" }}>
+                    📍
+                  </span>
+
+                  <div>
+                    Badokhali, Mograhat-9300,
+                    <br />
+                    Bagerhat
+                  </div>
+
+                </div>
+
+
+                {/* EMAIL */}
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    fontSize: "9.5px",
+                    lineHeight: 1.5,
+                  }}
+                >
+
+                  <span style={{ fontSize: "14px" }}>
+                    ✉
+                  </span>
+
+                  <div>
+                    badokhaliyouthfoundation@gmail.com
+                    <br />
+                    youtube.com/@badokhaliyyouthfoundation
+                  </div>
+
+                </div>
+
+
+                {/* QR */}
+
+                <div>
+                  <img
+                    src="/qr-code.jpeg"
+                    alt="QR Code"
+                    style={{
+                      width: "20mm",
+                      height: "20mm",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+
+              </div>
+
+
+              {/* FOOTER DESIGN */}
+
+              <div
+                style={{
+                  height: "12mm",
+                  marginTop: "4mm",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
+                    width: "35%",
+                    height: "4px",
+                    background: "#292929",
+                  }}
+                />
+
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "27%",
+                    right: "27%",
+                    top: 0,
+                    bottom: 0,
+                    background: "#08aeea",
+                    clipPath:
+                      "polygon(13% 0, 87% 0, 74% 100%, 26% 100%)",
+                  }}
+                />
+
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: 0,
+                    width: "28%",
+                    height: "4px",
+                    background: "#292929",
+                  }}
+                />
+
+              </div>
+
+            </div>
+
           </div>
-        )}
+
+        </div>
+
+
+        {/* ================= MODAL FOOTER ================= */}
+
+        <div className="modal-footer">
+
+          <button
+            className="btn btn-success"
+            onClick={downloadExpenseReport}
+          >
+            📥 Download Report
+          </button>
+
+          <button
+            className="btn btn-secondary"
+            onClick={() => setShowReport(false)}
+          >
+            Close
+          </button>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
+
+
 
         {/* Expense History */}
 

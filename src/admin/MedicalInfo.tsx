@@ -55,13 +55,9 @@ const MedicalInfo = () => {
   const [pulse, setPulse] = useState("");
   const [note, setNote] = useState("");
 
-  // Selected photo
   const [photoFile, setPhotoFile] = useState<File | null>(null);
-
-  // Upload loading
   const [uploading, setUploading] = useState(false);
 
-  // Edit mode
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // ===============================
@@ -86,7 +82,7 @@ const MedicalInfo = () => {
   const reportRef = useRef<HTMLDivElement>(null);
 
   // ===============================
-  // FETCH
+  // FETCH MEDICAL INFO
   // ===============================
 
   const fetchMedicalInfos = async () => {
@@ -109,10 +105,7 @@ const MedicalInfo = () => {
 
       setMedicalInfos(data);
     } catch (error) {
-      console.error(
-        "Error fetching medical information:",
-        error
-      );
+      console.error("Error fetching medical information:", error);
     }
   };
 
@@ -121,51 +114,47 @@ const MedicalInfo = () => {
   }, []);
 
   // ===============================
-  // UPLOAD PHOTO TO CLOUDINARY
+  // CLOUDINARY UPLOAD
   // ===============================
 
   const uploadPhoto = async (file: File) => {
-  try {
-    setUploading(true);
+    try {
+      setUploading(true);
 
-    const formData = new FormData();
+      const formData = new FormData();
 
-    formData.append("file", file);
-    formData.append(
-      "upload_preset",
-      CLOUDINARY_UPLOAD_PRESET
-    );
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Cloudinary Error:", data);
-
-      throw new Error(
-        data?.error?.message || "Photo upload failed"
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
       );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Cloudinary Error:", data);
+
+        throw new Error(
+          data?.error?.message || "Photo upload failed"
+        );
+      }
+
+      return data.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+
+      alert("Photo upload failed");
+
+      return "";
+    } finally {
+      setUploading(false);
     }
-
-    return data.secure_url;
-
-  } catch (error) {
-    console.error("Cloudinary upload error:", error);
-
-    alert("Photo upload failed");
-
-    return "";
-  } finally {
-    setUploading(false);
-  }
-};
+  };
 
   // ===============================
   // PHOTO SELECT
@@ -178,13 +167,11 @@ const MedicalInfo = () => {
 
     if (!file) return;
 
-    // Maximum 5 MB
     if (file.size > 5 * 1024 * 1024) {
       alert("Photo size must be less than 5MB");
       return;
     }
 
-    // Only image
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
       return;
@@ -230,7 +217,6 @@ const MedicalInfo = () => {
     try {
       let photoUrl = photo;
 
-      // Upload new photo if selected
       if (photoFile) {
         const uploadedUrl = await uploadPhoto(photoFile);
 
@@ -240,10 +226,6 @@ const MedicalInfo = () => {
 
         photoUrl = uploadedUrl;
       }
-
-      // ===============================
-      // UPDATE
-      // ===============================
 
       if (editingId) {
         await updateDoc(
@@ -263,16 +245,8 @@ const MedicalInfo = () => {
           }
         );
 
-        alert(
-          "Medical Information Updated Successfully"
-        );
-      }
-
-      // ===============================
-      // ADD
-      // ===============================
-
-      else {
+        alert("Medical Information Updated Successfully");
+      } else {
         await addDoc(
           collection(db, "medicalInfo"),
           {
@@ -290,9 +264,7 @@ const MedicalInfo = () => {
           }
         );
 
-        alert(
-          "Medical Information Added Successfully"
-        );
+        alert("Medical Information Added Successfully");
       }
 
       resetForm();
@@ -365,27 +337,21 @@ const MedicalInfo = () => {
   // FILTER
   // ===============================
 
-  const filteredMedicalInfos =
-    medicalInfos.filter((item) => {
-      const searchText = search.toLowerCase();
+  const filteredMedicalInfos = medicalInfos.filter((item) => {
+    const searchText = search.toLowerCase().trim();
 
-      const matchSearch =
-        item.name
-          .toLowerCase()
-          .includes(searchText) ||
-        (item.phone || "")
-          .toLowerCase()
-          .includes(searchText);
+    const matchSearch =
+      item.name.toLowerCase().includes(searchText) ||
+      (item.phone || "")
+        .toLowerCase()
+        .includes(searchText);
 
-      const matchBloodGroup =
-        filterBloodGroup === "" ||
-        item.bloodGroup === filterBloodGroup;
+    const matchBloodGroup =
+      filterBloodGroup === "" ||
+      item.bloodGroup === filterBloodGroup;
 
-      return (
-        matchSearch &&
-        matchBloodGroup
-      );
-    });
+    return matchSearch && matchBloodGroup;
+  });
 
   // ===============================
   // PAGINATION
@@ -415,28 +381,33 @@ const MedicalInfo = () => {
   const downloadReport = async () => {
     if (!reportRef.current) return;
 
-    const canvas = await html2canvas(
-      reportRef.current,
-      {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      }
-    );
+    try {
+      const canvas = await html2canvas(
+        reportRef.current,
+        {
+          scale: 3,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+        }
+      );
 
-    const image =
-      canvas.toDataURL("image/png");
+      const image = canvas.toDataURL("image/png");
 
-    const link =
-      document.createElement("a");
+      const link = document.createElement("a");
 
-    link.href = image;
+      link.href = image;
 
-    link.download = `Medical-Report-${
-      filterBloodGroup || "All"
-    }.png`;
+      link.download = `Medical-Report-${
+        filterBloodGroup || "All"
+      }.png`;
 
-    link.click();
+      link.click();
+    } catch (error) {
+      console.error("Report download error:", error);
+      alert("Failed to download report");
+    }
   };
 
   // ===============================
@@ -459,11 +430,9 @@ const MedicalInfo = () => {
         <div className="card shadow-sm p-3 mb-4">
 
           <h5 className="mb-3">
-
             {editingId
               ? "✏️ Edit Medical Information"
               : "➕ Add Medical Information"}
-
           </h5>
 
           <div className="row g-3">
@@ -570,9 +539,7 @@ const MedicalInfo = () => {
                 className="form-select"
                 value={bloodGroup}
                 onChange={(e) =>
-                  setBloodGroup(
-                    e.target.value
-                  )
+                  setBloodGroup(e.target.value)
                 }
               >
 
@@ -647,9 +614,7 @@ const MedicalInfo = () => {
                 placeholder="120/80"
                 value={bloodPressure}
                 onChange={(e) =>
-                  setBloodPressure(
-                    e.target.value
-                  )
+                  setBloodPressure(e.target.value)
                 }
               />
 
@@ -716,8 +681,6 @@ const MedicalInfo = () => {
             </div>
 
           </div>
-
-          {/* BUTTONS */}
 
           <div className="mt-3">
 
@@ -881,8 +844,1197 @@ const MedicalInfo = () => {
 
         </div>
 
+        {/* =========================================================
+            MEDICAL REPORT MODAL
+        ========================================================= */}
+
+        {showReport && (
+
+          <div
+            className="modal fade show d-block"
+            style={{
+              backgroundColor:
+                "rgba(0,0,0,0.6)",
+              zIndex: 1055,
+            }}
+          >
+
+            <div
+              className="modal-dialog modal-xl modal-dialog-centered"
+              style={{
+                maxWidth: "95%",
+              }}
+            >
+
+              <div className="modal-content">
+
+                {/* MODAL HEADER */}
+
+                <div className="modal-header">
+
+                  <h5 className="modal-title">
+                    🩺 Medical Information Report
+                  </h5>
+
+                  <button
+                    className="btn-close"
+                    onClick={() =>
+                      setShowReport(false)
+                    }
+                  />
+
+                </div>
+
+                {/* REPORT AREA */}
+
+                <div
+                  className="modal-body"
+                  style={{
+                    padding: "20px",
+                    overflowX: "auto",
+                    background: "#eeeeee",
+                  }}
+                >
+
+                  {/* ===============================
+                      A4 REPORT
+                  =============================== */}
+
+                  <div
+                    ref={reportRef}
+                    style={{
+                      width: "210mm",
+                      minWidth: "210mm",
+                      margin: "0 auto",
+                      background: "#ffffff",
+                      position: "relative",
+                      overflow: "hidden",
+                      fontFamily:
+                        '"Noto Sans Bengali", "Noto Sans", sans-serif',
+                      boxShadow:
+                        "0 0 15px rgba(0,0,0,0.15)",
+                    }}
+                  >
+
+                    {/* ===============================
+                        HEADER
+                    =============================== */}
+
+                    <div
+                      style={{
+                        height: "43mm",
+                        background:
+                          "linear-gradient(100deg, #08aeea 0%, #078dbb 35%, #075f7d 65%, #101c31 100%)",
+                        color: "#ffffff",
+                        position: "relative",
+                        overflow: "hidden",
+                      }}
+                    >
+
+                      <div
+                        style={{
+                          height: "36mm",
+                          position: "relative",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+
+                        {/* LOGO */}
+
+                        <div
+                          style={{
+                            position: "absolute",
+                            left: "28mm",
+                            top: "50%",
+                            transform:
+                              "translateY(-50%)",
+                            width: "18mm",
+                            height: "18mm",
+                            background: "#ffffff",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+
+                          <img
+                            src="/logo.png"
+                            alt="Badokhali Youth Foundation"
+                            crossOrigin="anonymous"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                              borderRadius: "50%",
+                            }}
+                          />
+
+                        </div>
+
+                        {/* ORGANIZATION NAME */}
+
+                        <div
+                          style={{
+                            textAlign: "center",
+                            marginTop: "2mm",
+                          }}
+                        >
+
+                          <div
+                            style={{
+                              fontSize: "35px",
+                              fontWeight: 800,
+                              lineHeight: 1.2,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            বাদোখালী ইয়ুথ ফাউন্ডেশন
+                          </div>
+
+                          <div
+                            style={{
+                              fontFamily:
+                                "Arial, sans-serif",
+                              fontSize: "25px",
+                              fontWeight: 700,
+                              lineHeight: 1.2,
+                              marginTop: "2px",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            Badokhali Youth Foundation
+                          </div>
+
+                        </div>
+
+                        {/* SLOGAN */}
+
+                        <div
+                          style={{
+                            position: "absolute",
+                            right: "11mm",
+                            top: "3mm",
+                            fontSize: "10px",
+                            fontWeight: 500,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          তারুণ্যের স্পন্দন, সেবার বন্ধন
+                        </div>
+
+                      </div>
+
+                      {/* HEADER DESIGN */}
+
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: "7mm",
+                          display: "flex",
+                          background: "#ffffff",
+                        }}
+                      >
+
+                        <div
+                          style={{
+                            width: "31%",
+                            background:
+                              "linear-gradient(90deg, #12324a, #087b9e)",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            width: "38%",
+                            background: "#08aeea",
+                            clipPath:
+                              "polygon(8% 0, 92% 0, 84% 100%, 16% 100%)",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            width: "31%",
+                            background:
+                              "linear-gradient(90deg, #087b9e, #12324a)",
+                          }}
+                        />
+
+                      </div>
+
+                    </div>
+
+                    {/* ===============================
+                        WATERMARK
+                    =============================== */}
+
+                    <img
+                      src="/logo.png"
+                      alt=""
+                      crossOrigin="anonymous"
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform:
+                          "translate(-50%, -50%)",
+                        width: "105mm",
+                        height: "105mm",
+                        objectFit: "contain",
+                        opacity: 0.045,
+                        pointerEvents: "none",
+                        zIndex: 0,
+                      }}
+                    />
+
+                    {/* ===============================
+                        CONTENT
+                    =============================== */}
+
+                    <div
+                      style={{
+                        position: "relative",
+                        zIndex: 2,
+                        padding:
+                          "8mm 15mm 5mm",
+                      }}
+                    >
+
+                      {/* REPORT META */}
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent:
+                            "space-between",
+                          fontSize: "13px",
+                          marginBottom: "5mm",
+                        }}
+                      >
+
+                        <div>
+                          <strong>
+                            রিপোর্ট:
+                          </strong>{" "}
+                          Medical Information
+                        </div>
+
+                        <div>
+                          <strong>
+                            তারিখ:
+                          </strong>{" "}
+                          {new Date().toLocaleDateString(
+                            "en-GB"
+                          )}
+                        </div>
+
+                      </div>
+
+                      {/* TITLE */}
+
+                      <h2
+                        style={{
+                          textAlign: "center",
+                          fontSize: "23px",
+                          fontWeight: 800,
+                          textDecoration:
+                            "underline",
+                          textUnderlineOffset:
+                            "5px",
+                          margin:
+                            "0 0 7mm",
+                        }}
+                      >
+                        Medical Information Report
+                      </h2>
+
+                      {/* FILTER INFORMATION */}
+
+                      {(search ||
+                        filterBloodGroup) && (
+
+                        <div
+                          style={{
+                            textAlign: "center",
+                            fontSize: "12px",
+                            marginBottom: "5mm",
+                            color: "#555",
+                          }}
+                        >
+
+                          {search && (
+                            <span>
+                              Search:{" "}
+                              <strong>
+                                {search}
+                              </strong>
+                            </span>
+                          )}
+
+                          {filterBloodGroup && (
+                            <span
+                              style={{
+                                marginLeft:
+                                  "15px",
+                              }}
+                            >
+                              Blood Group:{" "}
+                              <strong>
+                                {filterBloodGroup}
+                              </strong>
+                            </span>
+                          )}
+
+                        </div>
+
+                      )}
+
+                      {/* ===============================
+                          MEDICAL TABLE
+                      =============================== */}
+
+                      <table
+                        style={{
+                          width: "100%",
+                          borderCollapse:
+                            "collapse",
+                          tableLayout:
+                            "fixed",
+                          fontSize: "11px",
+                        }}
+                      >
+
+                        <thead>
+
+                          <tr>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 4px",
+                                width: "6%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              #
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 4px",
+                                width: "24%",
+                                background:
+                                  "#f0f5f2",
+                              }}
+                            >
+                              Name
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 4px",
+                                width: "16%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              Mobile
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 4px",
+                                width: "10%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              Blood
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 4px",
+                                width: "10%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              Weight
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 4px",
+                                width: "10%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              Height
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 4px",
+                                width: "10%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              BP
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 4px",
+                                width: "7%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              SpO₂
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 4px",
+                                width: "7%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              Pulse
+                            </th>
+
+                          </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                          {filteredMedicalInfos.length ===
+                          0 ? (
+
+                            <tr>
+
+                              <td
+                                colSpan={9}
+                                style={{
+                                  border:
+                                    "1px solid #555",
+                                  padding:
+                                    "15px",
+                                  textAlign:
+                                    "center",
+                                }}
+                              >
+                                No Medical Information Found
+                              </td>
+
+                            </tr>
+
+                          ) : (
+
+                            filteredMedicalInfos.map(
+                              (item, index) => (
+
+                                <tr
+                                  key={item.id}
+                                >
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "7px 4px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                    }}
+                                  >
+                                    {index + 1}
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "7px 4px",
+                                      verticalAlign:
+                                        "middle",
+                                      wordBreak:
+                                        "break-word",
+                                    }}
+                                  >
+                                    {item.name}
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "7px 4px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                      whiteSpace:
+                                        "nowrap",
+                                    }}
+                                  >
+                                    {item.phone ||
+                                      "-"}
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "7px 4px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                      fontWeight: 700,
+                                      color:
+                                        "#dc3545",
+                                    }}
+                                  >
+                                    {
+                                      item.bloodGroup
+                                    }
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "7px 4px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                      whiteSpace:
+                                        "nowrap",
+                                    }}
+                                  >
+                                    {item.weight
+                                      ? `${item.weight} kg`
+                                      : "-"}
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "7px 4px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                      whiteSpace:
+                                        "nowrap",
+                                    }}
+                                  >
+                                    {item.height
+                                      ? `${item.height} cm`
+                                      : "-"}
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "7px 4px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                      whiteSpace:
+                                        "nowrap",
+                                    }}
+                                  >
+                                    {
+                                      item.bloodPressure ||
+                                      "-"
+                                    }
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "7px 4px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                      whiteSpace:
+                                        "nowrap",
+                                    }}
+                                  >
+                                    {item.oxygen
+                                      ? `${item.oxygen}%`
+                                      : "-"}
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "7px 4px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                      whiteSpace:
+                                        "nowrap",
+                                    }}
+                                  >
+                                    {item.pulse
+                                      ? `${item.pulse}`
+                                      : "-"}
+                                  </td>
+
+                                </tr>
+
+                              )
+                            )
+
+                          )}
+
+                        </tbody>
+
+                      </table>
+
+                      {/* ===============================
+                          NOTE INFORMATION
+                      =============================== */}
+
+                      {filteredMedicalInfos.some(
+                        (item) => item.note
+                      ) && (
+
+                        <div
+                          style={{
+                            marginTop: "5mm",
+                            fontSize: "11px",
+                          }}
+                        >
+
+                          <strong>
+                            Note:
+                          </strong>
+
+                          <div
+                            style={{
+                              marginTop:
+                                "3px",
+                            }}
+                          >
+
+                            {filteredMedicalInfos
+                              .filter(
+                                (item) =>
+                                  item.note
+                              )
+                              .map(
+                                (
+                                  item
+                                ) => (
+                                  <div
+                                    key={
+                                      item.id
+                                    }
+                                  >
+                                    •{" "}
+                                    {
+                                      item.name
+                                    }
+                                    :{" "}
+                                    {
+                                      item.note
+                                    }
+                                  </div>
+                                )
+                              )}
+
+                          </div>
+
+                        </div>
+
+                      )}
+
+                      {/* ===============================
+                          TOTAL
+                      =============================== */}
+
+                      <div
+                        style={{
+                          marginTop: "6mm",
+                          textAlign: "right",
+                          fontSize: "16px",
+                          fontWeight: 800,
+                        }}
+                      >
+                        Total People :{" "}
+                        {
+                          filteredMedicalInfos.length
+                        }
+                      </div>
+
+                      {/* ===============================
+                          SIGNATURE
+                      =============================== */}
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent:
+                            "space-between",
+                          alignItems:
+                            "flex-end",
+                          marginTop: "12mm",
+                          minHeight: "35mm",
+                        }}
+                      >
+
+                        {/* SEAL */}
+
+                        <div
+                          style={{
+                            width: "50%",
+                            paddingLeft:
+                              "10px",
+                            position:
+                              "relative",
+                          }}
+                        >
+
+                          <img
+                            src="/roundseal.png"
+                            alt="Office Seal"
+                            crossOrigin="anonymous"
+                            style={{
+                              width: "90px",
+                              height: "90px",
+                              objectFit:
+                                "contain",
+                            }}
+                          />
+
+                          <div
+                            style={{
+                              border:
+                                "2px solid #0b6ff3",
+                              padding:
+                                "7px 16px",
+                              display:
+                                "inline-block",
+                              fontSize:
+                                "17px",
+                              fontWeight:
+                                "bold",
+                              letterSpacing:
+                                "1.5px",
+                              color:
+                                "#0b6ff3",
+                              fontFamily:
+                                "Arial, sans-serif",
+                              transform:
+                                "rotate(-6deg)",
+                              opacity: 0.8,
+                              borderRadius:
+                                "2px",
+                              textTransform:
+                                "uppercase",
+                              marginLeft:
+                                "10px",
+                            }}
+                          >
+                            VERIFIED
+                          </div>
+
+                        </div>
+
+                        {/* SIGNATURE */}
+
+                        <div
+                          style={{
+                            width: "50%",
+                            textAlign:
+                              "center",
+                            fontSize:
+                              "13px",
+                          }}
+                        >
+
+                          <div
+                            style={{
+                              width:
+                                "180px",
+                              margin:
+                                "0 auto 5px",
+                              borderTop:
+                                "1px solid #222",
+                            }}
+                          />
+
+                          <strong>
+                            Piyas Halder
+                          </strong>
+
+                          <div>
+                            Health Secretary
+                          </div>
+
+                          <div>
+                            Badokhali Youth Foundation
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* ===============================
+                        FOOTER
+                    =============================== */}
+
+                    <div
+                      style={{
+                        position:
+                          "relative",
+                        zIndex: 2,
+                        padding:
+                          "3mm 15mm 0",
+                        background:
+                          "#ffffff",
+                      }}
+                    >
+
+                      {/* ELECTRONIC NOTICE */}
+
+                      <div
+                        style={{
+                          borderTop:
+                            "1px solid #d5d5d5",
+                          paddingTop:
+                            "8px",
+                          textAlign:
+                            "center",
+                          fontSize:
+                            "10px",
+                          color:
+                            "#888",
+                        }}
+                      >
+                        “This is electronically generated. No signature is required.”
+                      </div>
+
+                      {/* FOOTER INFORMATION */}
+
+                      <div
+                        style={{
+                          display:
+                            "flex",
+                          alignItems:
+                            "center",
+                          justifyContent:
+                            "space-between",
+                          gap: "8mm",
+                          marginTop:
+                            "4mm",
+                        }}
+                      >
+
+                        {/* PHONE */}
+
+                        <div
+                          style={{
+                            display:
+                              "flex",
+                            gap: "5px",
+                            fontSize:
+                              "9.5px",
+                            lineHeight:
+                              1.5,
+                          }}
+                        >
+
+                          <span
+                            style={{
+                              fontSize:
+                                "14px",
+                            }}
+                          >
+                            ☎
+                          </span>
+
+                          <div>
+                            <div>
+                              +8801738126875
+                            </div>
+
+                            <div>
+                              +8801714597343
+                            </div>
+                          </div>
+
+                        </div>
+
+                        {/* ADDRESS */}
+
+                        <div
+                          style={{
+                            display:
+                              "flex",
+                            gap: "5px",
+                            fontSize:
+                              "9.5px",
+                            lineHeight:
+                              1.5,
+                          }}
+                        >
+
+                          <span
+                            style={{
+                              fontSize:
+                                "14px",
+                            }}
+                          >
+                            📍
+                          </span>
+
+                          <div>
+                            Badokhali, Mograhat-9300,
+                            <br />
+                            Bagerhat
+                          </div>
+
+                        </div>
+
+                        {/* EMAIL */}
+
+                        <div
+                          style={{
+                            display:
+                              "flex",
+                            gap: "5px",
+                            fontSize:
+                              "9.5px",
+                            lineHeight:
+                              1.5,
+                          }}
+                        >
+
+                          <span
+                            style={{
+                              fontSize:
+                                "14px",
+                            }}
+                          >
+                            ✉
+                          </span>
+
+                          <div
+                            style={{
+                              wordBreak:
+                                "break-word",
+                            }}
+                          >
+                            badokhaliyouthfoundation@gmail.com
+                            <br />
+                            youtube.com/@badokhaliyyouthfoundation
+                          </div>
+
+                        </div>
+
+                        {/* QR */}
+
+                        <div>
+
+                          <img
+                            src="/qr-code.jpeg"
+                            alt="QR Code"
+                            crossOrigin="anonymous"
+                            style={{
+                              width:
+                                "20mm",
+                              height:
+                                "20mm",
+                              objectFit:
+                                "contain",
+                            }}
+                          />
+
+                        </div>
+
+                      </div>
+
+                      {/* FOOTER DESIGN */}
+
+                      <div
+                        style={{
+                          height:
+                            "12mm",
+                          marginTop:
+                            "4mm",
+                          position:
+                            "relative",
+                          overflow:
+                            "hidden",
+                        }}
+                      >
+
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            left: 0,
+                            top: 0,
+                            width:
+                              "35%",
+                            height:
+                              "4px",
+                            background:
+                              "#292929",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            left:
+                              "27%",
+                            right:
+                              "27%",
+                            top: 0,
+                            bottom: 0,
+                            background:
+                              "#08aeea",
+                            clipPath:
+                              "polygon(13% 0, 87% 0, 74% 100%, 26% 100%)",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            right: 0,
+                            top: 0,
+                            width:
+                              "28%",
+                            height:
+                              "4px",
+                            background:
+                              "#292929",
+                          }}
+                        />
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                {/* MODAL FOOTER */}
+
+                <div className="modal-footer">
+
+                  <button
+                    className="btn btn-success"
+                    onClick={downloadReport}
+                  >
+                    📥 Download Report
+                  </button>
+
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() =>
+                      setShowReport(false)
+                    }
+                  >
+                    Close
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )}
+
         {/* ===============================
-            HISTORY TABLE
+            HISTORY
         =============================== */}
 
         <h5>
@@ -949,8 +2101,10 @@ const MedicalInfo = () => {
                             width="45"
                             height="45"
                             style={{
-                              objectFit: "cover",
-                              borderRadius: "50%",
+                              objectFit:
+                                "cover",
+                              borderRadius:
+                                "50%",
                             }}
                           />
 
@@ -975,27 +2129,21 @@ const MedicalInfo = () => {
                       <td>
 
                         <span className="badge bg-danger">
-
                           {item.bloodGroup}
-
                         </span>
 
                       </td>
 
                       <td>
-
                         {item.weight
                           ? `${item.weight} kg`
                           : "-"}
-
                       </td>
 
                       <td>
-
                         {item.height
                           ? `${item.height} cm`
                           : "-"}
-
                       </td>
 
                       <td>
@@ -1003,19 +2151,15 @@ const MedicalInfo = () => {
                       </td>
 
                       <td>
-
                         {item.oxygen
                           ? `${item.oxygen}%`
                           : "-"}
-
                       </td>
 
                       <td>
-
                         {item.pulse
                           ? `${item.pulse} BPM`
                           : "-"}
-
                       </td>
 
                       <td>
@@ -1078,10 +2222,8 @@ const MedicalInfo = () => {
             </button>
 
             <span className="align-self-center px-3">
-
               Page {currentPage} of{" "}
               {totalPages}
-
             </span>
 
             <button
@@ -1097,259 +2239,6 @@ const MedicalInfo = () => {
             >
               Next
             </button>
-
-          </div>
-
-        )}
-
-        {/* ===============================
-            REPORT MODAL
-        =============================== */}
-
-        {showReport && (
-
-          <div
-            className="modal fade show d-block"
-            style={{
-              backgroundColor:
-                "rgba(0,0,0,0.5)",
-            }}
-          >
-
-            <div className="modal-dialog modal-xl">
-
-              <div className="modal-content">
-
-                <div className="modal-header">
-
-                  <h5 className="modal-title">
-                    Medical Information Report
-                  </h5>
-
-                  <button
-                    className="btn-close"
-                    onClick={() =>
-                      setShowReport(false)
-                    }
-                  />
-
-                </div>
-
-                <div
-                  ref={reportRef}
-                  className="modal-body"
-                  style={{
-                    position: "relative",
-                    overflow: "hidden",
-                    background: "#fff",
-                    padding: "25px",
-                  }}
-                >
-
-                  <img
-                    src="/logo.png"
-                    alt="Watermark"
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform:
-                        "translate(-50%, -50%)",
-                      width: "420px",
-                      opacity: 0.12,
-                      filter:
-                        "grayscale(100%)",
-                      zIndex: 0,
-                      pointerEvents:
-                        "none",
-                    }}
-                  />
-
-                  <div
-                    style={{
-                      position: "relative",
-                      zIndex: 1,
-                    }}
-                  >
-
-                    <div className="text-center mb-4">
-
-                      <img
-                        src="/logo.png"
-                        width="80"
-                        alt="Logo"
-                      />
-
-                      <h3>
-                        Badokhali Youth Foundation
-                      </h3>
-
-                      <p>
-                        Badokhali, Mograhat, Bagerhat
-                      </p>
-
-                      <h5>
-                        Medical Information Report
-                      </h5>
-
-                    </div>
-
-                    <table className="table table-bordered">
-
-                      <thead className="table-light">
-
-                        <tr>
-
-                          <th>#</th>
-                          <th>Name</th>
-                          <th>Mobile</th>
-                          <th>Blood Group</th>
-                          <th>Weight</th>
-                          <th>Height</th>
-                          <th>BP</th>
-                          <th>SpO₂</th>
-                          <th>Pulse</th>
-
-                        </tr>
-
-                      </thead>
-
-                      <tbody>
-
-                        {filteredMedicalInfos.map(
-                          (item, index) => (
-
-                            <tr key={item.id}>
-
-                              <td>
-                                {index + 1}
-                              </td>
-
-                              <td>
-                                {item.name}
-                              </td>
-
-                              <td>
-                                {item.phone || "-"}
-                              </td>
-
-                              <td>
-                                {item.bloodGroup}
-                              </td>
-
-                              <td>
-                                {item.weight
-                                  ? `${item.weight} kg`
-                                  : "-"}
-                              </td>
-
-                              <td>
-                                {item.height
-                                  ? `${item.height} cm`
-                                  : "-"}
-                              </td>
-
-                              <td>
-                                {item.bloodPressure ||
-                                  "-"}
-                              </td>
-
-                              <td>
-                                {item.oxygen
-                                  ? `${item.oxygen}%`
-                                  : "-"}
-                              </td>
-
-                              <td>
-                                {item.pulse
-                                  ? `${item.pulse} BPM`
-                                  : "-"}
-                              </td>
-
-                            </tr>
-
-                          )
-                        )}
-
-                      </tbody>
-
-                    </table>
-
-                    <h5 className="text-end mt-4">
-
-                      Total People:{" "}
-                      {filteredMedicalInfos.length}
-
-                    </h5>
-
-                    <div className="row mt-5">
-
-                      <div className="col-md-6">
-
-                        <img
-                          src="/roundseal.png"
-                          alt="Office Seal"
-                          width="120"
-                          height="120"
-                          style={{
-                            objectFit:
-                              "contain",
-                          }}
-                        />
-
-                      </div>
-
-                      <div className="col-md-6 text-end">
-
-                        Piyas Halder
-                        <br />
-                        Health Secretary
-                        <br />
-                        Badokhali Youth Foundation
-
-                      </div>
-
-                    </div>
-
-                    <p
-                      className="mb-0 mt-3"
-                      style={{
-                        fontSize: "12px",
-                        color: "#777",
-                      }}
-                    >
-                      This report is digitally
-                      generated and does not
-                      require a physical signature.
-                    </p>
-
-                  </div>
-
-                </div>
-
-                <div className="modal-footer">
-
-                  <button
-                    className="btn btn-success"
-                    onClick={downloadReport}
-                  >
-                    📥 Download Image
-                  </button>
-
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() =>
-                      setShowReport(false)
-                    }
-                  >
-                    Close
-                  </button>
-
-                </div>
-
-              </div>
-
-            </div>
 
           </div>
 

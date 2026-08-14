@@ -106,8 +106,8 @@ body {
 
   transform: translateY(-50%);
 
-  width: 22mm;
-  height: 22mm;
+  width: 13mm;
+  height: 13mm;
 
   display: flex;
   align-items: center;
@@ -206,9 +206,10 @@ body {
   position: absolute;
 
   right: 11mm;
-  top: 9mm;
+  top: 2mm;
 
   width: 42mm;
+  left: 600px;
 
   text-align: center;
 
@@ -374,8 +375,8 @@ body {
 /* Logo */
 
 .report-logo {
-  width: 30mm;
-  height: 30mm;
+  width: 18mm;
+  height: 18mm;
 
   object-fit: contain;
 
@@ -1164,3 +1165,85 @@ body {
   text-transform: uppercase;
   box-sizing: border-box;
 }
+
+
+/* =========================================
+   NOTICE MODAL MOBILE FIX
+========================================= */
+
+.notice-modal {
+  max-width: 100%;
+  margin: 10px auto;
+}
+
+.notice-modal .modal-content {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.notice-modal-body {
+  width: 100%;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ReportPad stays A4 size for download */
+.report-download-area {
+  width: 794px;
+  min-width: 794px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media screen and (max-width: 800px) {
+
+  .notice-modal {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .notice-modal .modal-dialog {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .notice-modal .modal-content {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+  }
+
+  .notice-modal-body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  .report-download-area {
+    width: 794px;
+    min-width: 794px;
+    margin: 0;
+  }
+
+  .report-wrapper {
+    padding: 10px;
+
+    overflow-x: auto;
+
+    justify-content: flex-start;
+  }
+
+  .report-page {
+    flex-shrink: 0;
+  }
+}
+
