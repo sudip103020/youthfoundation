@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
-
+import { useTranslation } from "react-i18next";
 
 interface Donation {
   id: string;
@@ -15,6 +15,7 @@ interface Donation {
 }
 
 const DonorList = () => {
+  const { t } = useTranslation();
   const [donors, setDonors] = useState<Donation[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -67,12 +68,11 @@ const DonorList = () => {
         <div className="text-center mb-4">
 
           <h2 className="fw-bold">
-            ⭐ Our Donors
+            {t("ourDonors")}
           </h2>
 
           <p className="text-muted mb-0">
-            We are grateful to everyone who supports
-            Badokhali Youth Foundation.
+           {t("donorDescription")}
           </p>
 
         </div>
@@ -92,7 +92,7 @@ const DonorList = () => {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search donor by name..."
+                placeholder={t("searchDonor")}
                 value={search}
                 onChange={(e) =>
                   setSearch(e.target.value)
@@ -126,7 +126,7 @@ const DonorList = () => {
             />
 
             <p className="mt-2 text-muted">
-              Loading donors...
+              {t("loadingDonors")}
             </p>
 
           </div>
@@ -178,14 +178,12 @@ const DonorList = () => {
                 <div className="d-flex justify-content-between align-items-center">
 
                   <h5 className="mb-0">
-                    List
+                    {t("List")}
                   </h5>
 
                   <span className="badge bg-light text-dark">
-                    {filteredDonors.length} Donor
-                    {filteredDonors.length !== 1
-                      ? "s"
-                      : ""}
+                    {filteredDonors.length} {t("donarjon")}
+                    
                   </span>
 
                 </div>
@@ -216,23 +214,23 @@ const DonorList = () => {
                           width: "100px",
                         }}
                       >
-                        Photo
+                        {t("Donarphoto")}
                       </th>
 
                       <th>
-                        Donor Name
+                       {t("donorName")}
                       </th>
 
                       <th>
-                        Address
+                       {t("donaraddress")}
                       </th>
 
                       <th>
-                        Mobile
+                        {t("donarmobile")}
                       </th>
 
                       <th className="text-end">
-                        Donation
+                        {t("donardonation")}
                       </th>
 
                     </tr>

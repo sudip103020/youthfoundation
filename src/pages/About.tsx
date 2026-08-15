@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
-
+import { useTranslation } from "react-i18next";
 interface Member {
   id: string;
   name: string;
@@ -16,6 +16,7 @@ interface Member {
 }
 
 export default function About() {
+   const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -115,13 +116,12 @@ export default function About() {
           =============================== */}
           <div className="text-center mb-5">
             <h2 className="fw-bold">
-              👥 Executive  Committee
+              {t("executiveCommittee")}
 
             </h2>
 
             <p className="text-muted">
-              Meet the dedicated members of
-              Badokhali Youth Foundation.
+              {t("committeeDescription")}
             </p>
           </div>
 
@@ -231,18 +231,18 @@ export default function About() {
                       {"  "}{member.phone}
 
                       {/* EMAIL */}
-                     {member.email && (
-  <p className="mb-2 text-break">
-    ✉️{" "}
-    <a
-      href={`mailto:${member.email}`}
-      className="text-decoration-none"
-      title="Send Email"
-    >
-      {member.email}
-    </a>
-  </p>
-)}
+                      {member.email && (
+                        <p className="mb-2 text-break">
+                          ✉️{" "}
+                          <a
+                            href={`mailto:${member.email}`}
+                            className="text-decoration-none"
+                            title="Send Email"
+                          >
+                            {member.email}
+                          </a>
+                        </p>
+                      )}
 
 
                     </Card.Body>

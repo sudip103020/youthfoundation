@@ -11,7 +11,7 @@ feedback: "মতামত",
 bloodBank: "ব্লাড ব্যাংক",
 
 quickLinks: "গুরুত্বপূর্ণ লিংক",
-donors: "দাতা",
+donors: "দাতাগণ",
 adminSite: "অ্যাডমিন সাইট",
 contactInfo: "যোগাযোগের তথ্য",
 followUs: "আমাদের অনুসরণ করুন",
@@ -31,13 +31,36 @@ upazila: "উপজেলা",
 phone: "ফোন",
 email: "ইমেইল",
 
+noticeBoard: "📢 নোটিশ বোর্ড",
+  searchNotice: "নোটিশ খুঁজুন...",
+  date: "তারিখ",
+  title: "শিরোনাম",
+  referenceNo: "স্মারক নং",
+  action: "কার্যক্রম",
+  readDetails: "👁 বিস্তারিত দেখুন",
+  noticeDetails: "📢 নোটিশের বিস্তারিত",
+  downloadNotice: "📥 নোটিশ ডাউনলোড",
+  close: "বন্ধ করুন",
+
+  // donation page
+List: "তালিকা",
+Donarphoto: "ছবি",
+
+  
+
 badokhali: "বাদোখালী",
 Mograhat: "মগরাহাট-৯৩০০",
 bagerhat: "বাগেরহাট সদর",
 khulna: "বাগেরহাট, খুলনা",
 
-  ourDonors: "আমাদের দাতা",
+  ourDonors: "⭐ আমাদের দাতাগণ",
+donaraddress: "ঠিকানা",
 
+donarmobile: "মোবাইল",
+bloodmember: "নাম",
+bloodgroup: "রক্তের গ্রুপ",
+donardonation: "অনুদান",
+donarjon: "জন",
 donorDescription:
   "বাদোখালী ইয়ুথ ফাউন্ডেশনকে যারা সহযোগিতা করেন, তাদের প্রত্যেকের প্রতি আমরা কৃতজ্ঞ।",
 
@@ -47,11 +70,26 @@ loadingDonors: "দাতাদের তথ্য লোড হচ্ছে..."
 
 noDonorFound: "কোনো দাতা পাওয়া যায়নি",
 
+
+ "call": "কল",
+
+  "previous": "← পূর্ববর্তী",
+  "next": "পরবর্তী →",
+
+  "showing": "দেখানো হচ্ছে",
+  "of": " মোট",
+   "of1": "এর মধ্যে",
+
+   //members
+
+   "executiveCommittee": "👥 নির্বাহী কমিটি",
+  "committeeDescription": "বাদোখালী ইয়ুথ ফাউন্ডেশনের নিবেদিতপ্রাণ সদস্যদের সাথে পরিচিত হোন।",
+
 tryAnotherName:
   "অন্য কোনো নাম দিয়ে অনুসন্ধান করে দেখুন।",
 
 donorList: "দাতাদের তালিকা",
-
+talika: "তালিকা",
 donorName: "দাতার নাম",
 
 addressNotAvailable:
@@ -63,6 +101,15 @@ donor: "জন দাতা",
 
 donors1: "জন দাতা",
 
+//blood
+
+"bloodInformation": "🩸 রক্তের তথ্য",
+  "bloodInformationDescription": "আমাদের সদস্যদের রক্তের গ্রুপ ও যোগাযোগের তথ্য খুঁজুন।",
+
+  "searchBloodGroup": "🔎 রক্তের গ্রুপ খুঁজুন",
+  "allBloodGroups": "সকল রক্তের গ্রুপ",
+
+    noMemberWithBloodGroup: "এই রক্তের গ্রুপের কোনো সদস্য পাওয়া যায়নি।",
 matching: "মিলেছে",
 
 getDirection: "দিকনির্দেশনা নিন",

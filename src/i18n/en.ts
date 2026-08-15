@@ -10,6 +10,21 @@ donation: "Donation",
 feedback: "Feedback",
 bloodBank: "Blood Bank",
 
+//notice page
+noticeBoard: "📢 Notice Board",
+  searchNotice: "Search Notice...",
+  date: "Date",
+  title: "Title",
+  referenceNo: "Reference No.",
+  action: "Action",
+  readDetails: "👁 Read Details",
+  noticeDetails: "📢 Notice Details",
+  downloadNotice: "📥 Download Notice",
+  close: "Close",
+
+  List: "List",
+  Donarphoto: "photo",
+donaraddress: "Address",
 quickLinks: "Quick Links",
 donors: "Donors",
 adminSite: "Admin Site",
@@ -37,6 +52,9 @@ bagerhat: "Bagerhat Sadar",
 khulna: "Bagerhat, khulna",
 
 ourDonors: "Our Donors",
+donarjon: "Members",
+donardonation: "Donation",
+donarmobile: "Mobile",
 
 donorDescription:
   "We are grateful to everyone who supports Badokhali Youth Foundation.",
@@ -51,9 +69,10 @@ tryAnotherName:
   "Try searching with another name.",
 
 donorList: "Donor List",
-
+bloodmember: "Name",
+bloodgroup: "Blood group",
 donorName: "Donor Name",
-
+talika: "List",
 addressNotAvailable:
   "Address not available",
 
@@ -63,6 +82,28 @@ donor: "Donor",
 
 donors1: "Donors",
 
+//blood
+
+  "call": "Call",
+
+  "previous": "← Previous",
+  "next": "Next →",
+
+  "showing": "Showing",
+  "of": "of",
+  "of1": "members",
+
+ "bloodInformation": "🩸 Blood Information",
+  "bloodInformationDescription": "Find blood group and contact information of our registered members.",
+
+  "searchBloodGroup": "🔎 Search Blood Group",
+  "allBloodGroups": "All Blood Groups",
+
+  //members
+
+  "executiveCommittee": "👥 Executive Committee",
+  "committeeDescription": "Meet the dedicated members of Badokhali Youth Foundation.",
+    noMemberWithBloodGroup: "No member found with this blood group.",
 matching: "matching",
 
 getDirection: "Get Direction",

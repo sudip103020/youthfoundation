@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
-
-
+import { useTranslation } from "react-i18next";
+import { FaFileCircleXmark } from "react-icons/fa6";
 interface MedicalInfo {
   id: string;
   name: string;
@@ -13,6 +13,7 @@ interface MedicalInfo {
 }
 
 const MedicalList = () => {
+  const { t } = useTranslation();
   const [members, setMembers] = useState<MedicalInfo[]>([]);
   const [bloodFilter, setBloodFilter] = useState("");
   const [loading, setLoading] = useState(true);
@@ -132,12 +133,11 @@ const MedicalList = () => {
         <div className="text-center mb-4">
 
           <h2 className="fw-bold">
-            🩸 Blood Information
+            {t("bloodInformation")}
           </h2>
 
           <p className="text-muted mb-0">
-            Find blood group and contact
-            information of our registered members.
+            {t("bloodInformationDescription")}
           </p>
 
         </div>
@@ -149,7 +149,7 @@ const MedicalList = () => {
           <div className="col-md-5">
 
             <label className="form-label fw-semibold">
-              🔎 Search Blood Group
+              {t("searchBloodGroup")}
             </label>
 
             <select
@@ -161,7 +161,7 @@ const MedicalList = () => {
             >
 
               <option value="">
-                All Blood Groups
+                {t("allBloodGroups")}
               </option>
 
               <option value="A+">A+</option>
@@ -208,16 +208,13 @@ const MedicalList = () => {
                   fontSize: "50px",
                 }}
               >
-                🩸
+                <FaFileCircleXmark />
               </div>
 
-              <h5 className="mt-3">
-                No Information Found
-              </h5>
+        
 
               <p className="text-muted">
-                No member found with this
-                blood group.
+                {t("noMemberWithBloodGroup")}
               </p>
 
             </div>
@@ -242,15 +239,13 @@ const MedicalList = () => {
 
                 <div className="d-flex justify-content-between align-items-center">
 
-                  <h5 className="mb-0">
-                    Member List
+                  <h5 className="badge bg-light text-dark">
+                    {t("talika")}
                   </h5>
 
                   <span className="badge bg-light text-dark">
-                    {filteredMembers.length} Member
-                    {filteredMembers.length !== 1
-                      ? "s"
-                      : ""}
+                    {filteredMembers.length} {t("donarjon")}
+                    
                   </span>
 
                 </div>
@@ -281,19 +276,19 @@ const MedicalList = () => {
                           width: "100px",
                         }}
                       >
-                        Photo
+                        {t("Donarphoto")}
                       </th>
 
                       <th>
-                        Name
+                        {t("bloodmember")}
                       </th>
 
                       <th>
-                        Mobile
+                        {t("donarmobile")}
                       </th>
 
                       <th className="text-center">
-                        Blood Group
+                        {t("bloodgroup")}
                       </th>
 
                     </tr>
@@ -370,7 +365,7 @@ const MedicalList = () => {
       className="btn btn-sm btn-outline-success"
       title="Call"
     >
-      📞 Call 
+      📞 {t("call")} 
     </a>
   ) : (
     <span className="text-muted">-</span>
@@ -452,7 +447,7 @@ const MedicalList = () => {
                         currentPage === 1
                       }
                     >
-                      ← Previous
+                      {t("previous")}
                     </button>
 
                   </li>
@@ -505,7 +500,7 @@ const MedicalList = () => {
                         currentPage === totalPages
                       }
                     >
-                      Next →
+                     {t("next")}
                     </button>
 
                   </li>
@@ -526,7 +521,7 @@ const MedicalList = () => {
 
               <small className="text-muted">
 
-                Showing{" "}
+               {t("showing")} {" "}
                 <strong>
                   {startIndex + 1}
                 </strong>{" "}
@@ -537,14 +532,12 @@ const MedicalList = () => {
                     filteredMembers.length
                   )}
                 </strong>{" "}
-                of{" "}
+                {t("of")} {" "}
                 <strong>
                   {filteredMembers.length}
                 </strong>{" "}
-                member
-                {filteredMembers.length !== 1
-                  ? "s"
-                  : ""}
+               {t("of1")}
+                
 
                 {bloodFilter && (
                   <>

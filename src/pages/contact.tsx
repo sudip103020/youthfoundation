@@ -38,13 +38,13 @@ const Location = () => {
               <p>
                 <strong>{t("addressLabel")}:</strong>
                 <br />
-                {t("village")}: {t("badokhali")}:
+                {t("village")}: {t("badokhali")},
                 <br />
-                {t("post")}:  {t("Mograhat")}:
+                {t("post")}:  {t("Mograhat")},
                 <br />
-                {t("upazila")}:  {t("bagerhat")}:
+                {t("upazila")}:  {t("bagerhat")},
                 <br />
-                 {t("khulna")}:
+                 {t("khulna")}
               </p>
 
               {/* Phone */}

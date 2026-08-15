@@ -12,6 +12,7 @@ import {
 
 import { db } from "../firebase/firebase";
 import ReportPad from "../components/ReportPad";
+import { useTranslation } from "react-i18next";
 
 import { collection, getDocs } from "firebase/firestore";
 
@@ -27,6 +28,7 @@ interface Notice {
 }
 
 const Notice = () => {
+    const { t } = useTranslation();
   const reportRef = useRef<HTMLDivElement>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [search, setSearch] = useState("");
@@ -88,41 +90,41 @@ const Notice = () => {
   };
 
   const toBanglaDate = (date: string) => {
-  if (!date) return "—";
+    if (!date) return "—";
 
-  const months = [
-    "জানুয়ারি",
-    "ফেব্রুয়ারি",
-    "মার্চ",
-    "এপ্রিল",
-    "মে",
-    "জুন",
-    "জুলাই",
-    "আগস্ট",
-    "সেপ্টেম্বর",
-    "অক্টোবর",
-    "নভেম্বর",
-    "ডিসেম্বর",
-  ];
+    const months = [
+      "জানুয়ারি",
+      "ফেব্রুয়ারি",
+      "মার্চ",
+      "এপ্রিল",
+      "মে",
+      "জুন",
+      "জুলাই",
+      "আগস্ট",
+      "সেপ্টেম্বর",
+      "অক্টোবর",
+      "নভেম্বর",
+      "ডিসেম্বর",
+    ];
 
-  const [year, month, day] = date.split("-");
+    const [year, month, day] = date.split("-");
 
-  const banglaNumber = (value: string) =>
-    value.replace(
-      /\d/g,
-      (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]
-    );
+    const banglaNumber = (value: string) =>
+      value.replace(
+        /\d/g,
+        (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]
+      );
 
-  return `${banglaNumber(day)} ${months[Number(month) - 1]} ${banglaNumber(year)}`;
-};
+    return `${banglaNumber(day)} ${months[Number(month) - 1]} ${banglaNumber(year)}`;
+  };
   return (
     <>
-      
+
 
       <Container className="py-2">
         <div className="text-center mb-5">
 
-          <h2 className="fw-bold mt-3">📢 Notice Board</h2>
+          <h2 className="fw-bold mt-3">{t("noticeBoard")}</h2>
 
 
         </div>
@@ -133,7 +135,7 @@ const Notice = () => {
           <Col md={6} className="mx-auto">
             <Form.Control
               type="text"
-              placeholder="Search Notice..."
+              placeholder={t("searchNotice")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -153,25 +155,28 @@ const Notice = () => {
 
               {/* List Header */}
 
-              <div className="bg-dark text-white px-4 py-3">
-                <div className="row align-items-center">
+              {/* List Header */}
+<div className="bg-dark text-white px-3 py-2">
+  <div className="row align-items-center g-0">
 
-                  <div className="col-md-2 fw-semibold">
-                    তারিখ
-                  </div>
+    <div className="col-md-2 fw-semibold">
+     {t("date")}
+    </div>
 
-                  <div className="col-md-5 fw-semibold">
-                    শিরোনাম
-                  </div>
+    <div className="col-md-5 fw-semibold">
+       {t("title")}
+    </div>
 
-                  <div className="col-md-2 text-center fw-semibold">
-                    স্মারক নং
-                  </div>
+    <div className="col-md-2 text-center fw-semibold text-nowrap">
+       {t("referenceNo")}
+    </div>
 
+    <div className="col-md-3 text-end fw-semibold">
+     {t("action")}
+    </div>
 
-
-                </div>
-              </div>
+  </div>
+</div>
 
 
               {/* Notice Items */}
@@ -186,7 +191,7 @@ const Notice = () => {
                   }}
                 >
 
-                  <div className="row align-items-center">
+                 <div className="row align-items-center g-0">
 
                     {/* Date */}
 
@@ -243,7 +248,7 @@ const Notice = () => {
 
                     {/* Priority */}
 
-                    <div className="col-md-2 text-md-center mb-2 mb-md-0">
+                    <div className="col-md-2 text-center fw-semibold text-nowrap">
 
                       <span
                         className={`badge ${item.priority === "Urgent"
@@ -272,7 +277,7 @@ const Notice = () => {
                         size="sm"
                         onClick={() => handleView(item)}
                       >
-                        👁 Read Details
+                       {t("readDetails")}
                       </Button>
 
                     </div>
@@ -292,65 +297,65 @@ const Notice = () => {
 
       {/* ================= NOTICE DETAILS MODAL ================= */}
 
-      ```tsx
-<Modal
-  show={showModal}
-  onHide={() => setShowModal(false)}
-  size="lg"
-  centered
-  dialogClassName="notice-modal"
->
-  <Modal.Header closeButton>
-    <Modal.Title>
-      📢 Notice Details
-    </Modal.Title>
-  </Modal.Header>
-
-  {selectedNotice && (
-    <Modal.Body className="notice-modal-body">
-      <div
-        ref={reportRef}
-        className="report-download-area"
-      >
-        <ReportPad
-          refNo={selectedNotice.priority
-                          ? selectedNotice.priority
-                            .split("-")
-                            .map((part) =>
-                              part.replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)])
-                            )
-                            .join("-")
-                          : "—"}
-       date={toBanglaDate(selectedNotice.publishDate)}
-          title={selectedNotice.title}
-          content={selectedNotice.description}
-          presidentName="সুদীপ কুমার হালদার"
-          secretaryName="সভাপতি"
-        />
-      </div>
-    </Modal.Body>
-  )}
-
-  <Modal.Footer>
-    <Button
-      variant="success"
-      onClick={downloadNotice}
-    >
-      📥 Download Notice
-    </Button>
-
-    <Button
-      variant="secondary"
-      onClick={() => setShowModal(false)}
-    >
-      Close
-    </Button>
-  </Modal.Footer>
-</Modal>
-
-
-
      
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        size="lg"
+        centered
+        dialogClassName="notice-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {t("noticeDetails")}
+          </Modal.Title>
+        </Modal.Header>
+
+        {selectedNotice && (
+          <Modal.Body className="notice-modal-body">
+            <div
+              ref={reportRef}
+              className="report-download-area"
+            >
+              <ReportPad
+                refNo={selectedNotice.priority
+                  ? selectedNotice.priority
+                    .split("-")
+                    .map((part) =>
+                      part.replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)])
+                    )
+                    .join("-")
+                  : "—"}
+                date={toBanglaDate(selectedNotice.publishDate)}
+                title={selectedNotice.title}
+                content={selectedNotice.description}
+                presidentName="সুদীপ কুমার হালদার"
+                secretaryName="সভাপতি"
+              />
+            </div>
+          </Modal.Body>
+        )}
+
+        <Modal.Footer>
+          <Button
+            variant="success"
+            onClick={downloadNotice}
+          >
+            {t("downloadNotice")}
+          </Button>
+
+          <Button
+            variant="secondary"
+            onClick={() => setShowModal(false)}
+          >
+            {t("close")}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
+
+
     </>
   );
 };
