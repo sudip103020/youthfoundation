@@ -167,13 +167,7 @@ const Notice = () => {
        {t("title")}
     </div>
 
-    <div className="col-md-2 text-center fw-semibold text-nowrap">
-       {t("referenceNo")}
-    </div>
-
-    <div className="col-md-3 text-end fw-semibold">
-     {t("action")}
-    </div>
+    
 
   </div>
 </div>
@@ -246,26 +240,7 @@ const Notice = () => {
                     </div>
 
 
-                    {/* Priority */}
-
-                    <div className="col-md-2 text-center fw-semibold text-nowrap">
-
-                      <span
-                        className={`badge ${item.priority === "Urgent"
-                          ? "bg-danger"
-                          : item.priority === "Important"
-                            ? "bg-warning text-dark"
-                            : "bg-primary"
-                          }`}
-                        style={{
-                          padding: "7px 12px",
-                          fontSize: "12px",
-                        }}
-                      >
-                        {item.priority}
-                      </span>
-
-                    </div>
+                   
 
 
                     {/* Action */}

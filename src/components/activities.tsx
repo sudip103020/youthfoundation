@@ -3,7 +3,7 @@ import { Container, Row, Col, Card } from "react-bootstrap";
 
 import { useEffect, useState } from "react";
 import { db } from "../firebase/firebase";
-
+import { useTranslation } from "react-i18next";
 import {
   collection,
   getDocs,
@@ -20,6 +20,7 @@ interface Activity {
 }
 
 const Activities = () => {
+   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
   const [activeImages, setActiveImages] = useState<string[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -81,12 +82,11 @@ const Activities = () => {
 
       <div className="text-center">
         <h2 className="fw-bold mt-3">
-          📋 Our Activities
+          {t("activitis")}
         </h2>
 
         <p>
-          We are working together to build a better community through
-          various social and humanitarian activities.
+          {t("work")}
         </p>
       </div>
 
@@ -177,7 +177,7 @@ const Activities = () => {
               {/* Footer */}
               <div className="modal-footer border-0 justify-content-between">
                 <button className="btn btn-warning" onClick={prevImage}>
-                  ◀ Previous
+                  {t("previous")}
                 </button>
 
                 <span className="text-white fw-bold">
@@ -185,7 +185,7 @@ const Activities = () => {
                 </span>
 
                 <button className="btn btn-warning" onClick={nextImage}>
-                  Next ▶
+                   {t("next")}
                 </button>
               </div>
 

@@ -1,116 +1,120 @@
 const en = {
   translation: {
-        foundationName: "Badokhali Youth Foundation",
+    foundationName: "Badokhali Youth Foundation",
     home: "Home",
-about: "About us",
-activities: "Activities",
-notice: "Notice",
-contact: "Contact",
-donation: "Donation",
-feedback: "Feedback",
-bloodBank: "Blood Bank",
+    about: "About us",
+    activities: "Activities",
+    notice: "Notice",
+    contact: "Contact",
+    donation: "Donation",
+    feedback: "Feedback",
+    bloodBank: "Blood Bank",
 
-//notice page
-noticeBoard: "📢 Notice Board",
-  searchNotice: "Search Notice...",
-  date: "Date",
-  title: "Title",
-  referenceNo: "Reference No.",
-  action: "Action",
-  readDetails: "👁 Read Details",
-  noticeDetails: "📢 Notice Details",
-  downloadNotice: "📥 Download Notice",
-  close: "Close",
+    //notice page
+    noticeBoard: "📢 Notice Board",
+    searchNotice: "Search Notice...",
+    date: "Date",
+    title: "Title",
+    referenceNo: "Reference No.",
+    action: "Action",
+    readDetails: "👁 Read Details",
+    noticeDetails: "📢 Notice Details",
+    downloadNotice: "📥 Download Notice",
+    close: "Close",
 
-  List: "List",
-  Donarphoto: "photo",
-donaraddress: "Address",
-quickLinks: "Quick Links",
-donors: "Donors",
-adminSite: "Admin Site",
-contactInfo: "Contact Info",
-followUs: "Follow Us",
-visitors: "Visitors",
-year: 2026,
+    List: "List",
+    Donarphoto: "photo",
+    donaraddress: "Address",
+    quickLinks: "Quick Links",
+    donors: "Donors",
+    adminSite: "Admin Site",
+    contactInfo: "Contact Info",
+    followUs: "Follow Us",
+    visitors: "Visitors",
+    year: 2026,
 
-ourLocation: "Our Location",
-foundationOffice: "Foundation Office",
+    ourLocation: "Our Location",
+    foundationOffice: "Foundation Office",
 
-name: "Name",
-addressLabel: "Address",
+    name: "Name",
+    addressLabel: "Address",
 
-village: "Village",
-post: "Post",
-upazila: "Upazila",
+    village: "Village",
+    post: "Post",
+    upazila: "Upazila",
 
-phone: "Phone",
-email: "Email",
+    phone: "Phone",
+    email: "Email",
 
-badokhali: "Badokhali",
-Mograhat: "Mograhat-9300",
-bagerhat: "Bagerhat Sadar",
-khulna: "Bagerhat, khulna",
+    badokhali: "Badokhali",
+    Mograhat: "Mograhat-9300",
+    bagerhat: "Bagerhat Sadar",
+    khulna: "Bagerhat, khulna",
 
-ourDonors: "Our Donors",
-donarjon: "Members",
-donardonation: "Donation",
-donarmobile: "Mobile",
+    ourDonors: "Our Donors",
+    donarjon: "Members",
+    donardonation: "Donation",
+    donarmobile: "Mobile",
 
-donorDescription:
-  "We are grateful to everyone who supports Badokhali Youth Foundation.",
+    donorDescription:
+      "We are grateful to everyone who supports Badokhali Youth Foundation.",
 
-searchDonor: "Search donor by name...",
+    searchDonor: "Search donor by name...",
 
-loadingDonors: "Loading donors...",
+    loadingDonors: "Loading donors...",
 
-noDonorFound: "No Donor Found",
+    noDonorFound: "No Donor Found",
 
-tryAnotherName:
-  "Try searching with another name.",
+    tryAnotherName:
+      "Try searching with another name.",
 
-donorList: "Donor List",
-bloodmember: "Name",
-bloodgroup: "Blood group",
-donorName: "Donor Name",
-talika: "List",
-addressNotAvailable:
-  "Address not available",
+    donorList: "Donor List",
+    bloodmember: "Name",
+    bloodgroup: "Blood group",
+    donorName: "Donor Name",
+    talika: "List",
+    addressNotAvailable:
+      "Address not available",
 
-nonCash: "Non-Cash",
+    nonCash: "Non-Cash",
 
-donor: "Donor",
+    donor: "Donor",
 
-donors1: "Donors",
+    donors1: "Donors",
 
-//blood
+    //blood
 
-  "call": "Call",
+    "call": "Call",
 
-  "previous": "← Previous",
-  "next": "Next →",
+    "previous": "← Previous",
+    "next": "Next ▶",
 
-  "showing": "Showing",
-  "of": "of",
-  "of1": "members",
+    "showing": "Showing",
+    "of": "of",
+    "of1": "members",
 
- "bloodInformation": "🩸 Blood Information",
-  "bloodInformationDescription": "Find blood group and contact information of our registered members.",
+    "bloodInformation": "🩸 Blood Information",
+    "bloodInformationDescription": "Find blood group and contact information of our registered members.",
 
-  "searchBloodGroup": "🔎 Search Blood Group",
-  "allBloodGroups": "All Blood Groups",
+    "searchBloodGroup": "🔎 Search Blood Group",
+    "allBloodGroups": "All Blood Groups",
 
-  //members
+    //members
 
-  "executiveCommittee": "👥 Executive Committee",
-  "committeeDescription": "Meet the dedicated members of Badokhali Youth Foundation.",
+    "executiveCommittee": "👥 Executive Committee",
+    "committeeDescription": "Meet the dedicated members of Badokhali Youth Foundation.",
     noMemberWithBloodGroup: "No member found with this blood group.",
-matching: "matching",
+    matching: "matching",
 
-getDirection: "Get Direction",
-googleMap: "Google Map",
-address:
-  "Badokhali, Mograhat-9300, Bagerhat Sadar, Bagerhat",
-allRightsReserved: "All Rights Reserved",
+    getDirection: "Get Direction",
+    googleMap: "Google Map",
+    address:
+      "Badokhali, Mograhat-9300, Bagerhat Sadar, Bagerhat",
+    allRightsReserved: "All Rights Reserved",
+
+// activist
+"activitis": "📋 Our Activities",
+    "work": "We are working together to build a better community through various social and humanitarian activities.",
 
     heroDescription:
       "is a voluntary, non-profit organization committed to building a better society through education, healthcare, humanitarian aid, environment and youth empowerment.",
