@@ -12,7 +12,11 @@ import AdminLayout from "./AdminLayout";
 interface Member {
   id: string;
   name: string;
+  nameBn?: string;
+
   designation: string;
+  designationBn?: string;
+
   memberType: string;
   phone: string;
   dateOfBirth: string;
@@ -100,7 +104,9 @@ const ViewMembers = () => {
 
     await updateDoc(doc(db, "members", selectedMember.id), {
       name: selectedMember.name,
+      nameBn: selectedMember.nameBn || "",
       designation: selectedMember.designation,
+      designationBn: selectedMember.designationBn || "",
       memberType: selectedMember.memberType,
       phone: selectedMember.phone,
       bloodGroup: selectedMember.bloodGroup,
@@ -169,6 +175,22 @@ const ViewMembers = () => {
             </div>
 
             <div className="col-md-6 mb-3">
+  <label>বাংলা নাম</label>
+
+  <input
+    className="form-control"
+    value={selectedMember.nameBn || ""}
+    onChange={(e) =>
+      setSelectedMember({
+        ...selectedMember,
+        nameBn: e.target.value,
+      })
+    }
+    placeholder="বাংলায় নাম লিখুন"
+  />
+</div>
+
+            <div className="col-md-6 mb-3">
               <label>Designation</label>
 
               <input
@@ -182,6 +204,22 @@ const ViewMembers = () => {
                 }
               />
             </div>
+
+            <div className="col-md-6 mb-3">
+  <label>বাংলা পদবি</label>
+
+  <input
+    className="form-control"
+    value={selectedMember.designationBn || ""}
+    onChange={(e) =>
+      setSelectedMember({
+        ...selectedMember,
+        designationBn: e.target.value,
+      })
+    }
+    placeholder="বাংলায় পদবি লিখুন"
+  />
+</div>
 
             <div className="col-md-6 mb-3">
               <label>Member Type</label>

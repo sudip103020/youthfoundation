@@ -112,6 +112,42 @@ const en = {
       "Badokhali, Mograhat-9300, Bagerhat Sadar, Bagerhat",
     allRightsReserved: "All Rights Reserved",
 
+//feedback
+"email_title": "Share Your Feedback",
+    "subtitle": "Your feedback will help us work better.",
+    "sender_name": "Your Name",
+    "namePlaceholder": "Enter your name",
+    "to_email": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "subject": "Subject",
+    "subjectPlaceholder": "What is your feedback about?",
+    "message": "Your Message",
+    "messagePlaceholder": "Write your feedback here...",
+    "send": "Send Feedback",
+    "success": "✅ Thanks. Feedback sent successfully",
+    "error": "❌ Failed to send feedback",
+    "bottomText": "Thank you for helping us improve Badokhali Youth Foundation",
+
+//notice
+
+"donation_title": "Support Our Foundation",
+    "donation_subtitle": "Your donation can help us to continue our social activities.",
+    "bankAccount": "Bank Account",
+    "bankName": "Bank Name",
+    "accountName": "Account Name",
+    "accountNumber": "Account Number",
+    "branch": "Branch",
+    "bkashAccount": "bKash Account",
+    "accountType": "Account Type",
+    "personal": "Personal",
+    "bkashNumber": "bKash Number",
+    "paymentMethod": "Payment Method",
+    "sendMoney": "Send Money",
+    "copy": "Copy",
+    "copied": "Copied Successfully",
+    "thankYou": "Thank You For Your Support",
+    "donorsList": "See Our Donors List",
+
 // activist
 "activitis": "📋 Our Activities",
     "work": "We are working together to build a better community through various social and humanitarian activities.",

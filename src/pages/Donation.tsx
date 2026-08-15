@@ -1,79 +1,63 @@
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
-
+import { useTranslation } from "react-i18next";
 
 const Donation = () => {
+  const { t } = useTranslation();
 
-  const copyText = (text:string) => {
+  const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert("Copied Successfully");
+    alert(t("copied"));
   };
-
 
   return (
     <>
-     
-
       <Container className="py-2">
 
-
         {/* Header */}
-
         <div className="text-center mb-5">
-
-
           <h2 className="fw-bold mt-3">
-            🪙 Support Our Foundation 
+            🪙 {t("donation_title")}
           </h2>
 
           <p>
-            Your donation can help us to continue our social activities.
+            {t("donation_subtitle")}
           </p>
-
         </div>
-
-
 
         <Row className="g-4">
 
-
           {/* Bank Account */}
-
           <Col md={6}>
-
             <Card className="shadow-sm h-100">
-
               <Card.Body>
 
                 <h4 className="fw-bold text-success">
-                  🏦 Bank Account
+                  🏦 {t("bankAccount")}
                 </h4>
 
-                <hr/>
-
+                <hr />
 
                 <p>
                   <strong>
-                    Bank Name:
+                    {t("bankName")}:
                   </strong>
-                  <br/>
+                  <br />
                   Dutch Bangla Bank Ltd.
                 </p>
 
-
                 <p>
                   <strong>
-                    Account Name:
+                    {t("accountName")}:
                   </strong>
-                  <br/>
+                  <br />
                   SUMON ROY
                 </p>
 
-
                 <p>
                   <strong>
-                    Account Number:
+                    {t("accountNumber")}:
                   </strong>
-                  <br/>
+                  <br />
 
                   1491510084961
 
@@ -85,169 +69,116 @@ const Donation = () => {
                       copyText("1491510084961")
                     }
                   >
-                    Copy
+                    {t("copy")}
                   </Button>
-
                 </p>
-
 
                 <p>
                   <strong>
-                    Branch:
+                    {t("branch")}:
                   </strong>
-                  <br/>
+                  <br />
                   Bagerhat Branch
                 </p>
 
-
               </Card.Body>
-
             </Card>
-
-
           </Col>
 
-
-
-
           {/* bKash */}
-
           <Col md={6}>
-
             <Card className="shadow-sm h-100">
-
-
               <Card.Body>
 
-
                 <h4 className="fw-bold text-danger">
-                  📱 bKash Account
+                  📱 {t("bkashAccount")}
                 </h4>
 
-
-                <hr/>
-
+                <hr />
 
                 <p>
                   <strong>
-                    Account Type:
+                    {t("accountType")}:
                   </strong>
-                  <br/>
-                  Personal 
+                  <br />
+                  {t("personal")}
                 </p>
 
-
                 <p>
-
                   <strong>
-                    bKash Number:
+                    {t("bkashNumber")}:
                   </strong>
-
-                  <br/>
+                  <br />
 
                   01714597343
 
-
                   <Button
                     size="sm"
                     variant="outline-primary"
                     className="ms-2"
                     onClick={() =>
-                    copyText("01714597343")
+                      copyText("01714597343")
                     }
                   >
-                    Copy
+                    {t("copy")}
                   </Button>
-
                 </p>
-
-                  <p>
-
-                  <strong>
-                    bKash Number:
-                  </strong>
-
-                  <br/>
-
-                  01303764484
-
-
-                  <Button
-                    size="sm"
-                    variant="outline-primary"
-                    className="ms-2"
-                    onClick={() =>
-                    copyText("01303764484")
-                    }
-                  >
-                    Copy
-                  </Button>
-
-                </p>
-
 
                 <p>
                   <strong>
-                    Payment Method:
+                    {t("bkashNumber")}:
                   </strong>
-                  <br/>
-                  Send Money 
+                  <br />
+
+                  01303764484
+
+                  <Button
+                    size="sm"
+                    variant="outline-primary"
+                    className="ms-2"
+                    onClick={() =>
+                      copyText("01303764484")
+                    }
+                  >
+                    {t("copy")}
+                  </Button>
                 </p>
 
-
+                <p>
+                  <strong>
+                    {t("paymentMethod")}:
+                  </strong>
+                  <br />
+                  {t("sendMoney")}
+                </p>
 
               </Card.Body>
-
-
             </Card>
-
-
           </Col>
-
 
         </Row>
 
-
-
-
         {/* Message */}
-
-
         <Card className="shadow-sm mt-5">
-
-
           <Card.Body className="text-center">
 
-
             <h4>
-              🤝 Thank You For Your Support
+              🤝 {t("thankYou")}
             </h4>
-
-
-
 
             <Button
               variant="success"
               href="/donors"
             >
-              See Our Donors List
+              {t("donorsList")}
             </Button>
 
-
           </Card.Body>
-
-
         </Card>
 
-
-
       </Container>
-
-
-     
     </>
   );
 };
-
 
 export default Donation;

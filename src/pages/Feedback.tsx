@@ -1,9 +1,10 @@
 import { useRef } from "react";
-import { Container, Form, Button} from "react-bootstrap";
-
+import { Container, Form, Button } from "react-bootstrap";
 import emailjs from "@emailjs/browser";
+import { useTranslation } from "react-i18next";
 
 const Feedback = () => {
+  const { t } = useTranslation();
   const form = useRef<HTMLFormElement>(null);
 
   const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
@@ -19,20 +20,17 @@ const Feedback = () => {
         "dkzpDLiexSiWkw_cv"
       )
       .then(() => {
-        alert("✅ Thanks. Feedback sent successfully");
+        alert(t("success"));
         form.current?.reset();
       })
       .catch((err) => {
         console.log(err);
-        alert("❌ Failed to send feedback");
+        alert(t("error"));
       });
   };
 
   return (
     <>
-    
-       
-
       {/* ================= FEEDBACK SECTION ================= */}
       <section
         style={{
@@ -45,14 +43,12 @@ const Feedback = () => {
         <Container style={{ maxWidth: "850px" }}>
           {/* Heading */}
           <div className="text-center mb-2">
-            
-
             <h1 className="fw-bold text-dark mb-2">
-               💬 Share Your Feedback
+              💬 {t("email_title")}
             </h1>
 
             <p className="text-muted mb-0">
-             Your feedback will help us work better.
+              {t("subtitle")}
             </p>
           </div>
 
@@ -72,13 +68,13 @@ const Feedback = () => {
                 <div className="col-md-6">
                   <Form.Group className="mb-4">
                     <Form.Label className="fw-semibold">
-                      Your Name
+                      {t("sender_name")}
                     </Form.Label>
 
                     <Form.Control
                       type="text"
                       name="name"
-                      placeholder="Enter your name"
+                      placeholder={t("namePlaceholder")}
                       required
                       className="py-2 px-3"
                       style={{
@@ -92,13 +88,13 @@ const Feedback = () => {
                 <div className="col-md-6">
                   <Form.Group className="mb-4">
                     <Form.Label className="fw-semibold">
-                      Email Address
+                      {t("to_email")}
                     </Form.Label>
 
                     <Form.Control
                       type="email"
                       name="email"
-                      placeholder="Enter your email"
+                      placeholder={t("emailPlaceholder")}
                       required
                       className="py-2 px-3"
                       style={{
@@ -113,13 +109,13 @@ const Feedback = () => {
               {/* Subject */}
               <Form.Group className="mb-4">
                 <Form.Label className="fw-semibold">
-                  Subject
+                  {t("subject")}
                 </Form.Label>
 
                 <Form.Control
                   type="text"
                   name="subject"
-                  placeholder="What is your feedback about?"
+                  placeholder={t("subjectPlaceholder")}
                   required
                   className="py-2 px-3"
                   style={{
@@ -132,14 +128,14 @@ const Feedback = () => {
               {/* Message */}
               <Form.Group className="mb-4">
                 <Form.Label className="fw-semibold">
-                  Your Message
+                  {t("message")}
                 </Form.Label>
 
                 <Form.Control
                   as="textarea"
                   rows={6}
                   name="message"
-                  placeholder="Write your feedback here..."
+                  placeholder={t("messagePlaceholder")}
                   required
                   className="py-3 px-3"
                   style={{
@@ -160,23 +156,19 @@ const Feedback = () => {
                   fontSize: "16px",
                 }}
               >
-                ✉️ Send Feedback
+                ✉️ {t("send")}
               </Button>
             </Form>
           </div>
 
           {/* Bottom text */}
           <p className="text-center text-muted mt-4 mb-0">
-            Thank you for helping us improve Badokhali Youth Foundation ❤️
+            {t("bottomText")} ❤️
           </p>
         </Container>
       </section>
-
-      {/* ================= FOOTER ================= */}
-   
     </>
   );
 };
 
 export default Feedback;
-

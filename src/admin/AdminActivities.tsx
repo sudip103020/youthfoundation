@@ -20,8 +20,11 @@ import {
 interface Activity {
   id: string;
   title: string;
+  titleBn?: string;
   date: string;
+  dateBn?: string;
   description: string;
+  descriptionBn?: string;
   images: string[];
   createdAt?: any;
 }
@@ -34,6 +37,9 @@ const Activities = () => {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
+  const [titleBn, setTitleBn] = useState("");
+const [dateBn, setDateBn] = useState("");
+const [descriptionBn, setDescriptionBn] = useState("");
 
   //==========================
   // Images
@@ -136,8 +142,11 @@ const Activities = () => {
     previewImages.forEach((url) => URL.revokeObjectURL(url));
 
     setTitle("");
+    setTitleBn("");
     setDate("");
+    setDateBn("");
     setDescription("");
+    setDescriptionBn("");
 
     setSelectedImages([]);
     setPreviewImages([]);
@@ -220,8 +229,11 @@ const uploadImages = async () => {
 
       await addDoc(collection(db, "activities"), {
         title,
+        titleBn,
         date,
+         dateBn,
         description,
+        descriptionBn,
         images: imageUrls,
         createdAt: serverTimestamp(),
       });
@@ -247,6 +259,9 @@ const uploadImages = async () => {
     setTitle(item.title);
     setDate(item.date);
     setDescription(item.description);
+    setTitleBn(item.titleBn || "");
+setDateBn(item.dateBn || "");
+setDescriptionBn(item.descriptionBn || "");
 
     setOldImages(item.images);
 
@@ -281,11 +296,17 @@ const uploadImages = async () => {
       }
 
       await updateDoc(doc(db, "activities", editingId), {
-        title,
-        date,
-        description,
-        images: imageUrls,
-      });
+  title,
+  titleBn,
+
+  date,
+  dateBn,
+
+  description,
+  descriptionBn,
+
+  images: imageUrls,
+});
 
       alert("Activity Updated Successfully");
 
@@ -351,6 +372,20 @@ const handleDelete = async (item: Activity) => {
             />
           </div>
 
+          <div className="mb-3">
+  <label className="form-label">
+    Title (বাংলা)
+  </label>
+
+  <input
+    type="text"
+    className="form-control"
+    value={titleBn}
+    onChange={(e) => setTitleBn(e.target.value)}
+    placeholder="বাংলায় শিরোনাম লিখুন"
+  />
+</div>
+
           {/* Date */}
 
           <div className="col-md-6 mb-3">
@@ -366,6 +401,20 @@ const handleDelete = async (item: Activity) => {
               placeholder="August 2026"
             />
           </div>
+
+          <div className="mb-3">
+  <label className="form-label">
+    Date (বাংলা)
+  </label>
+
+  <input
+    type="text"
+    className="form-control"
+    value={dateBn}
+    onChange={(e) => setDateBn(e.target.value)}
+    placeholder="যেমন: ১৫ আগস্ট ২০২৬"
+  />
+</div>
 
           {/* Description */}
 
@@ -383,6 +432,21 @@ const handleDelete = async (item: Activity) => {
               }
             />
           </div>
+
+
+          <div className="mb-3">
+  <label className="form-label">
+    Description (বাংলা)
+  </label>
+
+  <textarea
+    className="form-control"
+    rows={4}
+    value={descriptionBn}
+    onChange={(e) => setDescriptionBn(e.target.value)}
+    placeholder="বাংলায় বিবরণ লিখুন"
+  />
+</div>
 
           {/* Images */}
 

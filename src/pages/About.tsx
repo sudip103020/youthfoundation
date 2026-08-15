@@ -7,7 +7,9 @@ import { useTranslation } from "react-i18next";
 interface Member {
   id: string;
   name: string;
+  nameBn: string;
   designation?: string;
+  designationBn?: string;
   phone?: string;
   email?: string;
   bloodGroup?: string;
@@ -16,7 +18,13 @@ interface Member {
 }
 
 export default function About() {
-   const { t } = useTranslation();
+  const { t } = useTranslation();
+
+  const { i18n } = useTranslation();
+
+  const isBangla = i18n.language === "bn";
+
+
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -206,29 +214,36 @@ export default function About() {
 
                       {/* NAME */}
                       <h4 className="fw-bold mb-1">
-                        {member.name}
+                        {isBangla
+                          ? member.nameBn || member.name
+                          : member.name}
                       </h4>
 
                       {/* DESIGNATION */}
                       <h6 className="text-success mb-3">
-                        {member.designation ||
-                          "Committee Member"}
+                        {isBangla
+                          ? member.designationBn || member.designation
+                          : member.designation}
                       </h6>
 
                       {/* PHONE */}
 
-                      {member.phone ? (
-                        <a
-                          href={`tel:${member.phone}`}
-                          className="btn btn-sm btn-outline-success"
-                          title="Call"
-                        >
-                          📞 Call
-                        </a>
-                      ) : (
-                        <span className="text-muted">-</span>
-                      )}
-                      {"  "}{member.phone}
+                      {/* PHONE */}
+                      <div className="mb-1">
+                        {member.phone ? (
+                          <a
+                            href={`tel:${member.phone}`}
+                            className="btn btn-sm btn-outline-success me-2"
+                            title="Call"
+                          >
+                            📞 Call
+                          </a>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+
+                        {member.phone}
+                      </div>
 
                       {/* EMAIL */}
                       {member.email && (

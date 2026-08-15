@@ -14,13 +14,18 @@ import {
 interface Activity {
   id: string;
   title: string;
+  titleBn?: string;
   date: string;
+  dateBn?: string;
   description: string;
+  descriptionBn?: string;
   images: string[];
 }
 
 const Activities = () => {
-   const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const isBangla = i18n.language === "bn";
   const [showModal, setShowModal] = useState(false);
   const [activeImages, setActiveImages] = useState<string[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -78,7 +83,7 @@ const Activities = () => {
 
   return (
     <>
-    
+
 
       <div className="text-center">
         <h2 className="fw-bold mt-3">
@@ -97,15 +102,22 @@ const Activities = () => {
               <Card className="shadow-sm rounded-4 border-0 h-100">
                 <Card.Body>
                   <h3 className="text-primary fw-bold">
-                    {activity.title}
+                    {isBangla
+                      ? activity.titleBn || activity.title
+                      : activity.title}
                   </h3>
 
                   <small className="text-muted">
-                    📅 {activity.date}
+                    📅{" "}
+                    {isBangla
+                      ? activity.dateBn || activity.date
+                      : activity.date}
                   </small>
 
                   <p className="mt-3">
-                    {activity.description}
+                    {isBangla
+                      ? activity.descriptionBn || activity.description
+                      : activity.description}
                   </p>
 
                   <Row className="g-2">
@@ -142,8 +154,8 @@ const Activities = () => {
         >
           <div
             className={`modal-dialog modal-dialog-centered ${window.innerWidth < 576
-                ? "modal-fullscreen"
-                : "modal-xl"
+              ? "modal-fullscreen"
+              : "modal-xl"
               }`}
           >
             <div className="modal-content bg-dark border-0">
@@ -151,8 +163,17 @@ const Activities = () => {
               {/* Header */}
               <div className="modal-header border-0">
                 <h5 className="modal-title text-white">
-                  📸 {activities.find((a) => a.images === activeImages)?.title || "Activity"}
-                </h5>
+  📸{" "}
+  {(() => {
+    const activity = activities.find(
+      (a) => a.images === activeImages
+    );
+
+    return isBangla
+      ? activity?.titleBn || activity?.title || "Activity"
+      : activity?.title || "Activity";
+  })()}
+</h5>
 
                 <button
                   className="btn-close btn-close-white"
@@ -185,7 +206,7 @@ const Activities = () => {
                 </span>
 
                 <button className="btn btn-warning" onClick={nextImage}>
-                   {t("next")}
+                  {t("next")}
                 </button>
               </div>
 
@@ -194,7 +215,7 @@ const Activities = () => {
         </div>
       )}
 
-      
+
     </>
   );
 };
