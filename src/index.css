@@ -519,3 +519,106 @@ object-fit:cover;
     border-radius: 15px !important;
   }
 }
+
+/* ==============================
+   FOOTER QUICK LINKS
+============================== */
+
+.footer-quick-links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px 12px;
+}
+
+.footer-quick-links a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.footer-quick-links a:hover {
+  color: #ffd400;
+}
+
+
+/* ==============================
+   SMALL ADMIN LINK
+============================== */
+
+.footer-admin-link {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: #8d98ab;
+  text-decoration: none;
+}
+
+.footer-admin-link:hover {
+  color: #ffd400;
+}
+
+
+/* ==============================
+   COPYRIGHT
+============================== */
+
+.copyright {
+  text-align: center;
+  background: #0b1426;
+  color: #ffffff;
+  padding: 6px 10px 7px;
+  font-size: 11px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+
+/* ==============================
+   MOBILE
+============================== */
+
+@media (max-width: 767px) {
+
+  .footer {
+    padding-top: 25px !important;
+    padding-bottom: 20px !important;
+  }
+
+  .footer-quick-links {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px 8px;
+  }
+
+  .footer-quick-links a {
+    font-size: 12px;
+  }
+
+  .footer-title {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .footer p {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .social-icons {
+    gap: 7px;
+  }
+
+  .copyright {
+    font-size: 10px;
+    padding: 5px 5px 6px;
+  }
+
+  .footer-admin-link {
+    font-size: 9px;
+  }
+
+}
+
+.emergency-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+}

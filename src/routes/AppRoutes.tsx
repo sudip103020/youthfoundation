@@ -23,6 +23,8 @@ import MedicalList from "../pages/MedicalList";
 import MainLayout from "../layouts/MainLayout";
 import Report from "../components/report";
 import Reportacc from "../components/ReportPadaccount"
+import EmergencyNumbers from "../admin/EmergencyNumbers";
+import EmergencyNumberspublic from "../pages/EmergencyNumbers";
 
 const AppRoutes = () => {
   return (
@@ -44,6 +46,7 @@ const AppRoutes = () => {
   <Route path="/admin/login" element={<Login />} />
   <Route path="/report" element={<Report />} />
   <Route path="/reportacc" element={<Reportacc />} />
+  <Route path="/emergency" element={<EmergencyNumberspublic />} />
  
 </Route>
 
@@ -137,6 +140,15 @@ const AppRoutes = () => {
           element={
             <RoleRoute roles={["admin", "editor"]}>
               <MedicalInfo />
+            </RoleRoute>
+          }
+        />
+
+         <Route
+          path="/admin/emergency-numbers"
+          element={
+            <RoleRoute roles={["admin", "editor"]}>
+              <EmergencyNumbers />
             </RoleRoute>
           }
         />

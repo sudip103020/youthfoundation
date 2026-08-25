@@ -21,6 +21,9 @@ interface MedicalInfo {
   phone?: string;
   photo?: string;
   bloodGroup: string;
+  dateOfBirth?: string;
+  gender?: string;
+  currentAddress?: string;
   weight?: string;
   height?: string;
   bloodPressure?: string;
@@ -48,6 +51,9 @@ const MedicalInfo = () => {
   const [phone, setPhone] = useState("");
   const [photo, setPhoto] = useState("");
   const [bloodGroup, setBloodGroup] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [currentAddress, setCurrentAddress] = useState("");
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
   const [bloodPressure, setBloodPressure] = useState("");
@@ -105,7 +111,10 @@ const MedicalInfo = () => {
 
       setMedicalInfos(data);
     } catch (error) {
-      console.error("Error fetching medical information:", error);
+      console.error(
+        "Error fetching medical information:",
+        error
+      );
     }
   };
 
@@ -124,7 +133,10 @@ const MedicalInfo = () => {
       const formData = new FormData();
 
       formData.append("file", file);
-      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      formData.append(
+        "upload_preset",
+        CLOUDINARY_UPLOAD_PRESET
+      );
 
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -140,13 +152,17 @@ const MedicalInfo = () => {
         console.error("Cloudinary Error:", data);
 
         throw new Error(
-          data?.error?.message || "Photo upload failed"
+          data?.error?.message ||
+            "Photo upload failed"
         );
       }
 
       return data.secure_url;
     } catch (error) {
-      console.error("Cloudinary upload error:", error);
+      console.error(
+        "Cloudinary upload error:",
+        error
+      );
 
       alert("Photo upload failed");
 
@@ -189,6 +205,9 @@ const MedicalInfo = () => {
     setPhone("");
     setPhoto("");
     setBloodGroup("");
+    setDateOfBirth("");
+    setGender("");
+    setCurrentAddress("");
     setWeight("");
     setHeight("");
     setBloodPressure("");
@@ -218,7 +237,8 @@ const MedicalInfo = () => {
       let photoUrl = photo;
 
       if (photoFile) {
-        const uploadedUrl = await uploadPhoto(photoFile);
+        const uploadedUrl =
+          await uploadPhoto(photoFile);
 
         if (!uploadedUrl) {
           return;
@@ -235,9 +255,14 @@ const MedicalInfo = () => {
             phone: phone.trim(),
             photo: photoUrl,
             bloodGroup,
+            dateOfBirth: dateOfBirth || "",
+            gender: gender || "",
+            currentAddress:
+              currentAddress.trim(),
             weight: weight.trim(),
             height: height.trim(),
-            bloodPressure: bloodPressure.trim(),
+            bloodPressure:
+              bloodPressure.trim(),
             oxygen: oxygen.trim(),
             pulse: pulse.trim(),
             note: note.trim(),
@@ -245,7 +270,9 @@ const MedicalInfo = () => {
           }
         );
 
-        alert("Medical Information Updated Successfully");
+        alert(
+          "Medical Information Updated Successfully"
+        );
       } else {
         await addDoc(
           collection(db, "medicalInfo"),
@@ -254,9 +281,14 @@ const MedicalInfo = () => {
             phone: phone.trim(),
             photo: photoUrl,
             bloodGroup,
+            dateOfBirth: dateOfBirth || "",
+            gender: gender || "",
+            currentAddress:
+              currentAddress.trim(),
             weight: weight.trim(),
             height: height.trim(),
-            bloodPressure: bloodPressure.trim(),
+            bloodPressure:
+              bloodPressure.trim(),
             oxygen: oxygen.trim(),
             pulse: pulse.trim(),
             note: note.trim(),
@@ -264,7 +296,9 @@ const MedicalInfo = () => {
           }
         );
 
-        alert("Medical Information Added Successfully");
+        alert(
+          "Medical Information Added Successfully"
+        );
       }
 
       resetForm();
@@ -292,9 +326,18 @@ const MedicalInfo = () => {
     setPhone(item.phone || "");
     setPhoto(item.photo || "");
     setBloodGroup(item.bloodGroup || "");
+    setDateOfBirth(
+      item.dateOfBirth || ""
+    );
+    setGender(item.gender || "");
+    setCurrentAddress(
+      item.currentAddress || ""
+    );
     setWeight(item.weight || "");
     setHeight(item.height || "");
-    setBloodPressure(item.bloodPressure || "");
+    setBloodPressure(
+      item.bloodPressure || ""
+    );
     setOxygen(item.oxygen || "");
     setPulse(item.pulse || "");
     setNote(item.note || "");
@@ -337,21 +380,29 @@ const MedicalInfo = () => {
   // FILTER
   // ===============================
 
-  const filteredMedicalInfos = medicalInfos.filter((item) => {
-    const searchText = search.toLowerCase().trim();
+  const filteredMedicalInfos =
+    medicalInfos.filter((item) => {
+      const searchText =
+        search.toLowerCase().trim();
 
-    const matchSearch =
-      item.name.toLowerCase().includes(searchText) ||
-      (item.phone || "")
-        .toLowerCase()
-        .includes(searchText);
+      const matchSearch =
+        item.name
+          .toLowerCase()
+          .includes(searchText) ||
+        (item.phone || "")
+          .toLowerCase()
+          .includes(searchText);
 
-    const matchBloodGroup =
-      filterBloodGroup === "" ||
-      item.bloodGroup === filterBloodGroup;
+      const matchBloodGroup =
+        filterBloodGroup === "" ||
+        item.bloodGroup ===
+          filterBloodGroup;
 
-    return matchSearch && matchBloodGroup;
-  });
+      return (
+        matchSearch &&
+        matchBloodGroup
+      );
+    });
 
   // ===============================
   // PAGINATION
@@ -382,20 +433,24 @@ const MedicalInfo = () => {
     if (!reportRef.current) return;
 
     try {
-      const canvas = await html2canvas(
-        reportRef.current,
-        {
-          scale: 3,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: "#ffffff",
-          logging: false,
-        }
-      );
+      const canvas =
+        await html2canvas(
+          reportRef.current,
+          {
+            scale: 3,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor:
+              "#ffffff",
+            logging: false,
+          }
+        );
 
-      const image = canvas.toDataURL("image/png");
+      const image =
+        canvas.toDataURL("image/png");
 
-      const link = document.createElement("a");
+      const link =
+        document.createElement("a");
 
       link.href = image;
 
@@ -405,8 +460,14 @@ const MedicalInfo = () => {
 
       link.click();
     } catch (error) {
-      console.error("Report download error:", error);
-      alert("Failed to download report");
+      console.error(
+        "Report download error:",
+        error
+      );
+
+      alert(
+        "Failed to download report"
+      );
     }
   };
 
@@ -492,35 +553,41 @@ const MedicalInfo = () => {
                 type="file"
                 className="form-control"
                 accept="image/*"
-                onChange={handlePhotoChange}
+                onChange={
+                  handlePhotoChange
+                }
               />
 
               {photoFile && (
                 <small className="text-success">
-                  Selected: {photoFile.name}
+                  Selected:{" "}
+                  {photoFile.name}
                 </small>
               )}
 
-              {photo && !photoFile && (
-                <div className="mt-2">
+              {photo &&
+                !photoFile && (
+                  <div className="mt-2">
 
-                  <img
-                    src={photo}
-                    alt="Current"
-                    width="60"
-                    height="60"
-                    style={{
-                      objectFit: "cover",
-                      borderRadius: "50%",
-                    }}
-                  />
+                    <img
+                      src={photo}
+                      alt="Current"
+                      width="60"
+                      height="60"
+                      style={{
+                        objectFit:
+                          "cover",
+                        borderRadius:
+                          "50%",
+                      }}
+                    />
 
-                  <small className="ms-2 text-muted">
-                    Current Photo
-                  </small>
+                    <small className="ms-2 text-muted">
+                      Current Photo
+                    </small>
 
-                </div>
-              )}
+                  </div>
+                )}
 
             </div>
 
@@ -539,7 +606,9 @@ const MedicalInfo = () => {
                 className="form-select"
                 value={bloodGroup}
                 onChange={(e) =>
-                  setBloodGroup(e.target.value)
+                  setBloodGroup(
+                    e.target.value
+                  )
                 }
               >
 
@@ -560,6 +629,65 @@ const MedicalInfo = () => {
 
             </div>
 
+            {/* DATE OF BIRTH */}
+
+            <div className="col-md-3">
+
+              <label className="form-label">
+                Date of Birth
+              </label>
+
+              <input
+                type="date"
+                className="form-control"
+                value={dateOfBirth}
+                onChange={(e) =>
+                  setDateOfBirth(
+                    e.target.value
+                  )
+                }
+              />
+
+            </div>
+
+            {/* GENDER */}
+
+            <div className="col-md-3">
+
+              <label className="form-label">
+                Gender
+              </label>
+
+              <select
+                className="form-select"
+                value={gender}
+                onChange={(e) =>
+                  setGender(
+                    e.target.value
+                  )
+                }
+              >
+
+                <option value="">
+                  Select Gender
+                </option>
+
+                <option value="Male">
+                  Male
+                </option>
+
+                <option value="Female">
+                  Female
+                </option>
+
+                <option value="Other">
+                  Other
+                </option>
+
+              </select>
+
+            </div>
+
             {/* WEIGHT */}
 
             <div className="col-md-3">
@@ -574,7 +702,33 @@ const MedicalInfo = () => {
                 placeholder="60"
                 value={weight}
                 onChange={(e) =>
-                  setWeight(e.target.value)
+                  setWeight(
+                    e.target.value
+                  )
+                }
+              />
+
+            </div>
+
+            {/* CURRENT ADDRESS */}
+
+            <div className="col-md-6">
+
+              <label className="form-label">
+                Current Address
+              </label>
+
+              <textarea
+                className="form-control"
+                rows={2}
+                placeholder="Enter Current Address"
+                value={
+                  currentAddress
+                }
+                onChange={(e) =>
+                  setCurrentAddress(
+                    e.target.value
+                  )
                 }
               />
 
@@ -594,7 +748,9 @@ const MedicalInfo = () => {
                 placeholder="165"
                 value={height}
                 onChange={(e) =>
-                  setHeight(e.target.value)
+                  setHeight(
+                    e.target.value
+                  )
                 }
               />
 
@@ -612,9 +768,13 @@ const MedicalInfo = () => {
                 type="text"
                 className="form-control"
                 placeholder="120/80"
-                value={bloodPressure}
+                value={
+                  bloodPressure
+                }
                 onChange={(e) =>
-                  setBloodPressure(e.target.value)
+                  setBloodPressure(
+                    e.target.value
+                  )
                 }
               />
 
@@ -634,7 +794,9 @@ const MedicalInfo = () => {
                 placeholder="98"
                 value={oxygen}
                 onChange={(e) =>
-                  setOxygen(e.target.value)
+                  setOxygen(
+                    e.target.value
+                  )
                 }
               />
 
@@ -654,7 +816,9 @@ const MedicalInfo = () => {
                 placeholder="72"
                 value={pulse}
                 onChange={(e) =>
-                  setPulse(e.target.value)
+                  setPulse(
+                    e.target.value
+                  )
                 }
               />
 
@@ -674,7 +838,9 @@ const MedicalInfo = () => {
                 placeholder="Optional note"
                 value={note}
                 onChange={(e) =>
-                  setNote(e.target.value)
+                  setNote(
+                    e.target.value
+                  )
                 }
               />
 
@@ -686,7 +852,9 @@ const MedicalInfo = () => {
 
             <button
               className="btn btn-success me-2"
-              onClick={saveMedicalInfo}
+              onClick={
+                saveMedicalInfo
+              }
               disabled={uploading}
             >
 
@@ -730,7 +898,9 @@ const MedicalInfo = () => {
                 </h6>
 
                 <h3>
-                  {filteredMedicalInfos.length}
+                  {
+                    filteredMedicalInfos.length
+                  }
                 </h3>
 
               </div>
@@ -750,7 +920,10 @@ const MedicalInfo = () => {
                 </h6>
 
                 <h3>
-                  {filterBloodGroup || "All"}
+                  {
+                    filterBloodGroup ||
+                    "All"
+                  }
                 </h3>
 
               </div>
@@ -785,7 +958,10 @@ const MedicalInfo = () => {
                 placeholder="Search name or mobile..."
                 value={search}
                 onChange={(e) => {
-                  setSearch(e.target.value);
+                  setSearch(
+                    e.target.value
+                  );
+
                   setCurrentPage(1);
                 }}
               />
@@ -800,7 +976,9 @@ const MedicalInfo = () => {
 
               <select
                 className="form-select"
-                value={filterBloodGroup}
+                value={
+                  filterBloodGroup
+                }
                 onChange={(e) => {
                   setFilterBloodGroup(
                     e.target.value
@@ -879,7 +1057,9 @@ const MedicalInfo = () => {
                   <button
                     className="btn-close"
                     onClick={() =>
-                      setShowReport(false)
+                      setShowReport(
+                        false
+                      )
                     }
                   />
 
@@ -892,7 +1072,8 @@ const MedicalInfo = () => {
                   style={{
                     padding: "20px",
                     overflowX: "auto",
-                    background: "#eeeeee",
+                    background:
+                      "#eeeeee",
                   }}
                 >
 
@@ -906,9 +1087,12 @@ const MedicalInfo = () => {
                       width: "210mm",
                       minWidth: "210mm",
                       margin: "0 auto",
-                      background: "#ffffff",
-                      position: "relative",
-                      overflow: "hidden",
+                      background:
+                        "#ffffff",
+                      position:
+                        "relative",
+                      overflow:
+                        "hidden",
                       fontFamily:
                         '"Noto Sans Bengali", "Noto Sans", sans-serif',
                       boxShadow:
@@ -925,19 +1109,26 @@ const MedicalInfo = () => {
                         height: "43mm",
                         background:
                           "linear-gradient(100deg, #08aeea 0%, #078dbb 35%, #075f7d 65%, #101c31 100%)",
-                        color: "#ffffff",
-                        position: "relative",
-                        overflow: "hidden",
+                        color:
+                          "#ffffff",
+                        position:
+                          "relative",
+                        overflow:
+                          "hidden",
                       }}
                     >
 
                       <div
                         style={{
                           height: "36mm",
-                          position: "relative",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
+                          position:
+                            "relative",
+                          display:
+                            "flex",
+                          alignItems:
+                            "center",
+                          justifyContent:
+                            "center",
                         }}
                       >
 
@@ -945,18 +1136,26 @@ const MedicalInfo = () => {
 
                         <div
                           style={{
-                            position: "absolute",
+                            position:
+                              "absolute",
                             left: "28mm",
                             top: "50%",
                             transform:
                               "translateY(-50%)",
-                            width: "18mm",
-                            height: "18mm",
-                            background: "#ffffff",
-                            borderRadius: "50%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
+                            width:
+                              "18mm",
+                            height:
+                              "18mm",
+                            background:
+                              "#ffffff",
+                            borderRadius:
+                              "50%",
+                            display:
+                              "flex",
+                            alignItems:
+                              "center",
+                            justifyContent:
+                              "center",
                           }}
                         >
 
@@ -965,10 +1164,14 @@ const MedicalInfo = () => {
                             alt="Badokhali Youth Foundation"
                             crossOrigin="anonymous"
                             style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "contain",
-                              borderRadius: "50%",
+                              width:
+                                "100%",
+                              height:
+                                "100%",
+                              objectFit:
+                                "contain",
+                              borderRadius:
+                                "50%",
                             }}
                           />
 
@@ -978,17 +1181,23 @@ const MedicalInfo = () => {
 
                         <div
                           style={{
-                            textAlign: "center",
-                            marginTop: "2mm",
+                            textAlign:
+                              "center",
+                            marginTop:
+                              "2mm",
                           }}
                         >
 
                           <div
                             style={{
-                              fontSize: "35px",
-                              fontWeight: 800,
-                              lineHeight: 1.2,
-                              whiteSpace: "nowrap",
+                              fontSize:
+                                "35px",
+                              fontWeight:
+                                800,
+                              lineHeight:
+                                1.2,
+                              whiteSpace:
+                                "nowrap",
                             }}
                           >
                             বাদোখালী ইয়ুথ ফাউন্ডেশন
@@ -998,11 +1207,16 @@ const MedicalInfo = () => {
                             style={{
                               fontFamily:
                                 "Arial, sans-serif",
-                              fontSize: "25px",
-                              fontWeight: 700,
-                              lineHeight: 1.2,
-                              marginTop: "2px",
-                              whiteSpace: "nowrap",
+                              fontSize:
+                                "25px",
+                              fontWeight:
+                                700,
+                              lineHeight:
+                                1.2,
+                              marginTop:
+                                "2px",
+                              whiteSpace:
+                                "nowrap",
                             }}
                           >
                             Badokhali Youth Foundation
@@ -1014,12 +1228,18 @@ const MedicalInfo = () => {
 
                         <div
                           style={{
-                            position: "absolute",
-                            right: "11mm",
-                            top: "3mm",
-                            fontSize: "10px",
-                            fontWeight: 500,
-                            whiteSpace: "nowrap",
+                            position:
+                              "absolute",
+                            right:
+                              "11mm",
+                            top:
+                              "3mm",
+                            fontSize:
+                              "10px",
+                            fontWeight:
+                              500,
+                            whiteSpace:
+                              "nowrap",
                           }}
                         >
                           তারুণ্যের স্পন্দন, সেবার বন্ধন
@@ -1031,19 +1251,24 @@ const MedicalInfo = () => {
 
                       <div
                         style={{
-                          position: "absolute",
+                          position:
+                            "absolute",
                           left: 0,
                           right: 0,
                           bottom: 0,
-                          height: "7mm",
-                          display: "flex",
-                          background: "#ffffff",
+                          height:
+                            "7mm",
+                          display:
+                            "flex",
+                          background:
+                            "#ffffff",
                         }}
                       >
 
                         <div
                           style={{
-                            width: "31%",
+                            width:
+                              "31%",
                             background:
                               "linear-gradient(90deg, #12324a, #087b9e)",
                           }}
@@ -1051,8 +1276,10 @@ const MedicalInfo = () => {
 
                         <div
                           style={{
-                            width: "38%",
-                            background: "#08aeea",
+                            width:
+                              "38%",
+                            background:
+                              "#08aeea",
                             clipPath:
                               "polygon(8% 0, 92% 0, 84% 100%, 16% 100%)",
                           }}
@@ -1060,7 +1287,8 @@ const MedicalInfo = () => {
 
                         <div
                           style={{
-                            width: "31%",
+                            width:
+                              "31%",
                             background:
                               "linear-gradient(90deg, #087b9e, #12324a)",
                           }}
@@ -1079,16 +1307,21 @@ const MedicalInfo = () => {
                       alt=""
                       crossOrigin="anonymous"
                       style={{
-                        position: "absolute",
+                        position:
+                          "absolute",
                         top: "50%",
                         left: "50%",
                         transform:
                           "translate(-50%, -50%)",
-                        width: "105mm",
-                        height: "105mm",
-                        objectFit: "contain",
+                        width:
+                          "105mm",
+                        height:
+                          "105mm",
+                        objectFit:
+                          "contain",
                         opacity: 0.045,
-                        pointerEvents: "none",
+                        pointerEvents:
+                          "none",
                         zIndex: 0,
                       }}
                     />
@@ -1099,7 +1332,8 @@ const MedicalInfo = () => {
 
                     <div
                       style={{
-                        position: "relative",
+                        position:
+                          "relative",
                         zIndex: 2,
                         padding:
                           "8mm 15mm 5mm",
@@ -1110,11 +1344,14 @@ const MedicalInfo = () => {
 
                       <div
                         style={{
-                          display: "flex",
+                          display:
+                            "flex",
                           justifyContent:
                             "space-between",
-                          fontSize: "13px",
-                          marginBottom: "5mm",
+                          fontSize:
+                            "13px",
+                          marginBottom:
+                            "5mm",
                         }}
                       >
 
@@ -1140,9 +1377,12 @@ const MedicalInfo = () => {
 
                       <h2
                         style={{
-                          textAlign: "center",
-                          fontSize: "23px",
-                          fontWeight: 800,
+                          textAlign:
+                            "center",
+                          fontSize:
+                            "23px",
+                          fontWeight:
+                            800,
                           textDecoration:
                             "underline",
                           textUnderlineOffset:
@@ -1161,10 +1401,14 @@ const MedicalInfo = () => {
 
                         <div
                           style={{
-                            textAlign: "center",
-                            fontSize: "12px",
-                            marginBottom: "5mm",
-                            color: "#555",
+                            textAlign:
+                              "center",
+                            fontSize:
+                              "12px",
+                            marginBottom:
+                              "5mm",
+                            color:
+                              "#555",
                           }}
                         >
 
@@ -1186,7 +1430,9 @@ const MedicalInfo = () => {
                             >
                               Blood Group:{" "}
                               <strong>
-                                {filterBloodGroup}
+                                {
+                                  filterBloodGroup
+                                }
                               </strong>
                             </span>
                           )}
@@ -1206,7 +1452,8 @@ const MedicalInfo = () => {
                             "collapse",
                           tableLayout:
                             "fixed",
-                          fontSize: "11px",
+                          fontSize:
+                            "9px",
                         }}
                       >
 
@@ -1219,8 +1466,9 @@ const MedicalInfo = () => {
                                 border:
                                   "1px solid #555",
                                 padding:
-                                  "8px 4px",
-                                width: "6%",
+                                  "6px 2px",
+                                width:
+                                  "4%",
                                 background:
                                   "#f0f5f2",
                                 textAlign:
@@ -1235,8 +1483,9 @@ const MedicalInfo = () => {
                                 border:
                                   "1px solid #555",
                                 padding:
-                                  "8px 4px",
-                                width: "24%",
+                                  "6px 2px",
+                                width:
+                                  "13%",
                                 background:
                                   "#f0f5f2",
                               }}
@@ -1249,8 +1498,9 @@ const MedicalInfo = () => {
                                 border:
                                   "1px solid #555",
                                 padding:
-                                  "8px 4px",
-                                width: "16%",
+                                  "6px 2px",
+                                width:
+                                  "11%",
                                 background:
                                   "#f0f5f2",
                                 textAlign:
@@ -1265,8 +1515,9 @@ const MedicalInfo = () => {
                                 border:
                                   "1px solid #555",
                                 padding:
-                                  "8px 4px",
-                                width: "10%",
+                                  "6px 2px",
+                                width:
+                                  "7%",
                                 background:
                                   "#f0f5f2",
                                 textAlign:
@@ -1281,8 +1532,60 @@ const MedicalInfo = () => {
                                 border:
                                   "1px solid #555",
                                 padding:
-                                  "8px 4px",
-                                width: "10%",
+                                  "6px 2px",
+                                width:
+                                  "10%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              DOB
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "6px 2px",
+                                width:
+                                  "7%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              Gender
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "6px 2px",
+                                width:
+                                  "17%",
+                                background:
+                                  "#f0f5f2",
+                                textAlign:
+                                  "center",
+                              }}
+                            >
+                              Current Address
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "6px 2px",
+                                width:
+                                  "8%",
                                 background:
                                   "#f0f5f2",
                                 textAlign:
@@ -1297,8 +1600,9 @@ const MedicalInfo = () => {
                                 border:
                                   "1px solid #555",
                                 padding:
-                                  "8px 4px",
-                                width: "10%",
+                                  "6px 2px",
+                                width:
+                                  "8%",
                                 background:
                                   "#f0f5f2",
                                 textAlign:
@@ -1313,8 +1617,9 @@ const MedicalInfo = () => {
                                 border:
                                   "1px solid #555",
                                 padding:
-                                  "8px 4px",
-                                width: "10%",
+                                  "6px 2px",
+                                width:
+                                  "7%",
                                 background:
                                   "#f0f5f2",
                                 textAlign:
@@ -1329,8 +1634,9 @@ const MedicalInfo = () => {
                                 border:
                                   "1px solid #555",
                                 padding:
-                                  "8px 4px",
-                                width: "7%",
+                                  "6px 2px",
+                                width:
+                                  "4%",
                                 background:
                                   "#f0f5f2",
                                 textAlign:
@@ -1345,8 +1651,9 @@ const MedicalInfo = () => {
                                 border:
                                   "1px solid #555",
                                 padding:
-                                  "8px 4px",
-                                width: "7%",
+                                  "6px 2px",
+                                width:
+                                  "4%",
                                 background:
                                   "#f0f5f2",
                                 textAlign:
@@ -1368,7 +1675,9 @@ const MedicalInfo = () => {
                             <tr>
 
                               <td
-                                colSpan={9}
+                                colSpan={
+                                  12
+                                }
                                 style={{
                                   border:
                                     "1px solid #555",
@@ -1386,10 +1695,15 @@ const MedicalInfo = () => {
                           ) : (
 
                             filteredMedicalInfos.map(
-                              (item, index) => (
+                              (
+                                item,
+                                index
+                              ) => (
 
                                 <tr
-                                  key={item.id}
+                                  key={
+                                    item.id
+                                  }
                                 >
 
                                   <td
@@ -1397,14 +1711,17 @@ const MedicalInfo = () => {
                                       border:
                                         "1px solid #555",
                                       padding:
-                                        "7px 4px",
+                                        "5px 2px",
                                       textAlign:
                                         "center",
                                       verticalAlign:
                                         "middle",
                                     }}
                                   >
-                                    {index + 1}
+                                    {
+                                      index +
+                                      1
+                                    }
                                   </td>
 
                                   <td
@@ -1412,14 +1729,16 @@ const MedicalInfo = () => {
                                       border:
                                         "1px solid #555",
                                       padding:
-                                        "7px 4px",
+                                        "5px 2px",
                                       verticalAlign:
                                         "middle",
                                       wordBreak:
                                         "break-word",
                                     }}
                                   >
-                                    {item.name}
+                                    {
+                                      item.name
+                                    }
                                   </td>
 
                                   <td
@@ -1427,7 +1746,7 @@ const MedicalInfo = () => {
                                       border:
                                         "1px solid #555",
                                       padding:
-                                        "7px 4px",
+                                        "5px 2px",
                                       textAlign:
                                         "center",
                                       verticalAlign:
@@ -1436,8 +1755,10 @@ const MedicalInfo = () => {
                                         "nowrap",
                                     }}
                                   >
-                                    {item.phone ||
-                                      "-"}
+                                    {
+                                      item.phone ||
+                                      "-"
+                                    }
                                   </td>
 
                                   <td
@@ -1445,12 +1766,13 @@ const MedicalInfo = () => {
                                       border:
                                         "1px solid #555",
                                       padding:
-                                        "7px 4px",
+                                        "5px 2px",
                                       textAlign:
                                         "center",
                                       verticalAlign:
                                         "middle",
-                                      fontWeight: 700,
+                                      fontWeight:
+                                        700,
                                       color:
                                         "#dc3545",
                                     }}
@@ -1465,7 +1787,63 @@ const MedicalInfo = () => {
                                       border:
                                         "1px solid #555",
                                       padding:
-                                        "7px 4px",
+                                        "5px 2px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                      whiteSpace:
+                                        "nowrap",
+                                    }}
+                                  >
+                                    {
+                                      item.dateOfBirth ||
+                                      "-"
+                                    }
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "5px 2px",
+                                      textAlign:
+                                        "center",
+                                      verticalAlign:
+                                        "middle",
+                                    }}
+                                  >
+                                    {
+                                      item.gender ||
+                                      "-"
+                                    }
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "5px 2px",
+                                      verticalAlign:
+                                        "middle",
+                                      wordBreak:
+                                        "break-word",
+                                    }}
+                                  >
+                                    {
+                                      item.currentAddress ||
+                                      "-"
+                                    }
+                                  </td>
+
+                                  <td
+                                    style={{
+                                      border:
+                                        "1px solid #555",
+                                      padding:
+                                        "5px 2px",
                                       textAlign:
                                         "center",
                                       verticalAlign:
@@ -1484,7 +1862,7 @@ const MedicalInfo = () => {
                                       border:
                                         "1px solid #555",
                                       padding:
-                                        "7px 4px",
+                                        "5px 2px",
                                       textAlign:
                                         "center",
                                       verticalAlign:
@@ -1503,7 +1881,7 @@ const MedicalInfo = () => {
                                       border:
                                         "1px solid #555",
                                       padding:
-                                        "7px 4px",
+                                        "5px 2px",
                                       textAlign:
                                         "center",
                                       verticalAlign:
@@ -1523,7 +1901,7 @@ const MedicalInfo = () => {
                                       border:
                                         "1px solid #555",
                                       padding:
-                                        "7px 4px",
+                                        "5px 2px",
                                       textAlign:
                                         "center",
                                       verticalAlign:
@@ -1542,7 +1920,7 @@ const MedicalInfo = () => {
                                       border:
                                         "1px solid #555",
                                       padding:
-                                        "7px 4px",
+                                        "5px 2px",
                                       textAlign:
                                         "center",
                                       verticalAlign:
@@ -1551,9 +1929,10 @@ const MedicalInfo = () => {
                                         "nowrap",
                                     }}
                                   >
-                                    {item.pulse
-                                      ? `${item.pulse}`
-                                      : "-"}
+                                    {
+                                      item.pulse ||
+                                      "-"
+                                    }
                                   </td>
 
                                 </tr>
@@ -1572,13 +1951,16 @@ const MedicalInfo = () => {
                       =============================== */}
 
                       {filteredMedicalInfos.some(
-                        (item) => item.note
+                        (item) =>
+                          item.note
                       ) && (
 
                         <div
                           style={{
-                            marginTop: "5mm",
-                            fontSize: "11px",
+                            marginTop:
+                              "5mm",
+                            fontSize:
+                              "11px",
                           }}
                         >
 
@@ -1595,13 +1977,16 @@ const MedicalInfo = () => {
 
                             {filteredMedicalInfos
                               .filter(
-                                (item) =>
+                                (
+                                  item
+                                ) =>
                                   item.note
                               )
                               .map(
                                 (
                                   item
                                 ) => (
+
                                   <div
                                     key={
                                       item.id
@@ -1616,6 +2001,7 @@ const MedicalInfo = () => {
                                       item.note
                                     }
                                   </div>
+
                                 )
                               )}
 
@@ -1631,10 +2017,14 @@ const MedicalInfo = () => {
 
                       <div
                         style={{
-                          marginTop: "6mm",
-                          textAlign: "right",
-                          fontSize: "16px",
-                          fontWeight: 800,
+                          marginTop:
+                            "6mm",
+                          textAlign:
+                            "right",
+                          fontSize:
+                            "16px",
+                          fontWeight:
+                            800,
                         }}
                       >
                         Total People :{" "}
@@ -1649,13 +2039,16 @@ const MedicalInfo = () => {
 
                       <div
                         style={{
-                          display: "flex",
+                          display:
+                            "flex",
                           justifyContent:
                             "space-between",
                           alignItems:
                             "flex-end",
-                          marginTop: "12mm",
-                          minHeight: "35mm",
+                          marginTop:
+                            "12mm",
+                          minHeight:
+                            "35mm",
                         }}
                       >
 
@@ -1663,7 +2056,8 @@ const MedicalInfo = () => {
 
                         <div
                           style={{
-                            width: "50%",
+                            width:
+                              "50%",
                             paddingLeft:
                               "10px",
                             position:
@@ -1676,8 +2070,10 @@ const MedicalInfo = () => {
                             alt="Office Seal"
                             crossOrigin="anonymous"
                             style={{
-                              width: "90px",
-                              height: "90px",
+                              width:
+                                "90px",
+                              height:
+                                "90px",
                               objectFit:
                                 "contain",
                             }}
@@ -1703,7 +2099,8 @@ const MedicalInfo = () => {
                                 "Arial, sans-serif",
                               transform:
                                 "rotate(-6deg)",
-                              opacity: 0.8,
+                              opacity:
+                                0.8,
                               borderRadius:
                                 "2px",
                               textTransform:
@@ -1721,7 +2118,8 @@ const MedicalInfo = () => {
 
                         <div
                           style={{
-                            width: "50%",
+                            width:
+                              "50%",
                             textAlign:
                               "center",
                             fontSize:
@@ -1803,7 +2201,8 @@ const MedicalInfo = () => {
                             "center",
                           justifyContent:
                             "space-between",
-                          gap: "8mm",
+                          gap:
+                            "8mm",
                           marginTop:
                             "4mm",
                         }}
@@ -1833,6 +2232,7 @@ const MedicalInfo = () => {
                           </span>
 
                           <div>
+
                             <div>
                               +8801738126875
                             </div>
@@ -1840,6 +2240,7 @@ const MedicalInfo = () => {
                             <div>
                               +8801714597343
                             </div>
+
                           </div>
 
                         </div>
@@ -2009,7 +2410,9 @@ const MedicalInfo = () => {
 
                   <button
                     className="btn btn-success"
-                    onClick={downloadReport}
+                    onClick={
+                      downloadReport
+                    }
                   >
                     📥 Download Report
                   </button>
@@ -2017,7 +2420,9 @@ const MedicalInfo = () => {
                   <button
                     className="btn btn-secondary"
                     onClick={() =>
-                      setShowReport(false)
+                      setShowReport(
+                        false
+                      )
                     }
                   >
                     Close
@@ -2054,6 +2459,9 @@ const MedicalInfo = () => {
                 <th>Name</th>
                 <th>Mobile</th>
                 <th>Blood Group</th>
+                <th>Date of Birth</th>
+                <th>Gender</th>
+                <th>Current Address</th>
                 <th>Weight</th>
                 <th>Height</th>
                 <th>BP</th>
@@ -2067,12 +2475,13 @@ const MedicalInfo = () => {
 
             <tbody>
 
-              {currentMedicalInfos.length === 0 ? (
+              {currentMedicalInfos.length ===
+              0 ? (
 
                 <tr>
 
                   <td
-                    colSpan={11}
+                    colSpan={14}
                     className="text-center"
                   >
                     No Medical Information Found
@@ -2083,12 +2492,21 @@ const MedicalInfo = () => {
               ) : (
 
                 currentMedicalInfos.map(
-                  (item, index) => (
+                  (
+                    item,
+                    index
+                  ) => (
 
-                    <tr key={item.id}>
+                    <tr
+                      key={item.id}
+                    >
 
                       <td>
-                        {indexOfFirstItem + index + 1}
+                        {
+                          indexOfFirstItem +
+                          index +
+                          1
+                        }
                       </td>
 
                       <td>
@@ -2096,8 +2514,12 @@ const MedicalInfo = () => {
                         {item.photo ? (
 
                           <img
-                            src={item.photo}
-                            alt={item.name}
+                            src={
+                              item.photo
+                            }
+                            alt={
+                              item.name
+                            }
                             width="45"
                             height="45"
                             style={{
@@ -2123,15 +2545,46 @@ const MedicalInfo = () => {
                       </td>
 
                       <td>
-                        {item.phone || "-"}
+                        {
+                          item.phone ||
+                          "-"
+                        }
                       </td>
 
                       <td>
 
                         <span className="badge bg-danger">
-                          {item.bloodGroup}
+                          {
+                            item.bloodGroup
+                          }
                         </span>
 
+                      </td>
+
+                      <td>
+                        {
+                          item.dateOfBirth ||
+                          "-"
+                        }
+                      </td>
+
+                      <td>
+                        {
+                          item.gender ||
+                          "-"
+                        }
+                      </td>
+
+                      <td
+                        style={{
+                          minWidth:
+                            "220px",
+                        }}
+                      >
+                        {
+                          item.currentAddress ||
+                          "-"
+                        }
                       </td>
 
                       <td>
@@ -2147,7 +2600,10 @@ const MedicalInfo = () => {
                       </td>
 
                       <td>
-                        {item.bloodPressure || "-"}
+                        {
+                          item.bloodPressure ||
+                          "-"
+                        }
                       </td>
 
                       <td>
@@ -2162,12 +2618,19 @@ const MedicalInfo = () => {
                           : "-"}
                       </td>
 
-                      <td>
+                      <td
+                        style={{
+                          whiteSpace:
+                            "nowrap",
+                        }}
+                      >
 
                         <button
                           className="btn btn-sm btn-primary me-2"
                           onClick={() =>
-                            handleEdit(item)
+                            handleEdit(
+                              item
+                            )
                           }
                         >
                           Edit
@@ -2210,7 +2673,8 @@ const MedicalInfo = () => {
             <button
               className="btn btn-outline-primary me-2"
               disabled={
-                currentPage === 1
+                currentPage ===
+                1
               }
               onClick={() =>
                 setCurrentPage(
@@ -2222,14 +2686,16 @@ const MedicalInfo = () => {
             </button>
 
             <span className="align-self-center px-3">
-              Page {currentPage} of{" "}
+              Page{" "}
+              {currentPage} of{" "}
               {totalPages}
             </span>
 
             <button
               className="btn btn-outline-primary ms-2"
               disabled={
-                currentPage === totalPages
+                currentPage ===
+                totalPages
               }
               onClick={() =>
                 setCurrentPage(

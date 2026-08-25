@@ -3,17 +3,25 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useTranslation } from "react-i18next";
 import { FaFileCircleXmark } from "react-icons/fa6";
+
 interface MedicalInfo {
   id: string;
   name: string;
   phone?: string;
   bloodGroup?: string;
   photo?: string;
+
+  // New Fields
+  dateOfBirth?: string;
+  gender?: string;
+  currentAddress?: string;
+
   createdAt?: any;
 }
 
 const MedicalList = () => {
   const { t } = useTranslation();
+
   const [members, setMembers] = useState<MedicalInfo[]>([]);
   const [bloodFilter, setBloodFilter] = useState("");
   const [loading, setLoading] = useState(true);
@@ -64,6 +72,42 @@ const MedicalList = () => {
   useEffect(() => {
     fetchMedicalInfo();
   }, []);
+
+  // ===============================
+  // CALCULATE AGE FROM DATE OF BIRTH
+  // ===============================
+
+  const calculateAge = (
+    dateOfBirth?: string
+  ): string => {
+    if (!dateOfBirth) return "-";
+
+    const birthDate = new Date(dateOfBirth);
+
+    if (isNaN(birthDate.getTime())) {
+      return "-";
+    }
+
+    const today = new Date();
+
+    let age =
+      today.getFullYear() -
+      birthDate.getFullYear();
+
+    const monthDifference =
+      today.getMonth() -
+      birthDate.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 &&
+        today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age >= 0 ? `${age} Years` : "-";
+  };
 
   // ===============================
   // BLOOD GROUP FILTER
@@ -124,8 +168,6 @@ const MedicalList = () => {
 
   return (
     <>
-
-
       <div className="container py-2">
 
         {/* ================= HEADER ================= */}
@@ -211,8 +253,6 @@ const MedicalList = () => {
                 <FaFileCircleXmark />
               </div>
 
-        
-
               <p className="text-muted">
                 {t("noMemberWithBloodGroup")}
               </p>
@@ -239,13 +279,13 @@ const MedicalList = () => {
 
                 <div className="d-flex justify-content-between align-items-center">
 
-                  <h5 className="badge bg-light text-dark">
+                  <h5 className="badge bg-light text-dark mb-0">
                     {t("talika")}
                   </h5>
 
                   <span className="badge bg-light text-dark">
-                    {filteredMembers.length} {t("donarjon")}
-                    
+                    {filteredMembers.length}{" "}
+                    {t("donarjon")}
                   </span>
 
                 </div>
@@ -265,7 +305,7 @@ const MedicalList = () => {
                       <th
                         className="text-center"
                         style={{
-                          width: "70px",
+                          width: "60px",
                         }}
                       >
                         #
@@ -273,7 +313,7 @@ const MedicalList = () => {
 
                       <th
                         style={{
-                          width: "100px",
+                          width: "90px",
                         }}
                       >
                         {t("Donarphoto")}
@@ -285,6 +325,20 @@ const MedicalList = () => {
 
                       <th>
                         {t("donarmobile")}
+                      </th>
+
+                      {/* NEW */}
+
+                      <th>
+                        {t("gender")}
+                      </th>
+
+                      <th>
+                       {t("age")}
+                      </th>
+
+                      <th>
+                         {t("currentaddress")}
                       </th>
 
                       <th className="text-center">
@@ -320,8 +374,10 @@ const MedicalList = () => {
                                 width="55"
                                 height="55"
                                 style={{
-                                  objectFit: "cover",
-                                  borderRadius: "50%",
+                                  objectFit:
+                                    "cover",
+                                  borderRadius:
+                                    "50%",
                                   border:
                                     "2px solid #eee",
                                 }}
@@ -334,9 +390,12 @@ const MedicalList = () => {
                                 style={{
                                   width: "55px",
                                   height: "55px",
-                                  borderRadius: "50%",
-                                  background: "#f1f3f5",
-                                  fontSize: "25px",
+                                  borderRadius:
+                                    "50%",
+                                  background:
+                                    "#f1f3f5",
+                                  fontSize:
+                                    "25px",
                                 }}
                               >
                                 👤
@@ -349,28 +408,107 @@ const MedicalList = () => {
                           {/* Name */}
 
                           <td>
+
                             <div className="fw-semibold">
                               {member.name}
                             </div>
+
                           </td>
 
-                      
                           {/* Mobile */}
-                          {/* Mobile */}
-<td>
-  {member.phone} {"  "}
-  {member.phone ? (
-    <a
-      href={`tel:${member.phone}`}
-      className="btn btn-sm btn-outline-success"
-      title="Call"
-    >
-      📞 {t("call")} 
-    </a>
-  ) : (
-    <span className="text-muted">-</span>
-  )}
-</td>
+
+                          <td>
+
+                            {member.phone || "-"}
+
+                            {"  "}
+
+                            {member.phone ? (
+
+                              <a
+                                href={`tel:${member.phone}`}
+                                className="btn btn-sm btn-outline-success"
+                                title="Call"
+                              >
+                                📞 {t("call")}
+                              </a>
+
+                            ) : (
+
+                              <span className="text-muted">
+                                -
+                              </span>
+
+                            )}
+
+                          </td>
+
+                          {/* Gender */}
+
+                          <td>
+
+                            {member.gender ? (
+
+                              <span className="badge bg-info text-dark">
+                                {member.gender}
+                              </span>
+
+                            ) : (
+
+                              <span className="text-muted">
+                                -
+                              </span>
+
+                            )}
+
+                          </td>
+
+                          {/* AGE */}
+
+                          <td>
+
+                            {member.dateOfBirth ? (
+
+                              <span>
+                                {calculateAge(
+                                  member.dateOfBirth
+                                )}
+                              </span>
+
+                            ) : (
+
+                              <span className="text-muted">
+                                -
+                              </span>
+
+                            )}
+
+                          </td>
+
+                          {/* CURRENT ADDRESS */}
+
+                          <td>
+
+                            {member.currentAddress ? (
+
+                              <span
+                                title={
+                                  member.currentAddress
+                                }
+                              >
+                                📍{" "}
+                                {member.currentAddress}
+                              </span>
+
+                            ) : (
+
+                              <span className="text-muted">
+                                -
+                              </span>
+
+                            )}
+
+                          </td>
 
                           {/* Blood Group */}
 
@@ -382,13 +520,18 @@ const MedicalList = () => {
                                 className="badge"
                                 style={{
                                   fontSize: "15px",
-                                  padding: "8px 12px",
-                                  backgroundColor: "#e7f1ff",
-                                  color: "#0d6efd",
-                                  border: "1px solid #b6d4fe",
+                                  padding:
+                                    "8px 12px",
+                                  backgroundColor:
+                                    "#e7f1ff",
+                                  color:
+                                    "#0d6efd",
+                                  border:
+                                    "1px solid #b6d4fe",
                                 }}
                               >
-                                🩸 {member.bloodGroup}
+                                🩸{" "}
+                                {member.bloodGroup}
                               </span>
 
                             ) : (
@@ -430,10 +573,11 @@ const MedicalList = () => {
                   {/* Previous */}
 
                   <li
-                    className={`page-item ${currentPage === 1
-                      ? "disabled"
-                      : ""
-                      }`}
+                    className={`page-item ${
+                      currentPage === 1
+                        ? "disabled"
+                        : ""
+                    }`}
                   >
 
                     <button
@@ -456,15 +600,17 @@ const MedicalList = () => {
 
                   {Array.from(
                     { length: totalPages },
-                    (_, index) => index + 1
+                    (_, index) =>
+                      index + 1
                   ).map((page) => (
 
                     <li
                       key={page}
-                      className={`page-item ${currentPage === page
-                        ? "active"
-                        : ""
-                        }`}
+                      className={`page-item ${
+                        currentPage === page
+                          ? "active"
+                          : ""
+                      }`}
                     >
 
                       <button
@@ -483,10 +629,11 @@ const MedicalList = () => {
                   {/* Next */}
 
                   <li
-                    className={`page-item ${currentPage === totalPages
-                      ? "disabled"
-                      : ""
-                      }`}
+                    className={`page-item ${
+                      currentPage === totalPages
+                        ? "disabled"
+                        : ""
+                    }`}
                   >
 
                     <button
@@ -500,7 +647,7 @@ const MedicalList = () => {
                         currentPage === totalPages
                       }
                     >
-                     {t("next")}
+                      {t("next")}
                     </button>
 
                   </li>
@@ -521,23 +668,28 @@ const MedicalList = () => {
 
               <small className="text-muted">
 
-               {t("showing")} {" "}
+                {t("showing")}{" "}
+
                 <strong>
                   {startIndex + 1}
                 </strong>{" "}
+
                 -{" "}
+
                 <strong>
                   {Math.min(
                     endIndex,
                     filteredMembers.length
                   )}
                 </strong>{" "}
-                {t("of")} {" "}
+
+                {t("of")}{" "}
+
                 <strong>
                   {filteredMembers.length}
                 </strong>{" "}
-               {t("of1")}
-                
+
+                {t("of1")}
 
                 {bloodFilter && (
                   <>
@@ -555,8 +707,6 @@ const MedicalList = () => {
           )}
 
       </div>
-
-
     </>
   );
 };

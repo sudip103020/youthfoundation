@@ -31,19 +31,22 @@ const Footer = () => {
   useEffect(() => {
     const updateUniqueVisitor = async () => {
       try {
-        // Check if this browser already visited
-        let visitorId = localStorage.getItem("byf_visitor_id");
+        let visitorId = localStorage.getItem(
+          "byf_visitor_id"
+        );
 
-        // First visit from this browser
+        const visitorRef = doc(
+          db,
+          "siteStats",
+          "visitors"
+        );
+
         if (!visitorId) {
           visitorId = crypto.randomUUID();
 
-          localStorage.setItem("byf_visitor_id", visitorId);
-
-          const visitorRef = doc(
-            db,
-            "siteStats",
-            "visitors"
+          localStorage.setItem(
+            "byf_visitor_id",
+            visitorId
           );
 
           const snapshot = await getDoc(visitorRef);
@@ -64,13 +67,6 @@ const Footer = () => {
             setVisitorCount(1);
           }
         } else {
-          // Existing visitor
-          const visitorRef = doc(
-            db,
-            "siteStats",
-            "visitors"
-          );
-
           const snapshot = await getDoc(visitorRef);
 
           if (snapshot.exists()) {
@@ -93,51 +89,69 @@ const Footer = () => {
   return (
     <>
       <footer className="footer">
+
         <Container>
+
           <Row className="gy-3">
 
             {/* ================= QUICK LINKS ================= */}
-            <Col lg={4} md={4}>
+
+            <Col lg={4} md={4} sm={12}>
+
               <h5 className="footer-title">
                 {t("quickLinks")}
               </h5>
 
-              <ul className="footer-links">
-                <li>
-                  <a href="/about">
-                    {t("about")}
-                  </a>
-                </li>
+              <div className="footer-quick-links">
 
-                <li>
-                  <a href="/donors">
-                    {t("donors")}
-                  </a>
-                </li>
+                <a href="/about">
+                  {t("about")}
+                </a>
 
-                <li>
-                  <a href="/admin/login">
-                    {t("adminSite")}
-                  </a>
-                </li>
-              </ul>
+                <a href="/donors">
+                  {t("donors")}
+                </a>
+
+                <a href="/activities">
+                 {t("activities")}
+                </a>
+
+                <a href="/medical">
+                  {t("bloodBank")}
+                </a>
+
+                <a href="/emergency">
+                  {t("emergency")}
+                </a>
+
+                <a href="/contact">
+                 {t("contact")}
+                </a>
+
+              </div>
+
             </Col>
 
             {/* ================= CONTACT ================= */}
-            <Col lg={5} md={5}>
+
+            <Col lg={5} md={5} sm={12}>
+
               <h5 className="footer-title">
                 {t("contactInfo")}
               </h5>
 
               <p>
                 <FaPhoneAlt />{" "}
+
                 <a
                   href="tel:+8801738126875"
                   className="text-decoration-none"
                 >
                   +8801738126875
                 </a>
+
                 ,{" "}
+
                 <a
                   href="tel:+8801714597343"
                   className="text-decoration-none"
@@ -148,6 +162,7 @@ const Footer = () => {
 
               <p>
                 <FaEnvelope />{" "}
+
                 <a
                   href="mailto:badokhaliyouthfoundation@gmail.com"
                   className="text-decoration-none"
@@ -160,10 +175,13 @@ const Footer = () => {
                 <FaMapMarkerAlt />{" "}
                 {t("address")}
               </p>
+
             </Col>
 
             {/* ================= SOCIAL ================= */}
-            <Col lg={3} md={3}>
+
+            <Col lg={3} md={3} sm={12}>
+
               <h5 className="footer-title">
                 {t("followUs")}
               </h5>
@@ -171,6 +189,7 @@ const Footer = () => {
               <div className="social-icons">
 
                 {/* Facebook */}
+
                 <a
                   href="https://www.facebook.com/badokhaliyouthfoundation"
                   target="_blank"
@@ -181,6 +200,7 @@ const Footer = () => {
                 </a>
 
                 {/* YouTube */}
+
                 <a
                   href="https://youtube.com/@badhokhaliyouthfoundation"
                   target="_blank"
@@ -191,6 +211,7 @@ const Footer = () => {
                 </a>
 
                 {/* WhatsApp */}
+
                 <a
                   href="https://wa.me/8801738126875"
                   target="_blank"
@@ -201,6 +222,7 @@ const Footer = () => {
                 </a>
 
                 {/* Feedback */}
+
                 <a
                   href="/feedback"
                   aria-label={t("feedback")}
@@ -208,7 +230,8 @@ const Footer = () => {
                   <FaComments />
                 </a>
 
-                {/* Visitor Count */}
+                {/* Visitor */}
+
                 <div
                   className="visitor-count"
                   title={t("visitors")}
@@ -217,7 +240,7 @@ const Footer = () => {
 
                   <span
                     style={{
-                      marginLeft: "10px",
+                      marginLeft: "6px",
                     }}
                   >
                     <strong>
@@ -227,17 +250,36 @@ const Footer = () => {
                 </div>
 
               </div>
+
             </Col>
 
           </Row>
+
         </Container>
+
       </footer>
 
       {/* ================= COPYRIGHT ================= */}
+
       <div className="copyright">
-        © {t("year")} {t("foundationName")}.{" "}
-        {t("allRightsReserved")}
+
+        <div>
+          © {t("year")}{" "}
+          {t("foundationName")}.{" "}
+          {t("allRightsReserved")}
+        </div>
+
+        {/* SMALL ADMIN LINK */}
+
+        <a
+          href="/admin/login"
+          className="footer-admin-link"
+        >
+          Admin Site
+        </a>
+
       </div>
+
     </>
   );
 };

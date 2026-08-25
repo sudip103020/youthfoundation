@@ -3,11 +3,13 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useTranslation } from "react-i18next";
 
 
 
 
 const Login = () => {
+   const { t } = useTranslation();
 
   const navigate = useNavigate();
 
@@ -100,12 +102,12 @@ const Login = () => {
 
 
               <h3 className="fw-bold mt-3">
-                Admin Login
+                   {t("adminpanle")}
               </h3>
 
 
               <p className="text-muted">
-                Badokhali Youth Foundation
+                {t("foundationName")}
               </p>
 
 
@@ -120,7 +122,7 @@ const Login = () => {
               <div className="mb-3">
 
                 <label className="fw-semibold">
-                  Email
+                   {t("username")}
                 </label>
 
 
@@ -130,7 +132,7 @@ const Login = () => {
 
                   className="form-control"
 
-                  placeholder="Enter email"
+                  placeholder= {t("username")}
 
                   value={email}
 
@@ -152,7 +154,7 @@ const Login = () => {
 
 
                 <label className="fw-semibold">
-                  Password
+                  {t("password")}
                 </label>
 
 
@@ -162,7 +164,7 @@ const Login = () => {
 
                   className="form-control"
 
-                  placeholder="Enter password"
+                  placeholder={t("password")}
 
                   value={password}
 

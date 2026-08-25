@@ -46,6 +46,10 @@ const en = {
     phone: "Phone",
     email: "Email",
 
+    age: "Age",
+    currentaddress: "Current Adress",
+    gender: "Gender",
+
     badokhali: "Badokhali",
     Mograhat: "Mograhat-9300",
     bagerhat: "Bagerhat Sadar",
@@ -55,6 +59,11 @@ const en = {
     donarjon: "Members",
     donardonation: "Donation",
     donarmobile: "Mobile",
+
+     adminpanle: "Admin Panle",
+    username: "User Name",
+    password: "Password",
+     emergency: "Emergency No",
 
     donorDescription:
       "We are grateful to everyone who supports Badokhali Youth Foundation.",
@@ -112,8 +121,8 @@ const en = {
       "Badokhali, Mograhat-9300, Bagerhat Sadar, Bagerhat",
     allRightsReserved: "All Rights Reserved",
 
-//feedback
-"email_title": "Share Your Feedback",
+    //feedback
+    "email_title": "Share Your Feedback",
     "subtitle": "Your feedback will help us work better.",
     "sender_name": "Your Name",
     "namePlaceholder": "Enter your name",
@@ -128,9 +137,9 @@ const en = {
     "error": "❌ Failed to send feedback",
     "bottomText": "Thank you for helping us improve Badokhali Youth Foundation",
 
-//notice
+    //notice
 
-"donation_title": "Support Our Foundation",
+    "donation_title": "Support Our Foundation",
     "donation_subtitle": "Your donation can help us to continue our social activities.",
     "bankAccount": "Bank Account",
     "bankName": "Bank Name",
@@ -148,8 +157,8 @@ const en = {
     "thankYou": "Thank You For Your Support",
     "donorsList": "See Our Donors List",
 
-// activist
-"activitis": "📋 Our Activities",
+    // activist
+    "activitis": "📋 Our Activities",
     "work": "We are working together to build a better community through various social and humanitarian activities.",
 
     heroDescription:
