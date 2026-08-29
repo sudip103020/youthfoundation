@@ -123,7 +123,7 @@ const Dashboard = () => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
 
       if (user) {
-        console.log("Logged In UID:", user.uid);
+        
         await loadProfile(user);
       }
 
