@@ -163,17 +163,17 @@ const Activities = () => {
               {/* Header */}
               <div className="modal-header border-0">
                 <h5 className="modal-title text-white">
-  📸{" "}
-  {(() => {
-    const activity = activities.find(
-      (a) => a.images === activeImages
-    );
+                  📸{" "}
+                  {(() => {
+                    const activity = activities.find(
+                      (a) => a.images === activeImages
+                    );
 
-    return isBangla
-      ? activity?.titleBn || activity?.title || "Activity"
-      : activity?.title || "Activity";
-  })()}
-</h5>
+                    return isBangla
+                      ? activity?.titleBn || activity?.title || "Activity"
+                      : activity?.title || "Activity";
+                  })()}
+                </h5>
 
                 <button
                   className="btn-close btn-close-white"

@@ -101,33 +101,33 @@ const Notice = () => {
   };
 
   const toBanglaDate = (date: string) => {
-  if (!date) return "—";
+    if (!date) return "—";
 
-  const months = [
-    "জানুয়ারি",
-    "ফেব্রুয়ারি",
-    "মার্চ",
-    "এপ্রিল",
-    "মে",
-    "জুন",
-    "জুলাই",
-    "আগস্ট",
-    "সেপ্টেম্বর",
-    "অক্টোবর",
-    "নভেম্বর",
-    "ডিসেম্বর",
-  ];
+    const months = [
+      "জানুয়ারি",
+      "ফেব্রুয়ারি",
+      "মার্চ",
+      "এপ্রিল",
+      "মে",
+      "জুন",
+      "জুলাই",
+      "আগস্ট",
+      "সেপ্টেম্বর",
+      "অক্টোবর",
+      "নভেম্বর",
+      "ডিসেম্বর",
+    ];
 
-  const [year, month, day] = date.split("-");
+    const [year, month, day] = date.split("-");
 
-  const banglaNumber = (value: string) =>
-    value.replace(
-      /\d/g,
-      (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]
-    );
+    const banglaNumber = (value: string) =>
+      value.replace(
+        /\d/g,
+        (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)]
+      );
 
-  return `${banglaNumber(day)} ${months[Number(month) - 1]} ${banglaNumber(year)}`;
-};
+    return `${banglaNumber(day)} ${months[Number(month) - 1]} ${banglaNumber(year)}`;
+  };
 
   // ================= DELETE =================
 
@@ -579,13 +579,13 @@ const Notice = () => {
                       padding: "8mm 15mm 5mm",
                     }}
                   >
-                  
 
-                   
+
+
 
                     {/* TITLE */}
 
-                    
+
 
                     {/* NOTICE INFO */}
 
@@ -600,23 +600,22 @@ const Notice = () => {
                     >
 
                       <div>
-  <strong>স্মারক নং:</strong>{" "}
-  {selectedNotice.priority
-    ? selectedNotice.priority
-        .split("-")
-        .map((part) =>
-          part.replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)])
-        )
-        .join("-")
-    : "—"}
-</div>
+                        <strong>স্মারক নং:</strong>{" "}
+                        {selectedNotice.priority
+                          ? selectedNotice.priority
+                            .split("-")
+                            .map((part) =>
+                              part.replace(/\d/g, (digit) => "০১২৩৪৫৬৭৮৯"[Number(digit)])
+                            )
+                            .join("-")
+                          : "—"}
+                      </div>
 
-<div>
-  <strong>তারিখ:</strong>{" "}
-  {toBanglaDate(selectedNotice.publishDate)}
-</div>
+                      <div>
+                        <strong>তারিখ:</strong>{" "}
+                        {toBanglaDate(selectedNotice.publishDate)}
+                      </div>
 
-                      
                     </div>
 
                     {/* NOTICE TITLE */}
@@ -1157,12 +1156,11 @@ const Notice = () => {
 
                         <td>
                           <span
-                            className={`badge ${
-                              item.status ===
-                              "Published"
+                            className={`badge ${item.status ===
+                                "Published"
                                 ? "bg-success"
                                 : "bg-secondary"
-                            }`}
+                              }`}
                           >
                             {item.status}
                           </span>

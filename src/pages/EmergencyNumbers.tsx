@@ -47,50 +47,62 @@ const iconOptions = [
   {
     value: "ambulance",
     icon: FaAmbulance,
+    color: "#dc3545",
   },
   {
     value: "police",
     icon: FaShieldAlt,
+    color: "#0d6efd",
   },
   {
     value: "fire",
     icon: FaFireExtinguisher,
+    color: "#fd7e14",
   },
   {
     value: "van",
     icon: FaMotorcycle,
+    color: "#6f42c1",
   },
   {
     value: "car",
     icon: FaCar,
+    color: "#198754",
   },
   {
     value: "hospital",
     icon: FaHospital,
+    color: "#20c997",
   },
   {
     value: "doctor",
     icon: FaUserMd,
+    color: "#0dcaf0",
   },
   {
     value: "firstaid",
     icon: FaFirstAid,
+    color: "#d63384",
   },
   {
     value: "emergency",
     icon: FaExclamationTriangle,
+    color: "#ffc107",
   },
   {
     value: "lifering",
     icon: FaLifeRing,
+    color: "#6610f2",
   },
   {
     value: "helicopter",
     icon: FaHelicopter,
+    color: "#495057",
   },
   {
     value: "taxi",
     icon: FaTaxi,
+    color: "#ffb300",
   },
 ];
 
@@ -103,7 +115,10 @@ const getIconComponent = (iconName: string) => {
     (item) => item.value === iconName
   );
 
-  return found ? found.icon : FaPhoneAlt;
+  return found || {
+    icon: FaPhoneAlt,
+    color: "#6c757d",
+  };
 };
 
 // =====================================================
@@ -238,7 +253,7 @@ const EmergencyNumbers = () => {
 
             {emergencyNumbers.map((item) => {
 
-              const Icon =
+              const { icon: Icon, color: iconColor } =
                 getIconComponent(item.icon);
 
               // ==========================================
@@ -301,12 +316,10 @@ const EmergencyNumbers = () => {
                           width: "90px",
                           height: "90px",
                           borderRadius: "50%",
-                          background:
-                            "linear-gradient(135deg, #dc3545, #b02a37)",
+                          background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)`,
                           color: "#fff",
                           fontSize: "42px",
-                          boxShadow:
-                            "0 8px 20px rgba(220,53,69,0.25)",
+                          boxShadow: `0 8px 20px ${iconColor}40`,
                         }}
                       >
 
@@ -322,7 +335,7 @@ const EmergencyNumbers = () => {
                       <h5
                         className="fw-bold mb-3"
                         style={{
-                          fontSize: "18px",
+                          fontSize: "14px",
                         }}
                       >
                         {displayTitle}
@@ -342,15 +355,15 @@ const EmergencyNumbers = () => {
                       >
 
                         <div
-                          className="fw-bold text-danger"
+                          className="fw-semibold "
                           style={{
-                            fontSize: "22px",
+                            fontSize: "16px",
                           }}
                         >
 
                           <FaPhoneAlt
                             className="me-2"
-                            size={17}
+                            size={14}
                           />
 
                           {item.number}
@@ -373,8 +386,8 @@ const EmergencyNumbers = () => {
                             mb-3
                           "
                           style={{
-                            fontSize: "14px",
-                            lineHeight: "1.6",
+                            fontSize: "12px",
+                            lineHeight: "0.6",
                           }}
                         >
                           {item.description}
@@ -391,12 +404,12 @@ const EmergencyNumbers = () => {
                         href={`tel:${item.number}`}
                         className="
                           btn
-                          btn-danger
-                          w-100
+                          btn-success
+                          w-10
                           mt-auto
                         "
                         style={{
-                          borderRadius: "10px",
+                          borderRadius: "8px",
                           fontWeight: 600,
                         }}
                       >

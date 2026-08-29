@@ -622,3 +622,31 @@ object-fit:cover;
   transform: translateY(-6px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
 }
+
+.donate-btn {
+  border: none !important;
+  border-radius: 50px !important;
+  padding: 11px 28px !important;
+  font-size: 16px;
+  color: #fff !important;
+  background: linear-gradient(135deg, #e91e63, #ff4b5c) !important;
+  box-shadow: 0 6px 18px rgba(233, 30, 99, 0.25);
+  transition: all 0.3s ease;
+}
+
+.donate-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(233, 30, 99, 0.35);
+}
+
+.donate-btn:active {
+  transform: translateY(-1px);
+}
+
+.donate-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.donate-btn:hover svg {
+  transform: scale(1.2);
+}

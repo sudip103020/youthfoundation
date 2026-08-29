@@ -65,6 +65,27 @@ const en = {
     password: "Password",
      emergency: "Emergency No",
 
+
+      "supportUs": "Support Us",
+  "chooseDonationAmount": "Choose an amount to donate through bKash",
+  "openingBkash": "Opening bKash...",
+  "openingBkashMessage": "Please wait while we try to open the bKash app.",
+  "donationAmount": "Donation Amount",
+  "donateWithBkash": "Donate with bKash",
+  "readyToDonate": "Ready to Donate?",
+  "bkashAppNotOpened": "bKash app could not be opened automatically. Please use the information below.",
+  "bkashNumber": "bKash Number",
+  "copyNumber": "Copy bKash number",
+  "howToDonate": "How to donate:",
+  "openBkashApp": "Open bKash App",
+  "selectSendMoney": "Select Send Money",
+  "enterBkashNumber": "Enter",
+  "enterAmount": "Enter",
+  "confirmPayment": "Confirm the payment",
+  "copyBkashNumber": "Copy bKash Number",
+  "bkashNumberCopied": "bKash number copied!",
+  "copyFailed": "Unable to copy number",
+
     donorDescription:
       "We are grateful to everyone who supports Badokhali Youth Foundation.",
 
@@ -149,13 +170,13 @@ const en = {
     "bkashAccount": "bKash Account",
     "accountType": "Account Type",
     "personal": "Personal",
-    "bkashNumber": "bKash Number",
     "paymentMethod": "Payment Method",
     "sendMoney": "Send Money",
     "copy": "Copy",
     "copied": "Copied Successfully",
     "thankYou": "Thank You For Your Support",
     "donorsList": "See Our Donors List",
+    "donateNow": "Donate Now",
 
     // activist
     "activitis": "📋 Our Activities",

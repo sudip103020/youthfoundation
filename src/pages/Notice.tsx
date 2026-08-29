@@ -80,9 +80,16 @@ const Notice = () => {
     fetchNotices();
   }, []);
 
-  const filteredNotices = notices.filter((item) =>
+ const filteredNotices = [...notices]
+  .filter((item) =>
     item.title.toLowerCase().includes(search.toLowerCase()),
-  );
+  )
+  .sort((a, b) => {
+    return (
+      new Date(b.publishDate).getTime() -
+      new Date(a.publishDate).getTime()
+    );
+  });
 
   const handleView = (notice: Notice) => {
     setSelectedNotice(notice);

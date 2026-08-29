@@ -124,8 +124,13 @@ const Footer = () => {
                   {t("emergency")}
                 </a>
 
-                <a href="/contact">
-                 {t("contact")}
+                <a  href="/bikaspayment">
+                 {t("donateNow")}
+                
+            
+            
+           
+         
                 </a>
 
               </div>

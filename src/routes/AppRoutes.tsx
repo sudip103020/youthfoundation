@@ -25,6 +25,7 @@ import Report from "../components/report";
 import Reportacc from "../components/ReportPadaccount"
 import EmergencyNumbers from "../admin/EmergencyNumbers";
 import EmergencyNumberspublic from "../pages/EmergencyNumbers";
+import Bikaspayment from "../pages/bikaspayment";
 
 const AppRoutes = () => {
   return (
@@ -47,7 +48,7 @@ const AppRoutes = () => {
   <Route path="/report" element={<Report />} />
   <Route path="/reportacc" element={<Reportacc />} />
   <Route path="/emergency" element={<EmergencyNumberspublic />} />
- 
+   <Route path="/bikaspayment" element={<Bikaspayment />} />
 </Route>
 
 

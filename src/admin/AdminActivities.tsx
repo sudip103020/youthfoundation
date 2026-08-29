@@ -38,8 +38,8 @@ const Activities = () => {
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [titleBn, setTitleBn] = useState("");
-const [dateBn, setDateBn] = useState("");
-const [descriptionBn, setDescriptionBn] = useState("");
+  const [dateBn, setDateBn] = useState("");
+  const [descriptionBn, setDescriptionBn] = useState("");
 
   //==========================
   // Images
@@ -88,7 +88,7 @@ const [descriptionBn, setDescriptionBn] = useState("");
   useEffect(() => {
     fetchActivities();
   }, []);
-    //==========================
+  //==========================
   // Select Images
   //==========================
 
@@ -159,57 +159,57 @@ const [descriptionBn, setDescriptionBn] = useState("");
   // Upload Images
   //==========================
 
- //==========================
-// Cloudinary Upload Images
-//==========================
+  //==========================
+  // Cloudinary Upload Images
+  //==========================
 
-const CLOUD_NAME = "dvpfixfd";
-const UPLOAD_PRESET = "badokhali_youth_foundation";
-
-
-const uploadImages = async () => {
-
-  const urls: string[] = [];
-
-  for (const file of selectedImages) {
-
-    const formData = new FormData();
-
-    formData.append("file", file);
-
-    formData.append(
-      "upload_preset",
-      UPLOAD_PRESET
-    );
-
-    formData.append(
-      "folder",
-      "badokhali_youth_foundation/activities"
-    );
+  const CLOUD_NAME = "dvpfixfd";
+  const UPLOAD_PRESET = "badokhali_youth_foundation";
 
 
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
+  const uploadImages = async () => {
+
+    const urls: string[] = [];
+
+    for (const file of selectedImages) {
+
+      const formData = new FormData();
+
+      formData.append("file", file);
+
+      formData.append(
+        "upload_preset",
+        UPLOAD_PRESET
+      );
+
+      formData.append(
+        "folder",
+        "badokhali_youth_foundation/activities"
+      );
+
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+
+      const data = await response.json();
+
+
+      if (data.secure_url) {
+        urls.push(data.secure_url);
       }
-    );
 
-
-    const data = await response.json();
-
-
-    if (data.secure_url) {
-      urls.push(data.secure_url);
     }
 
-  }
+    return urls;
 
-  return urls;
-
-};
-    //==========================
+  };
+  //==========================
   // Add Activity
   //==========================
 
@@ -231,7 +231,7 @@ const uploadImages = async () => {
         title,
         titleBn,
         date,
-         dateBn,
+        dateBn,
         description,
         descriptionBn,
         images: imageUrls,
@@ -260,8 +260,8 @@ const uploadImages = async () => {
     setDate(item.date);
     setDescription(item.description);
     setTitleBn(item.titleBn || "");
-setDateBn(item.dateBn || "");
-setDescriptionBn(item.descriptionBn || "");
+    setDateBn(item.dateBn || "");
+    setDescriptionBn(item.descriptionBn || "");
 
     setOldImages(item.images);
 
@@ -296,17 +296,17 @@ setDescriptionBn(item.descriptionBn || "");
       }
 
       await updateDoc(doc(db, "activities", editingId), {
-  title,
-  titleBn,
+        title,
+        titleBn,
 
-  date,
-  dateBn,
+        date,
+        dateBn,
 
-  description,
-  descriptionBn,
+        description,
+        descriptionBn,
 
-  images: imageUrls,
-});
+        images: imageUrls,
+      });
 
       alert("Activity Updated Successfully");
 
@@ -321,428 +321,428 @@ setDescriptionBn(item.descriptionBn || "");
   };
 
   //==========================
-// Delete Activity
-//==========================
+  // Delete Activity
+  //==========================
 
-const handleDelete = async (item: Activity) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this activity?"
-  );
+  const handleDelete = async (item: Activity) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this activity?"
+    );
 
-  if (!confirmDelete) return;
+    if (!confirmDelete) return;
 
-  try {
-    await deleteDoc(doc(db, "activities", item.id));
+    try {
+      await deleteDoc(doc(db, "activities", item.id));
 
-    alert("Activity Deleted Successfully");
+      alert("Activity Deleted Successfully");
 
-    fetchActivities();
-  } catch (error) {
-    console.error(error);
+      fetchActivities();
+    } catch (error) {
+      console.error(error);
 
-    alert("Delete Failed");
-  }
-};
+      alert("Delete Failed");
+    }
+  };
 
   return (
-  <AdminLayout>
-    <div className="container-fluid p-4">
+    <AdminLayout>
+      <div className="container-fluid p-4">
 
-      <div className="card shadow-sm p-3 mb-4">
+        <div className="card shadow-sm p-3 mb-4">
 
-        <h4 className="mb-4">
-          {editingId ? "✏️ Edit Activity" : "➕ Add Activity"}
-        </h4>
+          <h4 className="mb-4">
+            {editingId ? "✏️ Edit Activity" : "➕ Add Activity"}
+          </h4>
 
-        <div className="row">
+          <div className="row">
 
-          {/* Title */}
+            {/* Title */}
 
-          <div className="col-md-6 mb-3">
-            <label className="form-label">
-              Activity Title
-            </label>
+            <div className="col-md-6 mb-3">
+              <label className="form-label">
+                Activity Title
+              </label>
 
-            <input
-              type="text"
-              className="form-control"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Activity Title"
-            />
-          </div>
+              <input
+                type="text"
+                className="form-control"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Activity Title"
+              />
+            </div>
 
-          <div className="mb-3">
-  <label className="form-label">
-    Title (বাংলা)
-  </label>
+            <div className="mb-3">
+              <label className="form-label">
+                Title (বাংলা)
+              </label>
 
-  <input
-    type="text"
-    className="form-control"
-    value={titleBn}
-    onChange={(e) => setTitleBn(e.target.value)}
-    placeholder="বাংলায় শিরোনাম লিখুন"
-  />
-</div>
+              <input
+                type="text"
+                className="form-control"
+                value={titleBn}
+                onChange={(e) => setTitleBn(e.target.value)}
+                placeholder="বাংলায় শিরোনাম লিখুন"
+              />
+            </div>
 
-          {/* Date */}
+            {/* Date */}
 
-          <div className="col-md-6 mb-3">
-            <label className="form-label">
-              Date / Month
-            </label>
+            <div className="col-md-6 mb-3">
+              <label className="form-label">
+                Date / Month
+              </label>
 
-            <input
-              type="text"
-              className="form-control"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              placeholder="August 2026"
-            />
-          </div>
+              <input
+                type="text"
+                className="form-control"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                placeholder="August 2026"
+              />
+            </div>
 
-          <div className="mb-3">
-  <label className="form-label">
-    Date (বাংলা)
-  </label>
+            <div className="mb-3">
+              <label className="form-label">
+                Date (বাংলা)
+              </label>
 
-  <input
-    type="text"
-    className="form-control"
-    value={dateBn}
-    onChange={(e) => setDateBn(e.target.value)}
-    placeholder="যেমন: ১৫ আগস্ট ২০২৬"
-  />
-</div>
+              <input
+                type="text"
+                className="form-control"
+                value={dateBn}
+                onChange={(e) => setDateBn(e.target.value)}
+                placeholder="যেমন: ১৫ আগস্ট ২০২৬"
+              />
+            </div>
 
-          {/* Description */}
+            {/* Description */}
 
-          <div className="col-12 mb-3">
-            <label className="form-label">
-              Description
-            </label>
+            <div className="col-12 mb-3">
+              <label className="form-label">
+                Description
+              </label>
 
-            <textarea
-              rows={5}
-              className="form-control"
-              value={description}
-              onChange={(e) =>
-                setDescription(e.target.value)
-              }
-            />
-          </div>
+              <textarea
+                rows={5}
+                className="form-control"
+                value={description}
+                onChange={(e) =>
+                  setDescription(e.target.value)
+                }
+              />
+            </div>
 
 
-          <div className="mb-3">
-  <label className="form-label">
-    Description (বাংলা)
-  </label>
+            <div className="mb-3">
+              <label className="form-label">
+                Description (বাংলা)
+              </label>
 
-  <textarea
-    className="form-control"
-    rows={4}
-    value={descriptionBn}
-    onChange={(e) => setDescriptionBn(e.target.value)}
-    placeholder="বাংলায় বিবরণ লিখুন"
-  />
-</div>
+              <textarea
+                className="form-control"
+                rows={4}
+                value={descriptionBn}
+                onChange={(e) => setDescriptionBn(e.target.value)}
+                placeholder="বাংলায় বিবরণ লিখুন"
+              />
+            </div>
 
-          {/* Images */}
+            {/* Images */}
 
-          <div className="col-12 mb-3">
-            <label className="form-label">
-              Select Images
-            </label>
+            <div className="col-12 mb-3">
+              <label className="form-label">
+                Select Images
+              </label>
 
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              className="form-control"
-              onChange={handleImageChange}
-            />
-          </div>
-
-        </div>
-
-        {/* New Preview */}
-
-        {previewImages.length > 0 && (
-
-          <div className="mb-4">
-
-            <h6>New Images</h6>
-
-            <div className="row">
-
-              {previewImages.map((image, index) => (
-
-                <div
-                  className="col-md-2 col-6 mb-3"
-                  key={index}
-                >
-
-                  <div className="card">
-
-                    <img
-                      src={image}
-                      className="card-img-top"
-                      style={{
-                        height: "120px",
-                        objectFit: "cover",
-                      }}
-                    />
-
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() =>
-                        removePreviewImage(index)
-                      }
-                    >
-                      Remove
-                    </button>
-
-                  </div>
-
-                </div>
-
-              ))}
-
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                className="form-control"
+                onChange={handleImageChange}
+              />
             </div>
 
           </div>
 
-        )}
+          {/* New Preview */}
 
-        {/* Old Images */}
+          {previewImages.length > 0 && (
 
-        {editingId && oldImages.length > 0 && (
+            <div className="mb-4">
 
-          <div className="mb-4">
+              <h6>New Images</h6>
 
-            <h6>Current Images</h6>
+              <div className="row">
 
-            <div className="row">
+                {previewImages.map((image, index) => (
 
-              {oldImages.map((image, index) => (
+                  <div
+                    className="col-md-2 col-6 mb-3"
+                    key={index}
+                  >
 
-                <div
-                  className="col-md-2 col-6 mb-3"
-                  key={index}
-                >
+                    <div className="card">
 
-                  <div className="card">
+                      <img
+                        src={image}
+                        className="card-img-top"
+                        style={{
+                          height: "120px",
+                          objectFit: "cover",
+                        }}
+                      />
 
-                    <img
-                      src={image}
-                      className="card-img-top"
-                      style={{
-                        height: "120px",
-                        objectFit: "cover",
-                      }}
-                    />
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() =>
+                          removePreviewImage(index)
+                        }
+                      >
+                        Remove
+                      </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() =>
-                        removeOldImage(index)
-                      }
-                    >
-                      Remove
-                    </button>
+                    </div>
 
                   </div>
 
-                </div>
+                ))}
 
-              ))}
+              </div>
 
             </div>
 
+          )}
+
+          {/* Old Images */}
+
+          {editingId && oldImages.length > 0 && (
+
+            <div className="mb-4">
+
+              <h6>Current Images</h6>
+
+              <div className="row">
+
+                {oldImages.map((image, index) => (
+
+                  <div
+                    className="col-md-2 col-6 mb-3"
+                    key={index}
+                  >
+
+                    <div className="card">
+
+                      <img
+                        src={image}
+                        className="card-img-top"
+                        style={{
+                          height: "120px",
+                          objectFit: "cover",
+                        }}
+                      />
+
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() =>
+                          removeOldImage(index)
+                        }
+                      >
+                        Remove
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            </div>
+
+          )}
+
+          <div className="d-flex gap-2">
+
+            {editingId ? (
+
+              <button
+                className="btn btn-warning"
+                onClick={updateActivity}
+              >
+                💾 Update Activity
+              </button>
+
+            ) : (
+
+              <button
+                className="btn btn-success"
+                onClick={addActivity}
+              >
+                ➕ Save Activity
+              </button>
+
+            )}
+
+            {editingId && (
+
+              <button
+                className="btn btn-secondary"
+                onClick={clearForm}
+              >
+                Cancel
+              </button>
+
+            )}
+
           </div>
-
-        )}
-
-        <div className="d-flex gap-2">
-
-          {editingId ? (
-
-            <button
-              className="btn btn-warning"
-              onClick={updateActivity}
-            >
-              💾 Update Activity
-            </button>
-
-          ) : (
-
-            <button
-              className="btn btn-success"
-              onClick={addActivity}
-            >
-              ➕ Save Activity
-            </button>
-
-          )}
-
-          {editingId && (
-
-            <button
-              className="btn btn-secondary"
-              onClick={clearForm}
-            >
-              Cancel
-            </button>
-
-          )}
 
         </div>
 
-      </div>
-
-            {/* ==========================
+        {/* ==========================
           Activity List
       ========================== */}
 
-      <div className="card shadow-sm">
+        <div className="card shadow-sm">
 
-        <div className="card-header bg-dark text-white">
-          <h5 className="mb-0">
-            📋 Activities
-          </h5>
-        </div>
+          <div className="card-header bg-dark text-white">
+            <h5 className="mb-0">
+              📋 Activities
+            </h5>
+          </div>
 
-        <div className="card-body">
+          <div className="card-body">
 
-          <div className="table-responsive">
+            <div className="table-responsive">
 
-            <table className="table table-bordered table-hover align-middle">
+              <table className="table table-bordered table-hover align-middle">
 
-              <thead className="table-light">
-
-                <tr>
-
-                  <th >#</th>
-
-                  <th >Image</th>
-
-                  <th>Title</th>
-
-                  <th >Date</th>
-
-                  <th>Description</th>
-
-                  <th >Action</th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {activities.length === 0 ? (
+                <thead className="table-light">
 
                   <tr>
 
-                    <td
-                      colSpan={6}
-                      className="text-center text-muted"
-                    >
-                      No Activities Found
-                    </td>
+                    <th >#</th>
+
+                    <th >Image</th>
+
+                    <th>Title</th>
+
+                    <th >Date</th>
+
+                    <th>Description</th>
+
+                    <th >Action</th>
 
                   </tr>
 
-                ) : (
+                </thead>
 
-                  activities.map((item, index) => (
+                <tbody>
 
-                    <tr key={item.id}>
+                  {activities.length === 0 ? (
 
-                      <td>{index + 1}</td>
+                    <tr>
 
-                      <td>
-
-                        {item.images.length > 0 ? (
-
-                          <img
-                            src={item.images[0]}
-                            alt={item.title}
-                            style={{
-                              width: "80px",
-                              height: "80px",
-                              objectFit: "cover",
-                              borderRadius: "6px",
-                            }}
-                          />
-
-                        ) : (
-
-                          <span className="text-muted">
-                            No Image
-                          </span>
-
-                        )}
-
-                      </td>
-
-                      <td>{item.title}</td>
-
-                      <td>{item.date}</td>
-
-                      <td>
-
-                        <div
-                          style={{
-                            maxWidth: "350px",
-                            whiteSpace: "pre-wrap",
-                          }}
-                        >
-                          {item.description}
-                        </div>
-
-                      </td>
-
-                      <td>
-
-                        <button
-                          className="btn btn-primary btn-sm me-2"
-                          onClick={() => handleEdit(item)}
-                        >
-                          ✏️ Edit
-                        </button>
-
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(item)}
-                        >
-                          🗑 Delete
-                        </button>
-
+                      <td
+                        colSpan={6}
+                        className="text-center text-muted"
+                      >
+                        No Activities Found
                       </td>
 
                     </tr>
 
-                  ))
+                  ) : (
 
-                )}
+                    activities.map((item, index) => (
 
-              </tbody>
+                      <tr key={item.id}>
 
-            </table>
+                        <td>{index + 1}</td>
+
+                        <td>
+
+                          {item.images.length > 0 ? (
+
+                            <img
+                              src={item.images[0]}
+                              alt={item.title}
+                              style={{
+                                width: "80px",
+                                height: "80px",
+                                objectFit: "cover",
+                                borderRadius: "6px",
+                              }}
+                            />
+
+                          ) : (
+
+                            <span className="text-muted">
+                              No Image
+                            </span>
+
+                          )}
+
+                        </td>
+
+                        <td>{item.title}</td>
+
+                        <td>{item.date}</td>
+
+                        <td>
+
+                          <div
+                            style={{
+                              maxWidth: "350px",
+                              whiteSpace: "pre-wrap",
+                            }}
+                          >
+                            {item.description}
+                          </div>
+
+                        </td>
+
+                        <td>
+
+                          <button
+                            className="btn btn-primary btn-sm me-2"
+                            onClick={() => handleEdit(item)}
+                          >
+                            ✏️ Edit
+                          </button>
+
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleDelete(item)}
+                          >
+                            🗑 Delete
+                          </button>
+
+                        </td>
+
+                      </tr>
+
+                    ))
+
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
 
           </div>
 
         </div>
 
       </div>
-
-          </div>
-  </AdminLayout>
-);
+    </AdminLayout>
+  );
 
 };
 

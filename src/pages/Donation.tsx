@@ -167,10 +167,11 @@ const Donation = () => {
             </h4>
 
             <Button
-              variant="success"
-              href="/donors"
+            
+              className="donate-btn px-4 py-2 fw-bold"
+              href="/bikaspayment"
             >
-              {t("donorsList")}
+              {t("donateNow")}
             </Button>
 
           </Card.Body>
