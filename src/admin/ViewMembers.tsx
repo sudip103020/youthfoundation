@@ -8,7 +8,7 @@ import {
   doc,
   addDoc,
   serverTimestamp,
-  query,
+ 
   onSnapshot,
   writeBatch,
 } from "firebase/firestore";
@@ -941,58 +941,7 @@ const handleOpenChat = async (
     }
   };
 
-  // =====================================================
-  // FORMAT CHAT TIME
-  // =====================================================
 
-  const formatChatTime = (
-    timestamp: any
-  ) => {
-    if (
-      !timestamp?.toDate
-    ) {
-      return "Just now";
-    }
-
-    return timestamp
-      .toDate()
-      .toLocaleTimeString(
-        [],
-        {
-          hour: "2-digit",
-          minute: "2-digit",
-        }
-      );
-  };
-
-  // =====================================================
-  // FORMAT CHAT DATE
-  // =====================================================
-
-  const formatChatDate = (
-    timestamp: any
-  ) => {
-    if (
-      !timestamp?.toDate
-    ) {
-      return "";
-    }
-
-    return timestamp
-      .toDate()
-      .toLocaleDateString(
-        [],
-        {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        }
-      );
-  };
-
-  // =====================================================
-  // USE EFFECT
-  // =====================================================
 
  useEffect(() => {
   fetchMembers();
