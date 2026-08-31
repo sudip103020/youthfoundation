@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   db,
@@ -13,7 +13,6 @@ import {
 
 import {
   collection,
-  collectionGroup,
   getDocs,
   query,
   where,
@@ -26,7 +25,17 @@ import {
 } from "firebase/firestore";
 
 // =====================================================
-// MESSAGE INTERFACE
+// MEMBER DATA
+// =====================================================
+
+interface MemberData {
+  uid: string;
+  name: string;
+  photo: string;
+}
+
+// =====================================================
+// MESSAGE
 // =====================================================
 
 interface Message {
@@ -69,9 +78,9 @@ interface ConversationPreview {
 
 const Dashboard = () => {
 
-  // =====================================================
+  // ===================================================
   // DASHBOARD STATES
-  // =====================================================
+  // ===================================================
 
   const [totalMembers, setTotalMembers] =
     useState(0);
@@ -91,9 +100,9 @@ const Dashboard = () => {
   const [mySubscriptionAmount, setMySubscriptionAmount] =
     useState(0);
 
-  // =====================================================
-  // CONVERSATION STATES
-  // =====================================================
+  // ===================================================
+  // CHAT STATES
+  // ===================================================
 
   const [conversations, setConversations] =
     useState<ConversationPreview[]>([]);
@@ -125,23 +134,30 @@ const Dashboard = () => {
   const [loadingChat, setLoadingChat] =
     useState(false);
 
-  // =====================================================
-  // INBOX MODAL
-  // =====================================================
-
   const [showInbox, setShowInbox] =
     useState(false);
-
-  // =====================================================
-  // DELETE MESSAGE
-  // =====================================================
 
   const [deletingMessageId, setDeletingMessageId] =
     useState<string | null>(null);
 
-  // =====================================================
+  // ===================================================
+  // REFS
+  // ===================================================
+
+  const conversationListenersRef =
+    useRef<Record<string, () => void>>({});
+
+  const selectedChatListenerRef =
+    useRef<(() => void) | null>(null);
+
+  const conversationMapRef =
+    useRef<Map<string, ConversationPreview>>(
+      new Map()
+    );
+
+  // ===================================================
   // GET CONVERSATION ID
-  // =====================================================
+  // ===================================================
 
   const getConversationId = (
     memberUid: string,
@@ -152,16 +168,16 @@ const Dashboard = () => {
       .join("_");
   };
 
-  // =====================================================
-  // LOAD DASHBOARD
-  // =====================================================
+  // ===================================================
+  // LOAD DASHBOARD STATISTICS
+  // ===================================================
 
   const loadDashboard = async () => {
 
     try {
 
       // -----------------------------------------------
-      // TOTAL MEMBERS
+      // MEMBERS
       // -----------------------------------------------
 
       const memberSnapshot =
@@ -177,7 +193,7 @@ const Dashboard = () => {
       );
 
       // -----------------------------------------------
-      // TOTAL SUBSCRIPTION
+      // SUBSCRIPTIONS
       // -----------------------------------------------
 
       const subscriptionSnapshot =
@@ -206,7 +222,7 @@ const Dashboard = () => {
       );
 
       // -----------------------------------------------
-      // TOTAL DONATION
+      // DONATIONS
       // -----------------------------------------------
 
       const donationSnapshot =
@@ -235,7 +251,7 @@ const Dashboard = () => {
       );
 
       // -----------------------------------------------
-      // TOTAL EXPENSE
+      // EXPENSES
       // -----------------------------------------------
 
       const expenseSnapshot =
@@ -271,24 +287,24 @@ const Dashboard = () => {
       );
 
     }
-
   };
 
-  // =====================================================
-  // LOAD MEMBER PROFILE
-  // =====================================================
+  // ===================================================
+  // LOAD ADMIN PROFILE
+  // ===================================================
 
-  const loadProfile =
-    async (user: any) => {
+  const loadProfile = async (
+    user: any
+  ) => {
 
-      try {
+    try {
 
-        const q = query(
+      const q =
+        query(
           collection(
             db,
             "members"
           ),
-
           where(
             "uid",
             "==",
@@ -296,343 +312,428 @@ const Dashboard = () => {
           )
         );
 
-        const snapshot =
-          await getDocs(q);
+      const snapshot =
+        await getDocs(q);
 
-        if (!snapshot.empty) {
-
-          const memberDoc =
-            snapshot.docs[0];
-
-          setProfile(
-            memberDoc.data()
-          );
-
-          // -------------------------------------------
-          // FIRESTORE MEMBER ID
-          // -------------------------------------------
-
-          const memberId =
-            memberDoc.id;
-
-          // -------------------------------------------
-          // MY SUBSCRIPTIONS
-          // -------------------------------------------
-
-          const subscriptionQuery =
-            query(
-              collection(
-                db,
-                "subscriptions"
-              ),
-
-              where(
-                "memberId",
-                "==",
-                memberId
-              )
-            );
-
-          const subscriptionSnapshot =
-            await getDocs(
-              subscriptionQuery
-            );
-
-          let totalAmount = 0;
-
-          subscriptionSnapshot.forEach(
-            (subscriptionDoc) => {
-
-              totalAmount +=
-                Number(
-                  subscriptionDoc.data()
-                    .amount || 0
-                );
-
-            }
-          );
-
-          setMySubscriptionAmount(
-            totalAmount
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Load profile error:",
-          error
-        );
-
+      if (
+        snapshot.empty
+      ) {
+        return;
       }
 
-    };
+      const memberDoc =
+        snapshot.docs[0];
 
-  // =====================================================
-  // LOAD CONVERSATION LIST
-  // =====================================================
+      const memberData =
+        memberDoc.data();
 
-  const loadConversations = (
-    adminUid: string
-  ) => {
+      setProfile(
+        memberData
+      );
 
-    setLoadingConversations(true);
+      // -----------------------------------------------
+      // ADMIN SUBSCRIPTION
+      // -----------------------------------------------
 
-    // =================================================
-    // We only need incoming messages to discover
-    // which members have conversations with admin.
-    //
-    // No orderBy() is used.
-    // Therefore composite index is not required.
-    // =================================================
+      const subscriptionQuery =
+        query(
+          collection(
+            db,
+            "subscriptions"
+          ),
+          where(
+            "memberId",
+            "==",
+            memberDoc.id
+          )
+        );
 
-    const q = query(
-      collectionGroup(
-        db,
-        "messages"
-      ),
+      const subscriptionSnapshot =
+        await getDocs(
+          subscriptionQuery
+        );
 
-      where(
-        "receiverId",
-        "==",
-        adminUid
-      )
-    );
+      let totalAmount = 0;
 
-    const unsubscribe =
-      onSnapshot(
-        q,
+      subscriptionSnapshot.forEach(
+        (subscriptionDoc) => {
 
-        async (snapshot) => {
-
-          try {
-
-            // =========================================
-            // GET ALL MEMBERS
-            // =========================================
-
-            const membersSnapshot =
-              await getDocs(
-                collection(
-                  db,
-                  "members"
-                )
-              );
-
-            const memberMap =
-              new Map<
-                string,
-                MemberData
-              >();
-
-            membersSnapshot.docs.forEach(
-              (memberDoc) => {
-
-                const data =
-                  memberDoc.data();
-
-                if (data.uid) {
-
-                  memberMap.set(
-                    data.uid,
-                    {
-                      name:
-                        data.name || "Member",
-
-                      photo:
-                        data.photo || "",
-                    }
-                  );
-
-                }
-
-              }
+          totalAmount +=
+            Number(
+              subscriptionDoc.data()
+                .amount || 0
             );
-
-            // =========================================
-            // GROUP INCOMING MESSAGES BY MEMBER
-            // =========================================
-
-            const grouped =
-              new Map<
-                string,
-                ConversationPreview
-              >();
-
-            snapshot.docs.forEach(
-              (messageDoc) => {
-
-                const data =
-                  messageDoc.data();
-
-                const memberUid =
-                  data.senderId;
-
-                if (!memberUid) {
-                  return;
-                }
-
-                const memberInfo =
-                  memberMap.get(
-                    memberUid
-                  );
-
-                const existing =
-                  grouped.get(
-                    memberUid
-                  );
-
-                const messageTime =
-                  data.createdAt;
-
-                const messageMillis =
-                  messageTime?.toMillis?.() ||
-                  0;
-
-                const existingMillis =
-                  existing
-                    ?.lastMessageTime
-                    ?.toMillis?.() ||
-                  0;
-
-                // =====================================
-                // UNREAD COUNT
-                // =====================================
-
-                const isUnread =
-                  data.read === false;
-
-                if (!existing) {
-
-                  grouped.set(
-                    memberUid,
-                    {
-                      memberUid,
-
-                      memberName:
-                        memberInfo?.name ||
-                        data.senderName ||
-                        "Member",
-
-                      memberPhoto:
-                        memberInfo?.photo ||
-                        "",
-
-                      lastMessage:
-                        data.message ||
-                        "",
-
-                      lastMessageTime:
-                        messageTime,
-
-                      unreadCount:
-                        isUnread
-                          ? 1
-                          : 0,
-                    }
-                  );
-
-                } else {
-
-                  if (
-                    isUnread
-                  ) {
-
-                    existing.unreadCount +=
-                      1;
-
-                  }
-
-                  if (
-                    messageMillis >
-                    existingMillis
-                  ) {
-
-                    existing.lastMessage =
-                      data.message ||
-                      "";
-
-                    existing.lastMessageTime =
-                      messageTime;
-
-                  }
-
-                }
-
-              }
-            );
-
-            // =========================================
-            // SORT NEWEST CONVERSATION FIRST
-            // =========================================
-
-            const conversationList =
-              Array.from(
-                grouped.values()
-              );
-
-            conversationList.sort(
-              (a, b) => {
-
-                const timeA =
-                  a.lastMessageTime
-                    ?.toMillis?.() ||
-                  0;
-
-                const timeB =
-                  b.lastMessageTime
-                    ?.toMillis?.() ||
-                  0;
-
-                return (
-                  timeB - timeA
-                );
-
-              }
-            );
-
-            setConversations(
-              conversationList
-            );
-
-          } catch (error) {
-
-            console.error(
-              "Conversation list error:",
-              error
-            );
-
-          } finally {
-
-            setLoadingConversations(
-              false
-            );
-
-          }
-
-        },
-
-        (error) => {
-
-          console.error(
-            "Conversation listener error:",
-            error
-          );
-
-          setLoadingConversations(
-            false
-          );
 
         }
       );
 
-    return unsubscribe;
+      setMySubscriptionAmount(
+        totalAmount
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Load profile error:",
+        error
+      );
+
+    }
   };
 
-  // =====================================================
+  // ===================================================
+  // UPDATE CONVERSATION STATE
+  // ===================================================
+
+  const updateConversation = (
+    conversation: ConversationPreview
+  ) => {
+
+    conversationMapRef.current.set(
+      conversation.memberUid,
+      conversation
+    );
+
+    const list =
+      Array.from(
+        conversationMapRef.current.values()
+      );
+
+    list.sort(
+      (a, b) => {
+
+        const timeA =
+          a.lastMessageTime
+            ?.toMillis?.() || 0;
+
+        const timeB =
+          b.lastMessageTime
+            ?.toMillis?.() || 0;
+
+        return timeB - timeA;
+      }
+    );
+
+    setConversations(
+      list
+    );
+  };
+
+  // ===================================================
+  // REMOVE CONVERSATION
+  // ===================================================
+
+  const removeConversation = (
+    memberUid: string
+  ) => {
+
+    conversationMapRef.current.delete(
+      memberUid
+    );
+
+    const list =
+      Array.from(
+        conversationMapRef.current.values()
+      );
+
+    list.sort(
+      (a, b) => {
+
+        const timeA =
+          a.lastMessageTime
+            ?.toMillis?.() || 0;
+
+        const timeB =
+          b.lastMessageTime
+            ?.toMillis?.() || 0;
+
+        return timeB - timeA;
+      }
+    );
+
+    setConversations(
+      list
+    );
+  };
+
+  // ===================================================
+  // LOAD CONVERSATIONS
+  //
+  // IMPORTANT:
+  // NO collectionGroup()
+  //
+  // We load members first and listen to each member's
+  // conversation separately.
+  //
+  // Therefore NO COLLECTION GROUP INDEX is required.
+  // ===================================================
+
+  const loadConversations = async (
+    adminUid: string
+  ) => {
+
+    setLoadingConversations(
+      true
+    );
+
+    try {
+
+      // -----------------------------------------------
+      // REMOVE OLD LISTENERS
+      // -----------------------------------------------
+
+      Object.values(
+        conversationListenersRef.current
+      ).forEach(
+        (unsubscribe) => {
+          unsubscribe();
+        }
+      );
+
+      conversationListenersRef.current =
+        {};
+
+      conversationMapRef.current.clear();
+
+      setConversations([]);
+
+      // -----------------------------------------------
+      // GET ALL MEMBERS
+      // -----------------------------------------------
+
+      const membersSnapshot =
+        await getDocs(
+          collection(
+            db,
+            "members"
+          )
+        );
+
+      const members: MemberData[] = [];
+
+      membersSnapshot.docs.forEach(
+        (memberDoc) => {
+
+          const data =
+            memberDoc.data();
+
+          if (
+            data.uid &&
+            data.uid !== adminUid
+          ) {
+
+            members.push({
+              uid: data.uid,
+
+              name:
+                data.name ||
+                "Member",
+
+              photo:
+                data.photo ||
+                "",
+            });
+
+          }
+
+        }
+      );
+
+      // -----------------------------------------------
+      // LISTEN TO EACH MEMBER'S CONVERSATION
+      // -----------------------------------------------
+
+      members.forEach(
+        (member) => {
+
+          const conversationId =
+            getConversationId(
+              member.uid,
+              adminUid
+            );
+
+          const messagesRef =
+            collection(
+              db,
+              "conversations",
+              conversationId,
+              "messages"
+            );
+
+          // -------------------------------------------
+          // REAL-TIME LISTENER
+          // -------------------------------------------
+
+          const unsubscribe =
+            onSnapshot(
+              messagesRef,
+
+              (snapshot) => {
+
+                // -------------------------------------
+                // IF NO MESSAGE
+                // -------------------------------------
+
+                if (
+                  snapshot.empty
+                ) {
+
+                  removeConversation(
+                    member.uid
+                  );
+
+                  return;
+                }
+
+                // -------------------------------------
+                // GET MESSAGES
+                // -------------------------------------
+
+                const messages =
+                  snapshot.docs.map(
+                    (messageDoc) => {
+
+                      const data =
+                        messageDoc.data();
+
+                      return {
+                        id:
+                          messageDoc.id,
+
+                        senderId:
+                          data.senderId ||
+                          "",
+
+                        senderName:
+                          data.senderName ||
+                          "",
+
+                        receiverId:
+                          data.receiverId ||
+                          "",
+
+                        receiverName:
+                          data.receiverName ||
+                          "",
+
+                        message:
+                          data.message ||
+                          "",
+
+                        createdAt:
+                          data.createdAt,
+
+                        read:
+                          data.read === true,
+                      } as Message;
+                    }
+                  );
+
+                // -------------------------------------
+                // SORT OLD → NEW
+                // -------------------------------------
+
+                messages.sort(
+                  (a, b) => {
+
+                    const timeA =
+                      a.createdAt
+                        ?.toMillis?.() || 0;
+
+                    const timeB =
+                      b.createdAt
+                        ?.toMillis?.() || 0;
+
+                    return timeA - timeB;
+                  }
+                );
+
+                const lastMessage =
+                  messages[
+                    messages.length - 1
+                  ];
+
+                // -------------------------------------
+                // COUNT UNREAD MEMBER MESSAGES
+                // -------------------------------------
+
+                const unreadCount =
+                  messages.filter(
+                    (message) => {
+
+                      return (
+                        message.senderId ===
+                          member.uid &&
+                        message.receiverId ===
+                          adminUid &&
+                        message.read === false
+                      );
+
+                    }
+                  ).length;
+
+                // -------------------------------------
+                // UPDATE PREVIEW
+                // -------------------------------------
+
+                updateConversation({
+                  memberUid:
+                    member.uid,
+
+                  memberName:
+                    member.name,
+
+                  memberPhoto:
+                    member.photo,
+
+                  lastMessage:
+                    lastMessage?.message ||
+                    "",
+
+                  lastMessageTime:
+                    lastMessage?.createdAt,
+
+                  unreadCount,
+                });
+
+              },
+
+              (error) => {
+
+                console.error(
+                  `Conversation listener error for ${member.name}:`,
+                  error
+                );
+
+              }
+            );
+
+          conversationListenersRef.current[
+            member.uid
+          ] = unsubscribe;
+
+        }
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Load conversations error:",
+        error
+      );
+
+    } finally {
+
+      setLoadingConversations(
+        false
+      );
+
+    }
+  };
+
+  // ===================================================
   // OPEN CONVERSATION
-  // =====================================================
+  // ===================================================
 
   const openConversation = (
     memberUid: string,
@@ -652,6 +753,24 @@ const Dashboard = () => {
       return;
     }
 
+    // -----------------------------------------------
+    // CLEAN OLD CHAT LISTENER
+    // -----------------------------------------------
+
+    if (
+      selectedChatListenerRef.current
+    ) {
+
+      selectedChatListenerRef.current();
+
+      selectedChatListenerRef.current =
+        null;
+    }
+
+    // -----------------------------------------------
+    // CONVERSATION ID
+    // -----------------------------------------------
+
     const conversationId =
       getConversationId(
         memberUid,
@@ -670,64 +789,90 @@ const Dashboard = () => {
       memberPhoto || ""
     );
 
-    setConversationAdminId(memberUid);
+    setConversationAdminId(
+      currentUser.uid
+    );
+
     setChatReply("");
+
+    setConversationMessages([]);
 
     setLoadingChat(true);
 
-    // ===============================================
+    // -----------------------------------------------
     // REAL-TIME CHAT LISTENER
-    // ===============================================
+    // -----------------------------------------------
 
-    const q = query(
+    const messagesRef =
       collection(
         db,
         "conversations",
         conversationId,
         "messages"
-      )
-    );
+      );
 
     const unsubscribe =
       onSnapshot(
-        q,
+        messagesRef,
 
         async (snapshot) => {
 
           const messageList: Message[] =
             snapshot.docs.map(
-              (item) => ({
-                id:
-                  item.id,
+              (messageDoc) => {
 
-                ...(item.data() as Omit<
-                  Message,
-                  "id"
-                >),
-              })
+                const data =
+                  messageDoc.data();
+
+                return {
+                  id:
+                    messageDoc.id,
+
+                  senderId:
+                    data.senderId ||
+                    "",
+
+                  senderName:
+                    data.senderName ||
+                    "",
+
+                  receiverId:
+                    data.receiverId ||
+                    "",
+
+                  receiverName:
+                    data.receiverName ||
+                    "",
+
+                  message:
+                    data.message ||
+                    "",
+
+                  createdAt:
+                    data.createdAt,
+
+                  read:
+                    data.read === true,
+                };
+              }
             );
 
-          // =========================================
-          // OLD → NEW
-          // =========================================
+          // -------------------------------------------
+          // SORT OLD → NEW
+          // -------------------------------------------
 
           messageList.sort(
             (a, b) => {
 
               const timeA =
                 a.createdAt
-                  ?.toMillis?.() ||
-                0;
+                  ?.toMillis?.() || 0;
 
               const timeB =
                 b.createdAt
-                  ?.toMillis?.() ||
-                0;
+                  ?.toMillis?.() || 0;
 
-              return (
-                timeA - timeB
-              );
-
+              return timeA - timeB;
             }
           );
 
@@ -737,9 +882,9 @@ const Dashboard = () => {
 
           setLoadingChat(false);
 
-          // =========================================
+          // -------------------------------------------
           // MARK MEMBER MESSAGES AS READ
-          // =========================================
+          // -------------------------------------------
 
           const unreadMessages =
             snapshot.docs.filter(
@@ -749,6 +894,8 @@ const Dashboard = () => {
                   messageDoc.data();
 
                 return (
+                  data.senderId ===
+                    memberUid &&
                   data.receiverId ===
                     currentUser.uid &&
                   data.read === false
@@ -780,7 +927,7 @@ const Dashboard = () => {
             } catch (error) {
 
               console.error(
-                "Mark conversation message read error:",
+                "Mark message read error:",
                 error
               );
 
@@ -802,73 +949,116 @@ const Dashboard = () => {
         }
       );
 
-    return unsubscribe;
+    selectedChatListenerRef.current =
+      unsubscribe;
   };
 
-  // =====================================================
+  // ===================================================
   // SEND CHAT REPLY
-  // =====================================================
+  // ===================================================
 
-  const handleChatReply = async () => {
-  const currentUser = auth.currentUser;
+  const handleChatReply =
+    async () => {
 
-  if (!currentUser) {
-    alert("You are not logged in.");
-    return;
-  }
+      const currentUser =
+        auth.currentUser;
 
-  if (!selectedConversationMember) {
-    return;
-  }
+      if (!currentUser) {
 
-  const text = chatReply.trim();
+        alert(
+          "You are not logged in."
+        );
 
-  if (!text) {
-    return;
-  }
+        return;
+      }
 
-  try {
-    setSendingChatReply(true);
+      if (
+        !selectedConversationMember
+      ) {
+        return;
+      }
 
-    const conversationId = getConversationId(
-      selectedConversationMember,
-      currentUser.uid
-    );
+      const text =
+        chatReply.trim();
 
-    const messagesRef = collection(
-      db,
-      "conversations",
-      conversationId,
-      "messages"
-    );
+      if (!text) {
+        return;
+      }
 
-    await addDoc(messagesRef, {
-      senderId: currentUser.uid,
-      senderName: "Badhokhali Youth Foundation",
+      try {
 
-      receiverId: selectedConversationMember,
-      receiverName: selectedConversationName,
+        setSendingChatReply(
+          true
+        );
 
-      message: text,
+        const conversationId =
+          getConversationId(
+            selectedConversationMember,
+            currentUser.uid
+          );
 
-      createdAt: serverTimestamp(),
+        const messagesRef =
+          collection(
+            db,
+            "conversations",
+            conversationId,
+            "messages"
+          );
 
-      read: false,
-    });
+        await addDoc(
+          messagesRef,
+          {
+            senderId:
+              currentUser.uid,
 
-    setChatReply("");
-  } catch (error) {
-    console.error("Chat reply error:", error);
+           senderName:
+    profile?.name ||
+    currentUser.displayName ||
+    currentUser.email ||
+    "Admin",
 
-    alert("Failed to send reply. Please try again.");
-  } finally {
-    setSendingChatReply(false);
-  }
-};
+            receiverId:
+              selectedConversationMember,
 
-  // =====================================================
-  // DELETE CHAT MESSAGE
-  // =====================================================
+            receiverName:
+              selectedConversationName,
+
+            message:
+              text,
+
+            createdAt:
+              serverTimestamp(),
+
+            read:
+              false,
+          }
+        );
+
+        setChatReply("");
+
+      } catch (error) {
+
+        console.error(
+          "Chat reply error:",
+          error
+        );
+
+        alert(
+          "Failed to send reply. Please try again."
+        );
+
+      } finally {
+
+        setSendingChatReply(
+          false
+        );
+
+      }
+    };
+
+  // ===================================================
+  // DELETE MESSAGE
+  // ===================================================
 
   const handleDeleteChatMessage =
     async (
@@ -937,14 +1127,23 @@ const Dashboard = () => {
         );
 
       }
-
     };
 
-  // =====================================================
+  // ===================================================
   // CLOSE CHAT
-  // =====================================================
+  // ===================================================
 
   const closeChat = () => {
+
+    if (
+      selectedChatListenerRef.current
+    ) {
+
+      selectedChatListenerRef.current();
+
+      selectedChatListenerRef.current =
+        null;
+    }
 
     setSelectedConversationMember(
       null
@@ -964,21 +1163,20 @@ const Dashboard = () => {
 
     setChatReply("");
 
+    setLoadingChat(false);
   };
 
-  // =====================================================
-  // AUTH + DASHBOARD
-  // =====================================================
+  // ===================================================
+  // AUTH + INITIAL LOAD
+  // ===================================================
 
   useEffect(() => {
 
-    let unsubscribeConversations:
-      (() => void) | undefined;
+    let mounted = true;
 
     const unsubscribeAuth =
       onAuthStateChanged(
         auth,
-
         async (user) => {
 
           if (!user) {
@@ -1000,39 +1198,68 @@ const Dashboard = () => {
             user.email
           );
 
+          if (!mounted) {
+            return;
+          }
+
           await loadDashboard();
 
           await loadProfile(
             user
           );
 
-          unsubscribeConversations =
-            loadConversations(
-              user.uid
-            );
+          if (!mounted) {
+            return;
+          }
 
+          await loadConversations(
+            user.uid
+          );
         }
       );
 
     return () => {
 
+      mounted = false;
+
       unsubscribeAuth();
 
+      // ---------------------------------------------
+      // CLEAN ALL CONVERSATION LISTENERS
+      // ---------------------------------------------
+
+      Object.values(
+        conversationListenersRef.current
+      ).forEach(
+        (unsubscribe) => {
+          unsubscribe();
+        }
+      );
+
+      conversationListenersRef.current =
+        {};
+
+      // ---------------------------------------------
+      // CLEAN SELECTED CHAT LISTENER
+      // ---------------------------------------------
+
       if (
-        unsubscribeConversations
+        selectedChatListenerRef.current
       ) {
 
-        unsubscribeConversations();
+        selectedChatListenerRef.current();
 
+        selectedChatListenerRef.current =
+          null;
       }
 
     };
 
   }, []);
 
-  // =====================================================
+  // ===================================================
   // TOTAL UNREAD
-  // =====================================================
+  // ===================================================
 
   const unreadCount =
     conversations.reduce(
@@ -1045,25 +1272,25 @@ const Dashboard = () => {
       0
     );
 
-  // =====================================================
+  // ===================================================
   // TOTAL INCOME
-  // =====================================================
+  // ===================================================
 
   const totalIncome =
     totalSubscription +
     totalDonation;
 
-  // =====================================================
+  // ===================================================
   // CURRENT BALANCE
-  // =====================================================
+  // ===================================================
 
   const currentBalance =
     totalIncome -
     totalExpense;
 
-  // =====================================================
-  // CONTRIBUTION PERCENTAGE
-  // =====================================================
+  // ===================================================
+  // CONTRIBUTION
+  // ===================================================
 
   const subscriptionPercentage =
     totalSubscription > 0
@@ -1073,9 +1300,9 @@ const Dashboard = () => {
         ) * 100
       : 0;
 
-  // =====================================================
-  // AGE CALCULATOR
-  // =====================================================
+  // ===================================================
+  // AGE
+  // ===================================================
 
   const calculateAge = (
     dob: string
@@ -1116,7 +1343,6 @@ const Dashboard = () => {
 
       days +=
         previousMonth.getDate();
-
     }
 
     if (months < 0) {
@@ -1124,15 +1350,14 @@ const Dashboard = () => {
       years--;
 
       months += 12;
-
     }
 
     return `${years} Year ${months} Month ${days} Day`;
   };
 
-  // =====================================================
-  // FORMAT TIME
-  // =====================================================
+  // ===================================================
+  // MESSAGE TIME
+  // ===================================================
 
   const formatMessageTime = (
     timestamp: any
@@ -1143,7 +1368,6 @@ const Dashboard = () => {
     ) {
 
       return "Just now";
-
     }
 
     return timestamp
@@ -1155,12 +1379,11 @@ const Dashboard = () => {
           minute: "2-digit",
         }
       );
-
   };
 
-  // =====================================================
-  // FORMAT LIST TIME
-  // =====================================================
+  // ===================================================
+  // CONVERSATION TIME
+  // ===================================================
 
   const formatConversationTime = (
     timestamp: any
@@ -1169,9 +1392,7 @@ const Dashboard = () => {
     if (
       !timestamp?.toDate
     ) {
-
       return "";
-
     }
 
     return timestamp
@@ -1185,15 +1406,13 @@ const Dashboard = () => {
           minute: "2-digit",
         }
       );
-
   };
 
-  // =====================================================
+  // ===================================================
   // RETURN
-  // =====================================================
+  // ===================================================
 
   return (
-
     <AdminLayout>
 
       {/* =================================================
@@ -1216,35 +1435,30 @@ const Dashboard = () => {
 
             <div className="modal-content">
 
-              {/* =================================================
+              {/* =========================================
                   MODAL HEADER
-              ================================================= */}
+              ========================================= */}
 
               <div className="modal-header">
 
                 <h5 className="modal-title">
 
-                  {selectedConversationMember
-                    ? (
-                      <>
-                        💬{" "}
-                        {selectedConversationName}
-                      </>
-                    )
-                    : (
-                      <>
-                        📥 My Inbox
+                  {selectedConversationMember ? (
+                    <>
+                      💬{" "}
+                      {selectedConversationName}
+                    </>
+                  ) : (
+                    <>
+                      📥 My Inbox
 
-                        {unreadCount >
-                          0 && (
-                          <span className="badge bg-danger ms-2">
-                            {
-                              unreadCount
-                            }
-                          </span>
-                        )}
-                      </>
-                    )}
+                      {unreadCount > 0 && (
+                        <span className="badge bg-danger ms-2">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </>
+                  )}
 
                 </h5>
 
@@ -1252,19 +1466,21 @@ const Dashboard = () => {
                   type="button"
                   className="btn-close"
                   onClick={() => {
+
                     setShowInbox(
                       false
                     );
 
                     closeChat();
+
                   }}
                 />
 
               </div>
 
-              {/* =================================================
+              {/* =========================================
                   MODAL BODY
-              ================================================= */}
+              ========================================= */}
 
               <div
                 className="modal-body p-0"
@@ -1272,9 +1488,9 @@ const Dashboard = () => {
 
                 {selectedConversationMember ? (
 
-                  /* =================================================
+                  /* =======================================
                      CHAT WINDOW
-                  ================================================= */
+                  ======================================= */
 
                   <div
                     className="d-flex flex-column"
@@ -1284,9 +1500,9 @@ const Dashboard = () => {
                     }}
                   >
 
-                    {/* =============================================
+                    {/* ===================================
                         CHAT HEADER
-                    ============================================= */}
+                    =================================== */}
 
                     <div
                       className="d-flex align-items-center border-bottom p-3 bg-white"
@@ -1351,9 +1567,9 @@ const Dashboard = () => {
 
                     </div>
 
-                    {/* =============================================
+                    {/* ===================================
                         CHAT MESSAGES
-                    ============================================= */}
+                    =================================== */}
 
                     <div
                       className="flex-grow-1"
@@ -1384,8 +1600,7 @@ const Dashboard = () => {
 
                         </div>
 
-                      ) : conversationMessages.length ===
-                        0 ? (
+                      ) : conversationMessages.length === 0 ? (
 
                         <div className="text-center text-muted py-5">
 
@@ -1469,8 +1684,13 @@ const Dashboard = () => {
                                     }}
                                   >
                                     {isAdmin
-                                      ? "Badhokhali Youth Foundation"
-                                      : selectedConversationName}
+  ? (
+      profile?.name ||
+      auth.currentUser?.displayName ||
+      auth.currentUser?.email ||
+      "Admin"
+    )
+  : selectedConversationName}
                                   </div>
 
                                   {/* MESSAGE */}
@@ -1521,8 +1741,10 @@ const Dashboard = () => {
                                       style={{
                                         fontSize:
                                           "11px",
+
                                         border:
                                           "none",
+
                                         background:
                                           "transparent",
                                       }}
@@ -1549,7 +1771,6 @@ const Dashboard = () => {
                               </div>
 
                             );
-
                           }
                         )
 
@@ -1557,9 +1778,9 @@ const Dashboard = () => {
 
                     </div>
 
-                    {/* =============================================
+                    {/* ===================================
                         REPLY BOX
-                    ============================================= */}
+                    =================================== */}
 
                     <div
                       className="p-3 border-top bg-white"
@@ -1611,6 +1832,7 @@ const Dashboard = () => {
                           style={{
                             minWidth:
                               "80px",
+
                             height:
                               "58px",
                           }}
@@ -1622,13 +1844,17 @@ const Dashboard = () => {
                             !chatReply.trim()
                           }
                         >
-                          {sendingChatReply
-                            ? (
-                              <span
-                                className="spinner-border spinner-border-sm"
-                              />
-                            )
-                            : "➤ Send"}
+
+                          {sendingChatReply ? (
+
+                            <span
+                              className="spinner-border spinner-border-sm"
+                            />
+
+                          ) : (
+                            "➤ Send"
+                          )}
+
                         </button>
 
                       </div>
@@ -1643,9 +1869,9 @@ const Dashboard = () => {
 
                 ) : (
 
-                  /* =================================================
+                  /* =======================================
                      CONVERSATION LIST
-                  ================================================= */
+                  ======================================= */
 
                   <div
                     className="p-3"
@@ -1670,8 +1896,7 @@ const Dashboard = () => {
 
                       </div>
 
-                    ) : conversations.length ===
-                      0 ? (
+                    ) : conversations.length === 0 ? (
 
                       <div className="text-center py-5 text-muted">
 
@@ -1720,9 +1945,7 @@ const Dashboard = () => {
 
                               <div className="d-flex align-items-center">
 
-                                {/* =================================
-                                    MEMBER PHOTO
-                                ================================= */}
+                                {/* MEMBER PHOTO */}
 
                                 {conversation.memberPhoto ? (
 
@@ -1759,9 +1982,7 @@ const Dashboard = () => {
 
                                 )}
 
-                                {/* =================================
-                                    MESSAGE INFO
-                                ================================= */}
+                                {/* MESSAGE INFO */}
 
                                 <div
                                   className="flex-grow-1 text-start"
@@ -1808,8 +2029,10 @@ const Dashboard = () => {
                                       style={{
                                         overflow:
                                           "hidden",
+
                                         textOverflow:
                                           "ellipsis",
+
                                         whiteSpace:
                                           "nowrap",
                                       }}
@@ -1851,9 +2074,9 @@ const Dashboard = () => {
 
               </div>
 
-              {/* =================================================
+              {/* =========================================
                   MODAL FOOTER
-              ================================================= */}
+              ========================================= */}
 
               <div className="modal-footer">
 
@@ -1919,12 +2142,10 @@ const Dashboard = () => {
               </div>
 
               <h4>
-
                 {
                   profile?.name ||
                   "Admin"
                 }
-
               </h4>
 
               <div className="profile-info">
@@ -2252,9 +2473,7 @@ const Dashboard = () => {
 
             <div className="card shadow-sm border-0">
 
-              {/* =================================================
-                  INBOX HEADER
-              ================================================= */}
+              {/* INBOX HEADER */}
 
               <div className="card-header bg-white d-flex justify-content-between align-items-center">
 
@@ -2264,8 +2483,7 @@ const Dashboard = () => {
 
                 <div className="d-flex align-items-center gap-2">
 
-                  {unreadCount >
-                    0 && (
+                  {unreadCount > 0 && (
 
                     <span className="badge bg-danger">
                       {
@@ -2295,9 +2513,7 @@ const Dashboard = () => {
 
               </div>
 
-              {/* =================================================
-                  INBOX BODY
-              ================================================= */}
+              {/* INBOX BODY */}
 
               <div className="card-body">
 
@@ -2316,8 +2532,7 @@ const Dashboard = () => {
 
                   </div>
 
-                ) : conversations.length ===
-                  0 ? (
+                ) : conversations.length === 0 ? (
 
                   <div className="text-center text-muted py-4">
 
@@ -2486,22 +2701,7 @@ const Dashboard = () => {
       </div>
 
     </AdminLayout>
-
   );
-
 };
-
-// =====================================================
-// MEMBER DATA TYPE
-// =====================================================
-
-interface MemberData {
-  name: string;
-  photo: string;
-}
-
-// =====================================================
-// EXPORT
-// =====================================================
 
 export default Dashboard;
