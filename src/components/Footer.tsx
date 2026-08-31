@@ -266,24 +266,38 @@ const Footer = () => {
 
       {/* ================= COPYRIGHT ================= */}
 
-      <div className="copyright">
+  
 
-        <div>
-          © {t("year")}{" "}
-          {t("foundationName")}.{" "}
-          {t("allRightsReserved")}
-        </div>
 
-        {/* SMALL ADMIN LINK */}
+<div className="copyright">
 
-        <a
-          href="/admin/login"
-          className="footer-admin-link"
-        >
-          Admin Site
-        </a>
+  <div>
+    © {t("year")}{" "}
+    {t("foundationName")}.{" "}
+    {t("allRightsReserved")}
+  </div>
 
-      </div>
+  {/* SMALL ADMIN LINK */}
+  <a
+    href="/admin/login"
+    className="footer-admin-link"
+  >
+    Admin Site
+  </a>
+
+  {/* DEVELOPER CREDIT */}
+  <div className="developer-credit">
+    Developed By <strong>Sudip Halder</strong>
+  </div>
+
+</div>
+
+
+
+
+
+
+
 
     </>
   );

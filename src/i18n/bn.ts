@@ -12,8 +12,8 @@ const bn = {
     adminpanle: "এডমিন প্যানেল",
     username: "ইউজার নেম",
     password: "পার্সওয়ার্ড",
-    emergency: "জুরুরি নম্বর",
-
+    emergency: "জরুরি নম্বর",
+    
      "supportUs": "আমাদের সহায়তা করুন",
   "chooseDonationAmount": "bKash-এর মাধ্যমে অনুদানের পরিমাণ নির্বাচন করুন",
   "openingBkash": "bKash খোলা হচ্ছে...",

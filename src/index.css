@@ -650,3 +650,5 @@ object-fit:cover;
 .donate-btn:hover svg {
   transform: scale(1.2);
 }
+
+.copyright { position: relative; } .developer-credit { position: absolute; right: 15px; bottom: 5px; font-size: 11px; color: #999; opacity: 0.8; } .developer-credit strong { font-weight: 600; color: #777; } /* Mobile */ @media (max-width: 576px) { .developer-credit { position: static; text-align: center; margin-top: 4px; font-size: 10px; } }
