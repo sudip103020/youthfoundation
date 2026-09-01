@@ -365,21 +365,17 @@ const [filterYear, setFilterYear] = useState("");
                 value={filterYear}
                 onChange={(e) => setFilterYear(e.target.value)}
               >
-                <option value="">All Years</option>
+                <option value="">All Year</option>
 
-                {Array.from(
-                  new Set(
-                    expenses
-                      .map((item) => item.expenseDate?.substring(0, 4))
-                      .filter(Boolean)
-                  )
-                )
-                  .sort((a, b) => Number(b) - Number(a))
-                  .map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+{Array.from({ length: 5 }, (_, index) => {
+  const yearOption = new Date().getFullYear() + index;
+
+  return (
+    <option key={yearOption} value={yearOption}>
+      {yearOption}
+    </option>
+  );
+})}
               </select>
             </div>
 
@@ -442,6 +438,7 @@ const [filterYear, setFilterYear] = useState("");
 
           <div
             ref={reportRef}
+             className="expense-report-page"
             style={{
               width: "210mm",
               minWidth: "210mm",

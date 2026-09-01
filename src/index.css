@@ -1689,11 +1689,46 @@ section {
     font-size: 14px !important;
   }
 
-  .modal-body {
-    padding: 12px !important;
+ /* =======================================================
+   EXPENSE REPORT MOBILE MODAL
+======================================================= */
 
-    overflow-x: hidden !important;
+@media (max-width: 767px) {
+
+  /* Normal modal */
+  .modal-body {
+    padding: 10px !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
+
+  /* Expense report specifically */
+  .modal-dialog {
+    width: 100% !important;
+    max-width: calc(100% - 10px) !important;
+    margin: 5px auto !important;
+  }
+
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Fixed A4 report can be horizontally scrolled */
+  .modal-body > div {
+    min-width: 0;
+  }
+
+  /* Report itself */
+  [style*="210mm"] {
+    flex-shrink: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+}
 
   .modal-footer {
     padding: 8px 10px !important;
@@ -2051,5 +2086,69 @@ section {
 
   .footer-quick-links a {
     font-size: 10px !important;
+  }
+}
+
+/* =========================================================
+   EXPENSE REPORT
+========================================================= */
+
+.expense-report-page {
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   EXPENSE REPORT MOBILE
+========================================================= */
+
+@media (max-width: 767px) {
+
+  .expense-report-page {
+    width: 210mm !important;
+    min-width: 210mm !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Report modal body must scroll horizontally */
+  .modal-body:has(.expense-report-page) {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px !important;
+  }
+
+}
+.subscription-history-wrapper {
+  width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.subscription-history-wrapper table {
+  min-width: 850px;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .subscription-history-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .subscription-history-wrapper table {
+    min-width: 850px !important;
+    white-space: nowrap;
+  }
+
+  .subscription-history-wrapper th,
+  .subscription-history-wrapper td {
+    padding: 8px 10px !important;
+    font-size: 13px !important;
   }
 }
