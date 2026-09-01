@@ -8,22 +8,27 @@ interface Props {
 
 const AdminLayout = ({ children }: Props) => {
   return (
-    <div className="d-flex">
+    <div className="admin-layout">
 
+      {/* Sidebar */}
       <Sidebar />
 
-      <div className="flex-grow-1">
+      {/* Main Area */}
+      <main className="admin-main-content">
 
+        {/* Header */}
         <Header />
 
-        <div className="p-4">
+        {/* Page Content */}
+        <div className="admin-page-content">
           {children}
         </div>
 
-      </div>
+      </main>
 
     </div>
   );
 };
 
 export default AdminLayout;
+

@@ -42,15 +42,11 @@ const Expense = () => {
   const [filterCategory, setFilterCategory] = useState("");
   const [showReport, setShowReport] = useState(false);
 
-    const currentDate = new Date();
+  
 
-  const [filterMonth, setFilterMonth] = useState(
-    String(currentDate.getMonth() + 1).padStart(2, "0")
-  );
+  const [filterMonth, setFilterMonth] = useState("");
 
-  const [filterYear, setFilterYear] = useState(
-    String(currentDate.getFullYear())
-  );
+const [filterYear, setFilterYear] = useState("");
 
   // Fetch Expenses
 
