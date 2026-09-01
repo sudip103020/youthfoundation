@@ -25,6 +25,27 @@ import {
 } from "firebase/firestore";
 
 // =====================================================
+// MONTHLY SUBSCRIPTION CONFIG
+// =====================================================
+
+const DEFAULT_MONTHLY_SUBSCRIPTION_AMOUNT = 100;
+
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+// =====================================================
 // MEMBER DATA
 // =====================================================
 
@@ -73,6 +94,24 @@ interface ConversationPreview {
 }
 
 // =====================================================
+// PAID MEMBER
+// =====================================================
+
+interface PaidMember {
+  id: string;
+  memberId: string;
+  uid: string;
+
+  name: string;
+  phone: string;
+
+  amount: number;
+
+  month: string;
+  year: number;
+}
+
+// =====================================================
 // DASHBOARD
 // =====================================================
 
@@ -99,6 +138,47 @@ const Dashboard = () => {
 
   const [mySubscriptionAmount, setMySubscriptionAmount] =
     useState(0);
+
+  // ===================================================
+  // MONTHLY COLLECTION STATES
+  // ===================================================
+
+  const [selectedMonth, setSelectedMonth] =
+    useState(
+      MONTHS[new Date().getMonth()]
+    );
+
+  const [selectedYear, setSelectedYear] =
+    useState(
+      new Date().getFullYear()
+    );
+
+  const [monthlyPaid, setMonthlyPaid] =
+    useState(0);
+
+  const [monthlyCollected, setMonthlyCollected] =
+    useState(0);
+
+  const [monthlyExpected, setMonthlyExpected] =
+    useState(0);
+
+  const [monthlyExpense, setMonthlyExpense] = useState(0);
+
+  const [loadingMonthlyCollection, setLoadingMonthlyCollection] =
+    useState(false);
+
+  // ===================================================
+  // PAID MEMBER MODAL STATES
+  // ===================================================
+
+  const [showPaidMembers, setShowPaidMembers] =
+    useState(false);
+
+  const [paidMembersList, setPaidMembersList] =
+    useState<PaidMember[]>([]);
+
+  const [loadingPaidMembers, setLoadingPaidMembers] =
+    useState(false);
 
   // ===================================================
   // CHAT STATES
@@ -163,6 +243,7 @@ const Dashboard = () => {
     memberUid: string,
     adminUid: string
   ) => {
+
     return [memberUid, adminUid]
       .sort()
       .join("_");
@@ -191,6 +272,8 @@ const Dashboard = () => {
       setTotalMembers(
         memberSnapshot.size
       );
+
+
 
       // -----------------------------------------------
       // SUBSCRIPTIONS
@@ -289,93 +372,608 @@ const Dashboard = () => {
     }
   };
 
+
+
   // ===================================================
-  // LOAD ADMIN PROFILE
+  // LOAD MONTHLY COLLECTION
   // ===================================================
 
-  const loadProfile = async (
-    user: any
-  ) => {
+  const loadMonthlyCollection = async () => {
 
     try {
 
-      const q =
-        query(
+      setLoadingMonthlyCollection(true);
+
+      // -----------------------------------------------
+      // GET ALL MEMBERS
+      // -----------------------------------------------
+
+      const memberSnapshot =
+        await getDocs(
           collection(
             db,
             "members"
-          ),
-          where(
-            "uid",
-            "==",
-            user.uid
           )
         );
 
-      const snapshot =
-        await getDocs(q);
+      let expectedAmount = 0;
+      let activeMemberCount = 0;
 
-      if (
-        snapshot.empty
-      ) {
-        return;
-      }
+      memberSnapshot.forEach(
+        (memberDoc) => {
 
-      const memberDoc =
-        snapshot.docs[0];
+          const data =
+            memberDoc.data();
 
-      const memberData =
-        memberDoc.data();
+          // Only ACTIVE members
+          const status =
+            String(
+              data.status ?? "Active"
+            )
+              .trim()
+              .toLowerCase();
 
-      setProfile(
-        memberData
+          if (
+            status !== "active"
+          ) {
+            return;
+          }
+
+          activeMemberCount++;
+
+          // Monthly Subscription Amount
+          const memberMonthlyAmount =
+            Number(
+              data.monthlySubscriptionAmount ??
+              data.monthlySubscription ??
+              DEFAULT_MONTHLY_SUBSCRIPTION_AMOUNT
+            );
+
+          expectedAmount +=
+            memberMonthlyAmount;
+        }
+      );
+
+      setMonthlyExpected(
+        expectedAmount
+      );
+
+      // Active member count
+      setTotalMembers(
+        activeMemberCount
+      );
+
+
+
+      // ===================================================
+      // GET MONTHLY EXPENSE
+      // ===================================================
+
+      const expenseSnapshot = await getDocs(
+        collection(db, "expenses")
+      );
+
+      let monthlyExpenseTotal = 0;
+
+      expenseSnapshot.forEach((expenseDoc) => {
+        const data = expenseDoc.data();
+
+        const amount = Number(data.amount || 0);
+
+        if (!amount) {
+          return;
+        }
+
+        let expenseMonth = "";
+        let expenseYear = 0;
+
+        // -----------------------------------------------
+        // FIRST: month + year fields
+        // -----------------------------------------------
+
+        if (data.month !== undefined && data.month !== null) {
+          expenseMonth = String(data.month).trim();
+        }
+
+        if (data.year !== undefined && data.year !== null) {
+          expenseYear = Number(data.year);
+        }
+
+        // -----------------------------------------------
+        // SECOND: expenseMonth + expenseYear
+        // -----------------------------------------------
+
+        if (!expenseMonth && data.expenseMonth) {
+          expenseMonth = String(data.expenseMonth).trim();
+        }
+
+        if (!expenseYear && data.expenseYear) {
+          expenseYear = Number(data.expenseYear);
+        }
+
+        // -----------------------------------------------
+        // THIRD: DATE FIELD
+        // -----------------------------------------------
+
+        const possibleDate =
+          data.date ||
+          data.expenseDate ||
+          data.createdAt;
+
+        if (
+          possibleDate &&
+          typeof possibleDate?.toDate === "function"
+        ) {
+          const expenseDate = possibleDate.toDate();
+
+          expenseMonth = MONTHS[
+            expenseDate.getMonth()
+          ];
+
+          expenseYear =
+            expenseDate.getFullYear();
+        }
+
+        // -----------------------------------------------
+        // STRING DATE
+        // -----------------------------------------------
+
+        if (
+          possibleDate &&
+          typeof possibleDate === "string"
+        ) {
+          const parsedDate = new Date(
+            possibleDate
+          );
+
+          if (!isNaN(parsedDate.getTime())) {
+            expenseMonth = MONTHS[
+              parsedDate.getMonth()
+            ];
+
+            expenseYear =
+              parsedDate.getFullYear();
+          }
+        }
+
+        // -----------------------------------------------
+        // NORMALIZE MONTH
+        // -----------------------------------------------
+
+        const normalizeExpenseMonth = (
+          month: string | number
+        ) => {
+          const value = String(month)
+            .trim()
+            .toLowerCase();
+
+          if (!value) {
+            return "";
+          }
+
+          // 1 - 12
+          if (!isNaN(Number(value))) {
+            const numericMonth = Number(value);
+
+            if (
+              numericMonth >= 1 &&
+              numericMonth <= 12
+            ) {
+              return MONTHS[
+                numericMonth - 1
+              ].toLowerCase();
+            }
+
+            // 0 - 11
+            if (
+              numericMonth >= 0 &&
+              numericMonth <= 11
+            ) {
+              return MONTHS[
+                numericMonth
+              ].toLowerCase();
+            }
+          }
+
+          const index = MONTHS.findIndex(
+            (monthName) => {
+              const full =
+                monthName.toLowerCase();
+
+              const short =
+                monthName
+                  .substring(0, 3)
+                  .toLowerCase();
+
+              return (
+                value === full ||
+                value === short
+              );
+            }
+          );
+
+          if (index !== -1) {
+            return MONTHS[
+              index
+            ].toLowerCase();
+          }
+
+          return value;
+        };
+
+        // -----------------------------------------------
+        // MATCH SELECTED MONTH + YEAR
+        // -----------------------------------------------
+
+        const normalizedExpenseMonth =
+          normalizeExpenseMonth(
+            expenseMonth
+          );
+
+        const normalizedSelectedMonth =
+          normalizeExpenseMonth(
+            selectedMonth
+          );
+
+        if (
+          normalizedExpenseMonth ===
+          normalizedSelectedMonth &&
+          Number(expenseYear) ===
+          Number(selectedYear)
+        ) {
+          monthlyExpenseTotal += amount;
+        }
+      });
+
+      setMonthlyExpense(
+        monthlyExpenseTotal
       );
 
       // -----------------------------------------------
-      // ADMIN SUBSCRIPTION
+      // GET SUBSCRIPTIONS
       // -----------------------------------------------
-
-      const subscriptionQuery =
-        query(
-          collection(
-            db,
-            "subscriptions"
-          ),
-          where(
-            "memberId",
-            "==",
-            memberDoc.id
-          )
-        );
 
       const subscriptionSnapshot =
         await getDocs(
-          subscriptionQuery
+          collection(
+            db,
+            "subscriptions"
+          )
         );
 
-      let totalAmount = 0;
+      let collectedAmount = 0;
+
+      const paidMemberIds =
+        new Set<string>();
 
       subscriptionSnapshot.forEach(
         (subscriptionDoc) => {
 
-          totalAmount +=
+          const data =
+            subscriptionDoc.data();
+
+          const subscriptionMonth =
+            String(
+              data.month || ""
+            ).trim();
+
+          const subscriptionYear =
             Number(
-              subscriptionDoc.data()
-                .amount || 0
+              data.year || 0
             );
+
+          // -------------------------------------------
+          // MATCH SELECTED MONTH + YEAR
+          // -------------------------------------------
+
+          if (
+            subscriptionMonth ===
+            selectedMonth &&
+            subscriptionYear ===
+            selectedYear
+          ) {
+
+            const amount =
+              Number(
+                data.amount || 0
+              );
+
+            collectedAmount +=
+              amount;
+
+            // -----------------------------------------
+            // UNIQUE MEMBER
+            // -----------------------------------------
+
+            if (
+              data.memberId
+            ) {
+
+              paidMemberIds.add(
+                String(
+                  data.memberId
+                )
+              );
+
+            } else if (
+              data.uid
+            ) {
+
+              paidMemberIds.add(
+                String(
+                  data.uid
+                )
+              );
+
+            }
+
+          }
 
         }
       );
 
-      setMySubscriptionAmount(
-        totalAmount
+      // -----------------------------------------------
+      // PAID MEMBERS
+      // -----------------------------------------------
+
+      const paidMembers =
+        paidMemberIds.size;
+
+      setMonthlyPaid(
+        paidMembers
+      );
+
+      // -----------------------------------------------
+      // COLLECTED
+      // -----------------------------------------------
+
+      setMonthlyCollected(
+        collectedAmount
       );
 
     } catch (error) {
 
       console.error(
-        "Load profile error:",
+        "Monthly collection loading error:",
         error
+      );
+
+      setMonthlyPaid(0);
+
+      setMonthlyCollected(0);
+
+      setMonthlyExpected(0);
+      setMonthlyExpense(0);
+
+    } finally {
+
+      setLoadingMonthlyCollection(
+        false
+      );
+
+    }
+  };
+
+  // ===================================================
+  // LOAD PAID MEMBERS
+  // ===================================================
+
+  const loadPaidMembers = async () => {
+
+    try {
+
+      setLoadingPaidMembers(true);
+
+      // -----------------------------------------------
+      // GET MEMBERS
+      // -----------------------------------------------
+
+      const memberSnapshot =
+        await getDocs(
+          collection(
+            db,
+            "members"
+          )
+        );
+
+      // -----------------------------------------------
+      // CREATE MEMBER LOOKUP MAP
+      // -----------------------------------------------
+
+      const memberMap =
+        new Map<string, any>();
+
+      memberSnapshot.forEach(
+        (memberDoc) => {
+
+          const data =
+            memberDoc.data();
+
+          // Document ID
+          memberMap.set(
+            memberDoc.id,
+            {
+              id: memberDoc.id,
+              ...data,
+            }
+          );
+
+          // UID
+          if (data.uid) {
+
+            memberMap.set(
+              String(data.uid),
+              {
+                id: memberDoc.id,
+                ...data,
+              }
+            );
+
+          }
+
+        }
+      );
+
+      // -----------------------------------------------
+      // GET SUBSCRIPTIONS
+      // -----------------------------------------------
+
+      const subscriptionSnapshot =
+        await getDocs(
+          collection(
+            db,
+            "subscriptions"
+          )
+        );
+
+      const paidMembers: PaidMember[] =
+        [];
+
+      subscriptionSnapshot.forEach(
+        (subscriptionDoc) => {
+
+          const data =
+            subscriptionDoc.data();
+
+          const subscriptionMonth =
+            String(
+              data.month || ""
+            ).trim();
+
+          const subscriptionYear =
+            Number(
+              data.year || 0
+            );
+
+          // -------------------------------------------
+          // MATCH SELECTED MONTH + YEAR
+          // -------------------------------------------
+
+          if (
+            subscriptionMonth !==
+            selectedMonth ||
+            subscriptionYear !==
+            selectedYear
+          ) {
+            return;
+          }
+
+          // -------------------------------------------
+          // MEMBER ID
+          // -------------------------------------------
+
+          const memberId =
+            String(
+              data.memberId ||
+              data.uid ||
+              ""
+            );
+
+          // -------------------------------------------
+          // FIND MEMBER FROM MEMBERS COLLECTION
+          // -------------------------------------------
+
+          const member =
+            memberMap.get(
+              memberId
+            );
+
+          // -------------------------------------------
+          // NAME
+          // -------------------------------------------
+
+          const memberName =
+            data.name ||
+            member?.name ||
+            "Unknown Member";
+
+          // -------------------------------------------
+          // PHONE
+          // -------------------------------------------
+
+          const memberPhone =
+            data.phone ||
+            member?.phone ||
+            "N/A";
+
+          // -------------------------------------------
+          // UID
+          // -------------------------------------------
+
+          const memberUid =
+            data.uid ||
+            member?.uid ||
+            "";
+
+          // -------------------------------------------
+          // ADD PAID MEMBER
+          // -------------------------------------------
+
+          paidMembers.push({
+
+            id:
+              subscriptionDoc.id,
+
+            memberId:
+              memberId,
+
+            uid:
+              String(memberUid),
+
+            name:
+              String(memberName),
+
+            phone:
+              String(memberPhone),
+
+            amount:
+              Number(
+                data.amount || 0
+              ),
+
+            month:
+              subscriptionMonth,
+
+            year:
+              subscriptionYear,
+
+          });
+
+        }
+      );
+
+      // -----------------------------------------------
+      // SORT BY NAME
+      // -----------------------------------------------
+
+      paidMembers.sort(
+        (a, b) =>
+          a.name.localeCompare(
+            b.name
+          )
+      );
+
+      setPaidMembersList(
+        paidMembers
+      );
+
+      setShowPaidMembers(true);
+
+    } catch (error) {
+
+      console.error(
+        "Load paid members error:",
+        error
+      );
+
+      alert(
+        "Failed to load paid members. Please try again."
+      );
+
+    } finally {
+
+      setLoadingPaidMembers(
+        false
       );
 
     }
@@ -411,6 +1009,7 @@ const Dashboard = () => {
             ?.toMillis?.() || 0;
 
         return timeB - timeA;
+
       }
     );
 
@@ -448,6 +1047,7 @@ const Dashboard = () => {
             ?.toMillis?.() || 0;
 
         return timeB - timeA;
+
       }
     );
 
@@ -458,14 +1058,6 @@ const Dashboard = () => {
 
   // ===================================================
   // LOAD CONVERSATIONS
-  //
-  // IMPORTANT:
-  // NO collectionGroup()
-  //
-  // We load members first and listen to each member's
-  // conversation separately.
-  //
-  // Therefore NO COLLECTION GROUP INDEX is required.
   // ===================================================
 
   const loadConversations = async (
@@ -486,7 +1078,9 @@ const Dashboard = () => {
         conversationListenersRef.current
       ).forEach(
         (unsubscribe) => {
+
           unsubscribe();
+
         }
       );
 
@@ -509,7 +1103,8 @@ const Dashboard = () => {
           )
         );
 
-      const members: MemberData[] = [];
+      const members: MemberData[] =
+        [];
 
       membersSnapshot.docs.forEach(
         (memberDoc) => {
@@ -523,7 +1118,9 @@ const Dashboard = () => {
           ) {
 
             members.push({
-              uid: data.uid,
+
+              uid:
+                data.uid,
 
               name:
                 data.name ||
@@ -532,6 +1129,7 @@ const Dashboard = () => {
               photo:
                 data.photo ||
                 "",
+
             });
 
           }
@@ -560,10 +1158,6 @@ const Dashboard = () => {
               "messages"
             );
 
-          // -------------------------------------------
-          // REAL-TIME LISTENER
-          // -------------------------------------------
-
           const unsubscribe =
             onSnapshot(
               messagesRef,
@@ -583,6 +1177,7 @@ const Dashboard = () => {
                   );
 
                   return;
+
                 }
 
                 // -------------------------------------
@@ -597,6 +1192,7 @@ const Dashboard = () => {
                         messageDoc.data();
 
                       return {
+
                         id:
                           messageDoc.id,
 
@@ -625,7 +1221,9 @@ const Dashboard = () => {
 
                         read:
                           data.read === true,
+
                       } as Message;
+
                     }
                   );
 
@@ -645,16 +1243,17 @@ const Dashboard = () => {
                         ?.toMillis?.() || 0;
 
                     return timeA - timeB;
+
                   }
                 );
 
                 const lastMessage =
                   messages[
-                    messages.length - 1
+                  messages.length - 1
                   ];
 
                 // -------------------------------------
-                // COUNT UNREAD MEMBER MESSAGES
+                // COUNT UNREAD
                 // -------------------------------------
 
                 const unreadCount =
@@ -663,9 +1262,9 @@ const Dashboard = () => {
 
                       return (
                         message.senderId ===
-                          member.uid &&
+                        member.uid &&
                         message.receiverId ===
-                          adminUid &&
+                        adminUid &&
                         message.read === false
                       );
 
@@ -677,6 +1276,7 @@ const Dashboard = () => {
                 // -------------------------------------
 
                 updateConversation({
+
                   memberUid:
                     member.uid,
 
@@ -694,6 +1294,7 @@ const Dashboard = () => {
                     lastMessage?.createdAt,
 
                   unreadCount,
+
                 });
 
               },
@@ -751,10 +1352,11 @@ const Dashboard = () => {
       );
 
       return;
+
     }
 
     // -----------------------------------------------
-    // CLEAN OLD CHAT LISTENER
+    // CLEAN OLD LISTENER
     // -----------------------------------------------
 
     if (
@@ -765,6 +1367,7 @@ const Dashboard = () => {
 
       selectedChatListenerRef.current =
         null;
+
     }
 
     // -----------------------------------------------
@@ -825,6 +1428,7 @@ const Dashboard = () => {
                   messageDoc.data();
 
                 return {
+
                   id:
                     messageDoc.id,
 
@@ -853,7 +1457,9 @@ const Dashboard = () => {
 
                   read:
                     data.read === true,
+
                 };
+
               }
             );
 
@@ -873,6 +1479,7 @@ const Dashboard = () => {
                   ?.toMillis?.() || 0;
 
               return timeA - timeB;
+
             }
           );
 
@@ -895,9 +1502,9 @@ const Dashboard = () => {
 
                 return (
                   data.senderId ===
-                    memberUid &&
+                  memberUid &&
                   data.receiverId ===
-                    currentUser.uid &&
+                  currentUser.uid &&
                   data.read === false
                 );
 
@@ -906,7 +1513,7 @@ const Dashboard = () => {
 
           for (
             const messageDoc of
-              unreadMessages
+            unreadMessages
           ) {
 
             try {
@@ -970,19 +1577,24 @@ const Dashboard = () => {
         );
 
         return;
+
       }
 
       if (
         !selectedConversationMember
       ) {
+
         return;
+
       }
 
       const text =
         chatReply.trim();
 
       if (!text) {
+
         return;
+
       }
 
       try {
@@ -1008,14 +1620,15 @@ const Dashboard = () => {
         await addDoc(
           messagesRef,
           {
+
             senderId:
               currentUser.uid,
 
-           senderName:
-    profile?.name ||
-    currentUser.displayName ||
-    currentUser.email ||
-    "Admin",
+            senderName:
+              profile?.name ||
+              currentUser.displayName ||
+              currentUser.email ||
+              "Admin",
 
             receiverId:
               selectedConversationMember,
@@ -1031,6 +1644,7 @@ const Dashboard = () => {
 
             read:
               false,
+
           }
         );
 
@@ -1054,6 +1668,7 @@ const Dashboard = () => {
         );
 
       }
+
     };
 
   // ===================================================
@@ -1069,13 +1684,17 @@ const Dashboard = () => {
         auth.currentUser;
 
       if (!currentUser) {
+
         return;
+
       }
 
       if (
         !selectedConversationMember
       ) {
+
         return;
+
       }
 
       const confirmDelete =
@@ -1084,7 +1703,9 @@ const Dashboard = () => {
         );
 
       if (!confirmDelete) {
+
         return;
+
       }
 
       try {
@@ -1127,6 +1748,7 @@ const Dashboard = () => {
         );
 
       }
+
     };
 
   // ===================================================
@@ -1143,6 +1765,7 @@ const Dashboard = () => {
 
       selectedChatListenerRef.current =
         null;
+
     }
 
     setSelectedConversationMember(
@@ -1164,6 +1787,19 @@ const Dashboard = () => {
     setChatReply("");
 
     setLoadingChat(false);
+
+  };
+
+  // ===================================================
+  // CLOSE PAID MEMBERS MODAL
+  // ===================================================
+
+  const closePaidMembersModal = () => {
+
+    setShowPaidMembers(false);
+
+    setPaidMembersList([]);
+
   };
 
   // ===================================================
@@ -1186,6 +1822,7 @@ const Dashboard = () => {
             );
 
             return;
+
           }
 
           console.log(
@@ -1199,7 +1836,9 @@ const Dashboard = () => {
           );
 
           if (!mounted) {
+
             return;
+
           }
 
           await loadDashboard();
@@ -1209,12 +1848,15 @@ const Dashboard = () => {
           );
 
           if (!mounted) {
+
             return;
+
           }
 
           await loadConversations(
             user.uid
           );
+
         }
       );
 
@@ -1225,14 +1867,16 @@ const Dashboard = () => {
       unsubscribeAuth();
 
       // ---------------------------------------------
-      // CLEAN ALL CONVERSATION LISTENERS
+      // CLEAN CONVERSATION LISTENERS
       // ---------------------------------------------
 
       Object.values(
         conversationListenersRef.current
       ).forEach(
         (unsubscribe) => {
+
           unsubscribe();
+
         }
       );
 
@@ -1240,7 +1884,7 @@ const Dashboard = () => {
         {};
 
       // ---------------------------------------------
-      // CLEAN SELECTED CHAT LISTENER
+      // CLEAN CHAT LISTENER
       // ---------------------------------------------
 
       if (
@@ -1251,11 +1895,120 @@ const Dashboard = () => {
 
         selectedChatListenerRef.current =
           null;
+
       }
 
     };
 
   }, []);
+
+  // ===================================================
+  // LOAD MONTHLY COLLECTION WHEN FILTER CHANGES
+  // ===================================================
+
+  useEffect(() => {
+
+    loadMonthlyCollection();
+
+  }, [
+    selectedMonth,
+    selectedYear,
+  ]);
+
+  // ===================================================
+  // LOAD ADMIN PROFILE
+  // ===================================================
+
+  const loadProfile = async (
+    user: any
+  ) => {
+
+    try {
+
+      const q =
+        query(
+          collection(
+            db,
+            "members"
+          ),
+          where(
+            "uid",
+            "==",
+            user.uid
+          )
+        );
+
+      const snapshot =
+        await getDocs(q);
+
+      if (
+        snapshot.empty
+      ) {
+
+        return;
+
+      }
+
+      const memberDoc =
+        snapshot.docs[0];
+
+      const memberData =
+        memberDoc.data();
+
+      setProfile(
+        memberData
+      );
+
+      // -----------------------------------------------
+      // ADMIN SUBSCRIPTION
+      // -----------------------------------------------
+
+      const subscriptionQuery =
+        query(
+          collection(
+            db,
+            "subscriptions"
+          ),
+          where(
+            "memberId",
+            "==",
+            memberDoc.id
+          )
+        );
+
+      const subscriptionSnapshot =
+        await getDocs(
+          subscriptionQuery
+        );
+
+      let totalAmount = 0;
+
+      subscriptionSnapshot.forEach(
+        (subscriptionDoc) => {
+
+          totalAmount +=
+            Number(
+              subscriptionDoc.data()
+                .amount || 0
+            );
+
+        }
+      );
+
+      setMySubscriptionAmount(
+        totalAmount
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Load profile error:",
+        error
+      );
+
+    }
+
+  };
 
   // ===================================================
   // TOTAL UNREAD
@@ -1295,10 +2048,48 @@ const Dashboard = () => {
   const subscriptionPercentage =
     totalSubscription > 0
       ? (
-          mySubscriptionAmount /
-          totalSubscription
-        ) * 100
+        mySubscriptionAmount /
+        totalSubscription
+      ) * 100
       : 0;
+
+  // ===================================================
+  // MONTHLY COLLECTION CALCULATIONS
+  // ===================================================
+
+  const monthlyPending =
+    Math.max(
+      totalMembers -
+      monthlyPaid,
+      0
+    );
+
+  const monthlyRemaining =
+    Math.max(
+      monthlyExpected -
+      monthlyCollected,
+      0
+    );
+
+  const collectionRate =
+    monthlyExpected > 0
+      ? (
+        monthlyCollected /
+        monthlyExpected
+      ) * 100
+      : 0;
+
+  // ===================================================
+  // PAID TOTAL
+  // ===================================================
+
+  const paidMembersTotal =
+    paidMembersList.reduce(
+      (total, member) =>
+        total +
+        member.amount,
+      0
+    );
 
   // ===================================================
   // AGE
@@ -1309,7 +2100,9 @@ const Dashboard = () => {
   ) => {
 
     if (!dob) {
+
       return "N/A";
+
     }
 
     const birthDate =
@@ -1343,6 +2136,7 @@ const Dashboard = () => {
 
       days +=
         previousMonth.getDate();
+
     }
 
     if (months < 0) {
@@ -1350,6 +2144,7 @@ const Dashboard = () => {
       years--;
 
       months += 12;
+
     }
 
     return `${years} Year ${months} Month ${days} Day`;
@@ -1368,6 +2163,7 @@ const Dashboard = () => {
     ) {
 
       return "Just now";
+
     }
 
     return timestamp
@@ -1392,7 +2188,9 @@ const Dashboard = () => {
     if (
       !timestamp?.toDate
     ) {
+
       return "";
+
     }
 
     return timestamp
@@ -1416,6 +2214,326 @@ const Dashboard = () => {
     <AdminLayout>
 
       {/* =================================================
+          PAID MEMBERS MODAL
+      ================================================= */}
+
+      {showPaidMembers && (
+
+        <div
+          className="modal fade show d-block"
+          style={{
+            backgroundColor:
+              "rgba(0,0,0,0.6)",
+          }}
+        >
+
+          <div
+            className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+          >
+
+            <div className="modal-content">
+
+              {/* MODAL HEADER */}
+
+              <div className="modal-header">
+
+                <div>
+
+                  <h5 className="modal-title fw-bold">
+                    💳 Paid Members
+                  </h5>
+
+                  <small className="text-muted">
+                    {selectedMonth} {selectedYear}
+                  </small>
+
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={
+                    closePaidMembersModal
+                  }
+                />
+
+              </div>
+
+              {/* MODAL BODY */}
+
+              <div className="modal-body">
+
+                {loadingPaidMembers ? (
+
+                  <div className="text-center py-5">
+
+                    <div
+                      className="spinner-border text-primary"
+                      role="status"
+                    />
+
+                    <p className="text-muted mt-3 mb-0">
+                      Loading paid members...
+                    </p>
+
+                  </div>
+
+                ) : paidMembersList.length === 0 ? (
+
+                  <div className="text-center py-5">
+
+                    <div
+                      style={{
+                        fontSize: "55px",
+                      }}
+                    >
+                      📭
+                    </div>
+
+                    <h6 className="mt-3">
+                      No paid members found
+                    </h6>
+
+                    <p className="text-muted mb-0">
+                      No subscription payment was found for{" "}
+                      {selectedMonth} {selectedYear}.
+                    </p>
+
+                  </div>
+
+                ) : (
+
+                  <>
+
+                    {/* SUMMARY */}
+
+                    <div className="row g-3 mb-4">
+
+                      <div className="col-md-6">
+
+                        <div
+                          className="p-3 rounded-3"
+                          style={{
+                            background:
+                              "#ecfdf5",
+                          }}
+                        >
+
+                          <small className="text-muted">
+                            Total Paid Members
+                          </small>
+
+                          <h3 className="fw-bold text-success mb-0 mt-1">
+                            {paidMembersList.length}
+                          </h3>
+
+                        </div>
+
+                      </div>
+
+                      <div className="col-md-6">
+
+                        <div
+                          className="p-3 rounded-3"
+                          style={{
+                            background:
+                              "#eff6ff",
+                          }}
+                        >
+
+                          <small className="text-muted">
+                            Total Collected
+                          </small>
+
+                          <h3 className="fw-bold text-primary mb-0 mt-1">
+                            ৳{" "}
+                            {paidMembersTotal.toLocaleString()}
+                          </h3>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* MEMBER TABLE */}
+
+                    <div className="table-responsive">
+
+                      <table className="table table-hover align-middle mb-0">
+
+                        <thead className="table-light">
+
+                          <tr>
+
+                            <th>
+                              #
+                            </th>
+
+                            <th>
+                              Member
+                            </th>
+
+                            <th>
+                              Phone
+                            </th>
+
+                            <th>
+                              Month
+                            </th>
+
+                            <th>
+                              Year
+                            </th>
+
+                            <th className="text-end">
+                              Amount
+                            </th>
+
+                          </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                          {paidMembersList.map(
+                            (
+                              member,
+                              index
+                            ) => (
+
+                              <tr
+                                key={
+                                  member.id
+                                }
+                              >
+
+                                <td>
+                                  {index + 1}
+                                </td>
+
+                                <td>
+
+                                  <div className="d-flex align-items-center">
+
+                                    <div
+                                      className="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-2"
+                                      style={{
+                                        width: 38,
+                                        height: 38,
+                                        flexShrink: 0,
+                                      }}
+                                    >
+                                      👤
+                                    </div>
+
+                                    <div>
+
+                                      <div className="fw-semibold">
+                                        {
+                                          member.name
+                                        }
+                                      </div>
+
+                                      {member.uid && (
+
+                                        <small className="text-muted">
+                                          Member
+                                        </small>
+
+                                      )}
+
+                                    </div>
+
+                                  </div>
+
+                                </td>
+
+                                <td>
+                                  {member.phone}
+                                </td>
+
+                                <td>
+                                  {member.month}
+                                </td>
+
+                                <td>
+                                  {member.year}
+                                </td>
+
+                                <td className="text-end">
+
+                                  <strong className="text-success">
+                                    ৳{" "}
+                                    {member.amount.toLocaleString()}
+                                  </strong>
+
+                                </td>
+
+                              </tr>
+
+                            )
+                          )}
+
+                        </tbody>
+
+                        <tfoot>
+
+                          <tr className="table-light">
+
+                            <th
+                              colSpan={5}
+                              className="text-end"
+                            >
+                              Total
+                            </th>
+
+                            <th className="text-end text-success">
+
+                              ৳{" "}
+                              {paidMembersTotal.toLocaleString()}
+
+                            </th>
+
+                          </tr>
+
+                        </tfoot>
+
+                      </table>
+
+                    </div>
+
+                  </>
+
+                )}
+
+              </div>
+
+              {/* MODAL FOOTER */}
+
+              <div className="modal-footer">
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={
+                    closePaidMembersModal
+                  }
+                >
+                  Close
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {/* =================================================
           INBOX MODAL
       ================================================= */}
 
@@ -1435,9 +2553,7 @@ const Dashboard = () => {
 
             <div className="modal-content">
 
-              {/* =========================================
-                  MODAL HEADER
-              ========================================= */}
+              {/* MODAL HEADER */}
 
               <div className="modal-header">
 
@@ -1453,10 +2569,13 @@ const Dashboard = () => {
                       📥 My Inbox
 
                       {unreadCount > 0 && (
+
                         <span className="badge bg-danger ms-2">
                           {unreadCount}
                         </span>
+
                       )}
+
                     </>
                   )}
 
@@ -1467,9 +2586,7 @@ const Dashboard = () => {
                   className="btn-close"
                   onClick={() => {
 
-                    setShowInbox(
-                      false
-                    );
+                    setShowInbox(false);
 
                     closeChat();
 
@@ -1478,19 +2595,13 @@ const Dashboard = () => {
 
               </div>
 
-              {/* =========================================
-                  MODAL BODY
-              ========================================= */}
+              {/* MODAL BODY */}
 
               <div
                 className="modal-body p-0"
               >
 
                 {selectedConversationMember ? (
-
-                  /* =======================================
-                     CHAT WINDOW
-                  ======================================= */
 
                   <div
                     className="d-flex flex-column"
@@ -1500,9 +2611,7 @@ const Dashboard = () => {
                     }}
                   >
 
-                    {/* ===================================
-                        CHAT HEADER
-                    =================================== */}
+                    {/* CHAT HEADER */}
 
                     <div
                       className="d-flex align-items-center border-bottom p-3 bg-white"
@@ -1567,9 +2676,7 @@ const Dashboard = () => {
 
                     </div>
 
-                    {/* ===================================
-                        CHAT MESSAGES
-                    =================================== */}
+                    {/* CHAT MESSAGES */}
 
                     <div
                       className="flex-grow-1"
@@ -1636,11 +2743,10 @@ const Dashboard = () => {
                                 key={
                                   message.id
                                 }
-                                className={`d-flex mb-3 ${
-                                  isAdmin
+                                className={`d-flex mb-3 ${isAdmin
                                     ? "justify-content-end"
                                     : "justify-content-start"
-                                }`}
+                                  }`}
                               >
 
                                 <div
@@ -1672,8 +2778,6 @@ const Dashboard = () => {
                                   }}
                                 >
 
-                                  {/* SENDER */}
-
                                   <div
                                     className="small fw-bold mb-1"
                                     style={{
@@ -1683,17 +2787,17 @@ const Dashboard = () => {
                                           : "#555",
                                     }}
                                   >
-                                    {isAdmin
-  ? (
-      profile?.name ||
-      auth.currentUser?.displayName ||
-      auth.currentUser?.email ||
-      "Admin"
-    )
-  : selectedConversationName}
-                                  </div>
 
-                                  {/* MESSAGE */}
+                                    {isAdmin
+                                      ? (
+                                        profile?.name ||
+                                        auth.currentUser?.displayName ||
+                                        auth.currentUser?.email ||
+                                        "Admin"
+                                      )
+                                      : selectedConversationName}
+
+                                  </div>
 
                                   <div
                                     style={{
@@ -1714,8 +2818,6 @@ const Dashboard = () => {
                                       message.message
                                     }
                                   </div>
-
-                                  {/* TIME + DELETE */}
 
                                   <div
                                     className="d-flex justify-content-end align-items-center gap-2 mt-1"
@@ -1759,7 +2861,7 @@ const Dashboard = () => {
                                       }
                                     >
                                       {deletingMessageId ===
-                                      message.id
+                                        message.id
                                         ? "..."
                                         : "🗑️"}
                                     </button>
@@ -1771,6 +2873,7 @@ const Dashboard = () => {
                               </div>
 
                             );
+
                           }
                         )
 
@@ -1778,9 +2881,7 @@ const Dashboard = () => {
 
                     </div>
 
-                    {/* ===================================
-                        REPLY BOX
-                    =================================== */}
+                    {/* REPLY BOX */}
 
                     <div
                       className="p-3 border-top bg-white"
@@ -1807,7 +2908,7 @@ const Dashboard = () => {
 
                             if (
                               e.key ===
-                                "Enter" &&
+                              "Enter" &&
                               !e.shiftKey
                             ) {
 
@@ -1869,9 +2970,7 @@ const Dashboard = () => {
 
                 ) : (
 
-                  /* =======================================
-                     CONVERSATION LIST
-                  ======================================= */
+                  /* CONVERSATION LIST */
 
                   <div
                     className="p-3"
@@ -1945,8 +3044,6 @@ const Dashboard = () => {
 
                               <div className="d-flex align-items-center">
 
-                                {/* MEMBER PHOTO */}
-
                                 {conversation.memberPhoto ? (
 
                                   <img
@@ -1973,16 +3070,13 @@ const Dashboard = () => {
                                       width: 55,
                                       height: 55,
                                       fontSize: 25,
-                                      flexShrink:
-                                        0,
+                                      flexShrink: 0,
                                     }}
                                   >
                                     👤
                                   </div>
 
                                 )}
-
-                                {/* MESSAGE INFO */}
 
                                 <div
                                   className="flex-grow-1 text-start"
@@ -1997,7 +3091,7 @@ const Dashboard = () => {
                                     <strong
                                       className={
                                         conversation.unreadCount >
-                                        0
+                                          0
                                           ? "fw-bold"
                                           : ""
                                       }
@@ -2020,12 +3114,11 @@ const Dashboard = () => {
                                   <div className="d-flex justify-content-between align-items-center mt-1">
 
                                     <span
-                                      className={`text-muted ${
-                                        conversation.unreadCount >
-                                        0
+                                      className={`text-muted ${conversation.unreadCount >
+                                          0
                                           ? "fw-semibold text-dark"
                                           : ""
-                                      }`}
+                                        }`}
                                       style={{
                                         overflow:
                                           "hidden",
@@ -2045,13 +3138,13 @@ const Dashboard = () => {
                                     {conversation.unreadCount >
                                       0 && (
 
-                                      <span className="badge bg-danger rounded-pill ms-2">
-                                        {
-                                          conversation.unreadCount
-                                        }
-                                      </span>
+                                        <span className="badge bg-danger rounded-pill ms-2">
+                                          {
+                                            conversation.unreadCount
+                                          }
+                                        </span>
 
-                                    )}
+                                      )}
 
                                   </div>
 
@@ -2074,9 +3167,7 @@ const Dashboard = () => {
 
               </div>
 
-              {/* =========================================
-                  MODAL FOOTER
-              ========================================= */}
+              {/* MODAL FOOTER */}
 
               <div className="modal-footer">
 
@@ -2112,11 +3203,13 @@ const Dashboard = () => {
 
       <div className="container-fluid p-4">
 
+        {/* =================================================
+            PROFILE + STATISTICS
+        ================================================= */}
+
         <div className="row g-4">
 
-          {/* =================================================
-              PROFILE
-          ================================================= */}
+          {/* PROFILE */}
 
           <div className="col-lg-4">
 
@@ -2208,9 +3301,7 @@ const Dashboard = () => {
 
           </div>
 
-          {/* =================================================
-              STATISTICS
-          ================================================= */}
+          {/* STATISTICS */}
 
           <div className="col-lg-8">
 
@@ -2464,6 +3555,450 @@ const Dashboard = () => {
         </div>
 
         {/* =================================================
+            MONTHLY COLLECTION
+        ================================================= */}
+
+        <div className="row mt-4">
+
+          <div className="col-12">
+
+            <div className="card border-0 shadow-sm">
+
+              {/* HEADER */}
+
+              <div className="card-header bg-white p-4">
+
+                <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+                  <div>
+
+                    <h5 className="mb-1 fw-bold">
+                      📊 Monthly Subscription Collection
+                    </h5>
+
+                    <small className="text-muted">
+                      View subscription collection for a specific month and year
+                    </small>
+
+                  </div>
+
+                  {/* FILTERS */}
+
+                  <div className="d-flex gap-2">
+
+                    {/* MONTH */}
+
+                    <select
+                      className="form-select"
+                      style={{
+                        minWidth:
+                          "145px",
+                      }}
+                      value={
+                        selectedMonth
+                      }
+                      onChange={(e) =>
+                        setSelectedMonth(
+                          e.target.value
+                        )
+                      }
+                    >
+
+                      {MONTHS.map(
+                        (month) => (
+
+                          <option
+                            key={
+                              month
+                            }
+                            value={
+                              month
+                            }
+                          >
+                            {month}
+                          </option>
+
+                        )
+                      )}
+
+                    </select>
+
+                    {/* YEAR */}
+
+                    <select
+                      className="form-select"
+                      style={{
+                        minWidth:
+                          "100px",
+                      }}
+                      value={
+                        selectedYear
+                      }
+                      onChange={(e) =>
+                        setSelectedYear(
+                          Number(
+                            e.target.value
+                          )
+                        )
+                      }
+                    >
+
+                      {Array.from(
+                        {
+                          length: 7,
+                        },
+                        (_, index) =>
+                          new Date().getFullYear() -
+                          3 +
+                          index
+                      ).map(
+                        (year) => (
+
+                          <option
+                            key={
+                              year
+                            }
+                            value={
+                              year
+                            }
+                          >
+                            {year}
+                          </option>
+
+                        )
+                      )}
+
+                    </select>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* BODY */}
+
+              <div className="card-body p-4">
+
+                {loadingMonthlyCollection ? (
+
+                  <div className="text-center py-5">
+
+                    <div
+                      className="spinner-border text-primary"
+                      role="status"
+                    />
+
+                    <p className="text-muted mt-3 mb-0">
+                      Loading collection data...
+                    </p>
+
+                  </div>
+
+                ) : (
+
+                  <>
+
+                    {/* MEMBER COUNTS */}
+
+                    <div className="row g-3 mb-4">
+
+                      {/* TOTAL */}
+
+                      <div className="col-md-4">
+
+                        <div
+                          className="p-4 rounded-3 h-100"
+                          style={{
+                            background:
+                              "#f1f5f9",
+                          }}
+                        >
+
+                          <small className="text-muted">
+                            Total Members
+                          </small>
+
+                          <h3 className="fw-bold mb-0 mt-2">
+                            {
+                              totalMembers
+                            }
+                          </h3>
+
+                        </div>
+
+                      </div>
+
+                      {/* PAID */}
+
+                      <div className="col-md-4">
+
+                        <div
+                          className="p-4 rounded-3 h-100"
+                          style={{
+                            background:
+                              "#ecfdf5",
+
+                            cursor:
+                              "pointer",
+
+                            transition:
+                              "all 0.2s ease",
+                          }}
+                          onClick={
+                            loadPaidMembers
+                          }
+                          title="Click to view paid members"
+                        >
+
+                          <div className="d-flex justify-content-between align-items-start">
+
+                            <div>
+
+                              <small className="text-success">
+                                Paid
+                              </small>
+
+                              <h3 className="fw-bold text-success mb-0 mt-2">
+                                {
+                                  monthlyPaid
+                                }
+                              </h3>
+
+                            </div>
+
+                            <span
+                              style={{
+                                fontSize:
+                                  "24px",
+                              }}
+                            >
+                              👥
+                            </span>
+
+                          </div>
+
+                          <small className="text-muted d-block mt-2">
+                            Click to view paid members
+                          </small>
+
+                        </div>
+
+                      </div>
+
+                      {/* PENDING */}
+
+                      <div className="col-md-4">
+
+                        <div
+                          className="p-4 rounded-3 h-100"
+                          style={{
+                            background:
+                              "#fff7ed",
+                          }}
+                        >
+
+                          <small className="text-warning">
+                            Pending
+                          </small>
+
+                          <h3 className="fw-bold text-warning mb-0 mt-2">
+                            {
+                              monthlyPending
+                            }
+                          </h3>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* MONEY */}
+
+                    <div className="row g-3">
+
+                      {/* EXPECTED */}
+
+                      <div className="col-md-4">
+
+                        <div
+                          className="border rounded-3 p-4 h-100"
+                        >
+
+                          <small className="text-muted">
+                            Expected
+                          </small>
+
+                          <h4 className="fw-bold mb-0 mt-2">
+                            ৳{" "}
+                            {
+                              monthlyExpected.toLocaleString()
+                            }
+                          </h4>
+
+                          <small className="text-muted">
+                            Based on each member's monthly subscription
+                          </small>
+
+                        </div>
+
+                      </div>
+
+                      {/* COLLECTED */}
+
+                      <div className="col-md-4">
+
+                        <div
+                          className="border rounded-3 p-4 h-100"
+                        >
+
+                          <small className="text-muted">
+                            Collected
+                          </small>
+
+                          <h4 className="fw-bold text-success mb-0 mt-2">
+                            ৳{" "}
+                            {
+                              monthlyCollected.toLocaleString()
+                            }
+                          </h4>
+
+                          <small className="text-muted">
+                            {selectedMonth}{" "}
+                            {selectedYear}
+                          </small>
+
+                        </div>
+
+                      </div>
+
+                      {/* REMAINING */}
+
+                      <div className="col-md-4">
+
+                        <div
+                          className="border rounded-3 p-4 h-100"
+                        >
+
+                          <small className="text-muted">
+                            Remaining
+                          </small>
+
+                          <h4 className="fw-bold text-danger mb-0 mt-2">
+                            ৳{" "}
+                            {
+                              monthlyRemaining.toLocaleString()
+                            }
+                          </h4>
+
+                          <small className="text-muted">
+                            Collection still pending
+                          </small>
+
+                        </div>
+
+
+
+                      </div>
+
+                      <div className="col-md-4">
+                      <div
+                        className="border rounded-3 p-4 h-100"
+                        style={{
+                          background: "#fff1f2",
+                          borderColor: "#fecdd3",
+                        }}
+                      >
+                        <small className="text-muted">
+                          Monthly Expense
+                        </small>
+
+                        <h4 className="fw-bold text-danger mb-0 mt-2">
+                          ৳{" "}
+                          {monthlyExpense.toLocaleString()}
+                        </h4>
+
+                        <small className="text-muted">
+                          {selectedMonth} {selectedYear}
+                        </small>
+                      </div>
+                    </div>
+
+                    </div>
+
+                   
+                    {/* COLLECTION RATE */}
+
+                    <div className="mt-4">
+
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+
+                        <div>
+
+                          <strong>
+                            Collection Rate
+                          </strong>
+
+                          <small className="text-muted ms-2">
+                            ({selectedMonth}{" "}
+                            {selectedYear})
+                          </small>
+
+                        </div>
+
+                        <strong className="text-primary">
+                          {
+                            collectionRate.toFixed(
+                              1
+                            )
+                          }
+                          %
+                        </strong>
+
+                      </div>
+
+                      <div
+                        className="progress"
+                        style={{
+                          height:
+                            "18px",
+                          borderRadius:
+                            "10px",
+                        }}
+                      >
+
+                        <div
+                          className="progress-bar bg-primary"
+                          role="progressbar"
+                          style={{
+                            width: `${Math.min(
+                              collectionRate,
+                              100
+                            )}%`,
+
+                            transition:
+                              "width 0.6s ease",
+                          }}
+                        />
+
+                      </div>
+
+                    </div>
+
+                  </>
+
+                )}
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* =================================================
             INBOX
         ================================================= */}
 
@@ -2667,13 +4202,13 @@ const Dashboard = () => {
                                   {conversation.unreadCount >
                                     0 && (
 
-                                    <span className="badge bg-danger rounded-pill ms-2">
-                                      {
-                                        conversation.unreadCount
-                                      }
-                                    </span>
+                                      <span className="badge bg-danger rounded-pill ms-2">
+                                        {
+                                          conversation.unreadCount
+                                        }
+                                      </span>
 
-                                  )}
+                                    )}
 
                                 </div>
 

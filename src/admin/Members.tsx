@@ -19,35 +19,105 @@ const Members = () => {
   const [photo, setPhoto] = useState<File | null>(null);
   const [status, setStatus] = useState("Active");
 
+  // ============================================
+  // MONTHLY SUBSCRIPTION AMOUNT
+  // ============================================
+
+  const [monthlyAmount, setMonthlyAmount] = useState("100");
+
+  // ============================================
+  // SUBMIT
+  // ============================================
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const photoUrl = await uploadPhoto();
-
     try {
+      // ==========================================
+      // VALIDATE MONTHLY AMOUNT
+      // ==========================================
+
+      const amount = Number(monthlyAmount);
+
+      if (!amount || amount <= 0) {
+        alert("Please enter a valid monthly subscription amount.");
+        return;
+      }
+
+      // ==========================================
+      // UPLOAD PHOTO
+      // ==========================================
+
+      const photoUrl = await uploadPhoto();
+
+      // ==========================================
+      // SAVE MEMBER
+      // ==========================================
+
       await addDoc(collection(db, "members"), {
-        // English + Bangla Name
+        // ----------------------------------------
+        // NAME
+        // ----------------------------------------
+
         name,
         nameBn,
 
-        // English + Bangla Designation
+        // ----------------------------------------
+        // DESIGNATION
+        // ----------------------------------------
+
         designation,
         designationBn,
 
-        // Other information
+        // ----------------------------------------
+        // MEMBER TYPE
+        // ----------------------------------------
+
         memberType,
+
+        // ----------------------------------------
+        // PERSONAL INFORMATION
+        // ----------------------------------------
+
         phone,
         dateOfBirth: dob,
         bloodGroup,
         address,
         email,
+
+        // ----------------------------------------
+        // MONTHLY SUBSCRIPTION
+        // ----------------------------------------
+
+        monthlyAmount: amount,
+
+        // ----------------------------------------
+        // STATUS
+        // ----------------------------------------
+
         status,
+
+        // ----------------------------------------
+        // PHOTO
+        // ----------------------------------------
 
         photo: photoUrl,
 
+        // ----------------------------------------
+        // JOINING DATE
+        // ----------------------------------------
+
         joiningDate: new Date().toISOString(),
 
+        // ----------------------------------------
+        // CREATED BY
+        // ----------------------------------------
+
         createdBy: auth.currentUser?.email || "",
+
+        // ----------------------------------------
+        // TIMESTAMPS
+        // ----------------------------------------
 
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -55,32 +125,62 @@ const Members = () => {
 
       alert("Member added successfully!");
 
-      // Reset Form
+      // ==========================================
+      // RESET FORM
+      // ==========================================
+
       setName("");
       setNameBn("");
+
       setDesignation("");
       setDesignationBn("");
+
       setMemberType("");
+
       setPhone("");
       setDob("");
       setBloodGroup("");
       setAddress("");
       setEmail("");
+
+      setMonthlyAmount("100");
+
       setPhoto(null);
       setStatus("Active");
 
+      // Reset file input visually
+      const fileInput = document.getElementById(
+        "memberPhoto"
+      ) as HTMLInputElement | null;
+
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
     } catch (error) {
-      console.error(error);
+      console.error("Add member error:", error);
+
       alert("Failed to save member.");
     }
   };
 
+  // ============================================
+  // CLOUDINARY PHOTO UPLOAD
+  // ============================================
+
   const uploadPhoto = async () => {
     if (!photo) return "";
+
+    // 5MB validation
+    if (photo.size > 5 * 1024 * 1024) {
+      alert("Photo size must be less than 5MB.");
+      throw new Error("Photo too large");
+    }
 
     const formData = new FormData();
 
     formData.append("file", photo);
+
     formData.append(
       "upload_preset",
       "badokhali_youth_foundation"
@@ -94,20 +194,37 @@ const Members = () => {
       }
     );
 
+    if (!res.ok) {
+      throw new Error("Photo upload failed");
+    }
+
     const data = await res.json();
 
-    return data.secure_url;
+    return data.secure_url || "";
   };
+
+  // ============================================
+  // RETURN
+  // ============================================
 
   return (
     <AdminLayout>
       <div className="container-fluid">
 
+        {/* ======================================
+            PAGE HEADER
+        ====================================== */}
+
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2>Members</h2>
         </div>
 
+        {/* ======================================
+            MEMBER FORM
+        ====================================== */}
+
         <div className="card shadow-sm">
+
           <div className="card-body">
 
             <h5 className="mb-4">
@@ -118,10 +235,12 @@ const Members = () => {
 
               <div className="row">
 
-                {/* ================= NAME ================= */}
+                {/* ==================================
+                    NAME
+                ================================== */}
 
-                {/* English Name */}
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Full Name (English)
                   </label>
@@ -135,10 +254,11 @@ const Members = () => {
                     }
                     required
                   />
+
                 </div>
 
-                {/* Bangla Name */}
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Full Name (বাংলা)
                   </label>
@@ -153,13 +273,15 @@ const Members = () => {
                     placeholder="বাংলায় নাম লিখুন"
                     required
                   />
+
                 </div>
 
+                {/* ==================================
+                    DESIGNATION
+                ================================== */}
 
-                {/* ================= DESIGNATION ================= */}
-
-                {/* English Designation */}
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Designation (English)
                   </label>
@@ -172,6 +294,7 @@ const Members = () => {
                     }
                     required
                   >
+
                     <option value="">
                       Select Designation
                     </option>
@@ -185,17 +308,25 @@ const Members = () => {
                     <option>Health Secretary</option>
                     <option>Organizing Secretary</option>
                     <option>Social Service Secretary</option>
-                    <option>Education and Literature Secretary</option>
+                    <option>
+                      Education and Literature Secretary
+                    </option>
                     <option>Cultural Secretary</option>
-                    <option>Information and Technology Secretary</option>
+                    <option>
+                      Information and Technology Secretary
+                    </option>
                     <option>Office Secretary</option>
                     <option>Sports Secretary</option>
-                    <option>Publicity and Publication Secretary</option>
+                    <option>
+                      Publicity and Publication Secretary
+                    </option>
+
                   </select>
+
                 </div>
 
-                {/* Bangla Designation */}
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Designation (বাংলা)
                   </label>
@@ -210,12 +341,15 @@ const Members = () => {
                     placeholder="বাংলায় পদবি লিখুন"
                     required
                   />
+
                 </div>
 
-
-                {/* ================= MEMBER TYPE ================= */}
+                {/* ==================================
+                    MEMBER TYPE
+                ================================== */}
 
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Member Type
                   </label>
@@ -228,19 +362,68 @@ const Members = () => {
                     }
                     required
                   >
+
                     <option value="">
                       Select Member Type
                     </option>
 
-                    <option>Executive Member</option>
-                    <option>General Member</option>
+                    <option>
+                      Executive Member
+                    </option>
+
+                    <option>
+                      General Member
+                    </option>
+
                   </select>
+
                 </div>
 
-
-                {/* ================= MOBILE ================= */}
+                {/* ==================================
+                    MONTHLY AMOUNT
+                ================================== */}
 
                 <div className="col-md-6 mb-3">
+
+                  <label className="form-label fw-semibold">
+                    Monthly Subscription Amount
+                  </label>
+
+                  <div className="input-group">
+
+                    <span className="input-group-text">
+                      ৳
+                    </span>
+
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={monthlyAmount}
+                      onChange={(e) =>
+                        setMonthlyAmount(
+                          e.target.value
+                        )
+                      }
+                      min="1"
+                      step="1"
+                      placeholder="100"
+                      required
+                    />
+
+                  </div>
+
+                  <small className="text-muted">
+                    Example: ৳100 or ৳300
+                  </small>
+
+                </div>
+
+                {/* ==================================
+                    MOBILE
+                ================================== */}
+
+                <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Mobile Number
                   </label>
@@ -254,12 +437,15 @@ const Members = () => {
                     }
                     required
                   />
+
                 </div>
 
-
-                {/* ================= DOB ================= */}
+                {/* ==================================
+                    DOB
+                ================================== */}
 
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Date of Birth
                   </label>
@@ -273,12 +459,15 @@ const Members = () => {
                     }
                     required
                   />
+
                 </div>
 
-
-                {/* ================= EMAIL ================= */}
+                {/* ==================================
+                    EMAIL
+                ================================== */}
 
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Email <small>(Optional)</small>
                   </label>
@@ -291,12 +480,15 @@ const Members = () => {
                       setEmail(e.target.value)
                     }
                   />
+
                 </div>
 
-
-                {/* ================= BLOOD GROUP ================= */}
+                {/* ==================================
+                    BLOOD GROUP
+                ================================== */}
 
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Blood Group
                   </label>
@@ -308,6 +500,7 @@ const Members = () => {
                       setBloodGroup(e.target.value)
                     }
                   >
+
                     <option value="">
                       Select Blood Group
                     </option>
@@ -321,13 +514,17 @@ const Members = () => {
                     <option>O+</option>
                     <option>O-</option>
                     <option>Unknown</option>
+
                   </select>
+
                 </div>
 
-
-                {/* ================= ADDRESS ================= */}
+                {/* ==================================
+                    ADDRESS
+                ================================== */}
 
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Address
                   </label>
@@ -341,17 +538,21 @@ const Members = () => {
                     }
                     placeholder="Enter Address"
                   />
+
                 </div>
 
-
-                {/* ================= PHOTO ================= */}
+                {/* ==================================
+                    PHOTO
+                ================================== */}
 
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Member Photo
                   </label>
 
                   <input
+                    id="memberPhoto"
                     type="file"
                     className="form-control"
                     accept="image/*"
@@ -363,12 +564,19 @@ const Members = () => {
                       )
                     }
                   />
+
+                  <small className="text-muted">
+                    Maximum size: 5MB
+                  </small>
+
                 </div>
 
-
-                {/* ================= STATUS ================= */}
+                {/* ==================================
+                    STATUS
+                ================================== */}
 
                 <div className="col-md-6 mb-3">
+
                   <label className="form-label">
                     Status
                   </label>
@@ -380,12 +588,24 @@ const Members = () => {
                       setStatus(e.target.value)
                     }
                   >
-                    <option>Active</option>
-                    <option>Inactive</option>
+
+                    <option>
+                      Active
+                    </option>
+
+                    <option>
+                      Inactive
+                    </option>
+
                   </select>
+
                 </div>
 
               </div>
+
+              {/* ==================================
+                  SAVE BUTTON
+              ================================== */}
 
               <button
                 type="submit"
@@ -395,8 +615,11 @@ const Members = () => {
               </button>
 
             </form>
+
           </div>
+
         </div>
+
       </div>
     </AdminLayout>
   );

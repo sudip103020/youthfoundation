@@ -42,6 +42,16 @@ const Expense = () => {
   const [filterCategory, setFilterCategory] = useState("");
   const [showReport, setShowReport] = useState(false);
 
+    const currentDate = new Date();
+
+  const [filterMonth, setFilterMonth] = useState(
+    String(currentDate.getMonth() + 1).padStart(2, "0")
+  );
+
+  const [filterYear, setFilterYear] = useState(
+    String(currentDate.getFullYear())
+  );
+
   // Fetch Expenses
 
   const fetchExpenses = async () => {
@@ -124,11 +134,21 @@ const Expense = () => {
 
   // Filter
 
-  const filteredExpenses = expenses.filter((item) => {
+    const filteredExpenses = expenses.filter((item) => {
+    const expenseMonth = item.expenseDate
+      ? item.expenseDate.substring(5, 7)
+      : "";
+
+    const expenseYear = item.expenseDate
+      ? item.expenseDate.substring(0, 4)
+      : "";
+
     return (
       (searchTitle === "" ||
         item.title.toLowerCase().includes(searchTitle.toLowerCase())) &&
-      (filterCategory === "" || item.category === filterCategory)
+      (filterCategory === "" || item.category === filterCategory) &&
+      (filterMonth === "" || expenseMonth === filterMonth) &&
+      (filterYear === "" || expenseYear === filterYear)
     );
   });
 
@@ -274,11 +294,15 @@ const Expense = () => {
 
         {/* Filter */}
 
+              {/* Filter */}
+
         <div className="card shadow-sm p-3 mb-4">
           <h5>🔍 Expense Filter</h5>
 
-          <div className="row">
-            <div className="col-md-5">
+          <div className="row g-3">
+
+            {/* Search */}
+            <div className="col-md-3">
               <label>Search Expense</label>
               <input
                 type="text"
@@ -289,8 +313,10 @@ const Expense = () => {
               />
             </div>
 
-            <div className="col-md-5">
+            {/* Category */}
+            <div className="col-md-3">
               <label>Category</label>
+
               <select
                 className="form-select"
                 value={filterCategory}
@@ -309,6 +335,59 @@ const Expense = () => {
               </select>
             </div>
 
+            {/* Month */}
+            <div className="col-md-2">
+              <label>Month</label>
+
+              <select
+                className="form-select"
+                value={filterMonth}
+                onChange={(e) => setFilterMonth(e.target.value)}
+              >
+                <option value="">All Months</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+
+            {/* Year */}
+            <div className="col-md-2">
+              <label>Year</label>
+
+              <select
+                className="form-select"
+                value={filterYear}
+                onChange={(e) => setFilterYear(e.target.value)}
+              >
+                <option value="">All Years</option>
+
+                {Array.from(
+                  new Set(
+                    expenses
+                      .map((item) => item.expenseDate?.substring(0, 4))
+                      .filter(Boolean)
+                  )
+                )
+                  .sort((a, b) => Number(b) - Number(a))
+                  .map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            {/* Report */}
             <div className="col-md-2 d-flex align-items-end">
               <button
                 className="btn btn-primary w-100"
@@ -317,6 +396,7 @@ const Expense = () => {
                 👁 Report
               </button>
             </div>
+
           </div>
         </div>
         {/* Report Modal */}

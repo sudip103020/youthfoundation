@@ -11,6 +11,7 @@ import Subscription from "../admin/Subscription";
 import Donation from "../admin/Donation";
 import Expense from "../admin/Expense";
 import Notice from "../admin/Notice";
+import Settings from "../admin/Settings";
 import NoticePage from "../pages/Notice";
 import Contact from "../pages/contact";
 import DonationPage from "../pages/Donation";
@@ -62,6 +63,15 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />
