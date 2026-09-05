@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next";
 
 
 
+
+
 const Login = () => {
    const { t } = useTranslation();
 
@@ -15,6 +17,7 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -150,34 +153,45 @@ const Login = () => {
 
 
 
-              <div className="mb-3">
+ 
+
+<div className="mb-3">
+
+  <label className="fw-semibold mb-2">
+    {t("password")}
+  </label>
+
+  <div className="input-group">
+
+    <input
+      type={showPassword ? "text" : "password"}
+      className="form-control"
+      placeholder={t("password")}
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      required
+    />
+
+    <button
+      type="button"
+      className="btn btn-outline-secondary"
+      onClick={() => setShowPassword((prev) => !prev)}
+      aria-label={
+        showPassword
+          ? "Hide password"
+          : "Show password"
+      }
+    >
+      {showPassword ? "🙈" : "👁️"}
+    </button>
+
+  </div>
+
+</div>
 
 
-                <label className="fw-semibold">
-                  {t("password")}
-                </label>
 
 
-                <input
-
-                  type="password"
-
-                  className="form-control"
-
-                  placeholder={t("password")}
-
-                  value={password}
-
-                  onChange={(e) =>
-                    setPassword(e.target.value)
-                  }
-
-                  required
-
-                />
-
-
-              </div>
 
 
 
