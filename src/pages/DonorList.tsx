@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 interface Donation {
   id: string;
   donorName: string;
-  phone?: string;
+
   address?: string;
   amount?: string;
   donationType?: string;
@@ -225,9 +225,6 @@ const DonorList = () => {
                        {t("donaraddress")}
                       </th>
 
-                      <th>
-                        {t("donarmobile")}
-                      </th>
 
                       <th className="text-end">
                         {t("donardonation")}
@@ -312,25 +309,7 @@ const DonorList = () => {
 
                           </td>
 
-                          {/* Mobile */}
-
-                          <td>
-
-                            {donor.phone ? (
-
-                              <span>
-                                {donor.phone}
-                              </span>
-
-                            ) : (
-
-                              <span className="text-muted">
-                                -
-                              </span>
-
-                            )}
-
-                          </td>
+                        
 
                           {/* Amount */}
 

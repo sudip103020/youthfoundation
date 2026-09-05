@@ -7,7 +7,7 @@ import { FaFileCircleXmark } from "react-icons/fa6";
 interface MedicalInfo {
   id: string;
   name: string;
-  phone?: string;
+
   bloodGroup?: string;
   photo?: string;
 
@@ -323,9 +323,7 @@ const MedicalList = () => {
                         {t("bloodmember")}
                       </th>
 
-                      <th>
-                        {t("donarmobile")}
-                      </th>
+                     
 
                       {/* NEW */}
 
@@ -415,33 +413,7 @@ const MedicalList = () => {
 
                           </td>
 
-                          {/* Mobile */}
-
-                          <td>
-
-                            {member.phone || "-"}
-
-                            {"  "}
-
-                            {member.phone ? (
-
-                              <a
-                                href={`tel:${member.phone}`}
-                                className="btn btn-sm btn-outline-success"
-                                title="Call"
-                              >
-                                📞 {t("call")}
-                              </a>
-
-                            ) : (
-
-                              <span className="text-muted">
-                                -
-                              </span>
-
-                            )}
-
-                          </td>
+                        
 
                           {/* Gender */}
 
