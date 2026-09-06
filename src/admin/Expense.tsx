@@ -12,6 +12,15 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+
 interface Expense {
   id: string;
   title: string;
@@ -22,33 +31,46 @@ interface Expense {
   remarks: string;
 }
 
+// ================= EXPENSE CATEGORIES =================
+
+const EXPENSE_CATEGORIES = [
+  "Street Lighting",
+  "Medical Assistance",
+  "Music School Donation",
+  "Education Support",
+  "Office Expenses",
+  "Relief & Humanitarian Aid",
+  "Social Events",
+  "Sports Activities",
+  "Transportation",
+  "Food & Refreshments",
+  "Maintenance & Repairs",
+  "Other Expenses",
+];
+
 const Expense = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const reportRef = useRef<HTMLDivElement>(null);
 
-  // Add Form
+  // ================= ADD FORM =================
 
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("Office");
+  const [category, setCategory] = useState(EXPENSE_CATEGORIES[0]);
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [expenseDate, setExpenseDate] = useState("");
   const [remarks, setRemarks] = useState("");
   const [editId, setEditId] = useState("");
 
-  // Filter
+  // ================= FILTER =================
 
   const [searchTitle, setSearchTitle] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
+  const [filterYear, setFilterYear] = useState("");
   const [showReport, setShowReport] = useState(false);
 
-  
-
-  const [filterMonth, setFilterMonth] = useState("");
-
-const [filterYear, setFilterYear] = useState("");
-
-  // Fetch Expenses
+  // ================= FETCH EXPENSES =================
 
   const fetchExpenses = async () => {
     const snapshot = await getDocs(collection(db, "expenses"));
@@ -69,7 +91,7 @@ const [filterYear, setFilterYear] = useState("");
     fetchExpenses();
   }, []);
 
-  // Add Expense
+  // ================= ADD / UPDATE EXPENSE =================
 
   const addExpense = async () => {
     if (!title || !amount || !expenseDate) {
@@ -88,7 +110,6 @@ const [filterYear, setFilterYear] = useState("");
       });
 
       alert("Expense Updated Successfully");
-      setEditId("");
     } else {
       await addDoc(collection(db, "expenses"), {
         title,
@@ -103,10 +124,10 @@ const [filterYear, setFilterYear] = useState("");
       alert("Expense Added Successfully");
     }
 
-    
+    // ================= RESET FORM =================
 
     setTitle("");
-    setCategory("Office");
+    setCategory(EXPENSE_CATEGORIES[0]);
     setAmount("");
     setPaymentMethod("Cash");
     setExpenseDate("");
@@ -116,7 +137,7 @@ const [filterYear, setFilterYear] = useState("");
     fetchExpenses();
   };
 
-  // Delete Expense
+  // ================= DELETE EXPENSE =================
 
   const handleDelete = async (id: string) => {
     const confirmDelete = window.confirm("Delete this expense?");
@@ -128,9 +149,9 @@ const [filterYear, setFilterYear] = useState("");
     fetchExpenses();
   };
 
-  // Filter
+  // ================= FILTER EXPENSES =================
 
-    const filteredExpenses = expenses.filter((item) => {
+  const filteredExpenses = expenses.filter((item) => {
     const expenseMonth = item.expenseDate
       ? item.expenseDate.substring(5, 7)
       : "";
@@ -148,40 +169,65 @@ const [filterYear, setFilterYear] = useState("");
     );
   });
 
+  // ================= TOTAL EXPENSE =================
+
   const totalExpense = filteredExpenses.reduce(
     (sum, item) => sum + Number(item.amount),
-    0,
+    0
   );
 
+  // ================= CATEGORY-WISE PIE CHART DATA =================
+
+  const categoryExpenseData = EXPENSE_CATEGORIES.map((categoryName) => {
+    const total = filteredExpenses
+      .filter((item) => item.category === categoryName)
+      .reduce((sum, item) => sum + Number(item.amount), 0);
+
+    return {
+      name: categoryName,
+      value: total,
+    };
+  }).filter((item) => item.value > 0);
+
+  // ================= DOWNLOAD REPORT =================
+
   const downloadExpenseReport = async () => {
-  if (!reportRef.current) return;
+    if (!reportRef.current) return;
 
-  const canvas = await html2canvas(reportRef.current, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: "#ffffff",
-  });
+    const canvas = await html2canvas(reportRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
 
-  const image = canvas.toDataURL("image/png");
+    const image = canvas.toDataURL("image/png");
 
-  const link = document.createElement("a");
-  link.href = image;
-  link.download = "Expense-Report.png";
-  link.click();
-};
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = "Expense-Report.png";
+    link.click();
+  };
 
   return (
     <AdminLayout>
       <div className="container-fluid p-4">
+
         <h3 className="mb-4">💸 Expense Management</h3>
-        {/* Add Expense */}
+
+        {/* =========================================================
+            ADD EXPENSE
+        ========================================================= */}
 
         <div className="card shadow-sm p-3 mb-4">
           <h5>Add New Expense</h5>
 
           <div className="row g-3">
+
+            {/* TITLE */}
+
             <div className="col-md-4">
               <label>Expense Title</label>
+
               <input
                 type="text"
                 className="form-control"
@@ -191,27 +237,29 @@ const [filterYear, setFilterYear] = useState("");
               />
             </div>
 
+            {/* CATEGORY */}
+
             <div className="col-md-4">
               <label>Category</label>
+
               <select
                 className="form-select"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
-                <option>Office</option>
-                <option>Education</option>
-                <option>Medical</option>
-                <option>Relief</option>
-                <option>Event</option>
-                <option>Travel</option>
-                <option>Food</option>
-                <option>Maintenance</option>
-                <option>Others</option>
+                {EXPENSE_CATEGORIES.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
               </select>
             </div>
 
+            {/* AMOUNT */}
+
             <div className="col-md-4">
               <label>Amount</label>
+
               <input
                 type="number"
                 className="form-control"
@@ -221,8 +269,11 @@ const [filterYear, setFilterYear] = useState("");
               />
             </div>
 
+            {/* PAYMENT METHOD */}
+
             <div className="col-md-4">
               <label>Payment Method</label>
+
               <select
                 className="form-select"
                 value={paymentMethod}
@@ -236,8 +287,11 @@ const [filterYear, setFilterYear] = useState("");
               </select>
             </div>
 
+            {/* DATE */}
+
             <div className="col-md-4">
               <label>Expense Date</label>
+
               <input
                 type="date"
                 className="form-control"
@@ -246,8 +300,11 @@ const [filterYear, setFilterYear] = useState("");
               />
             </div>
 
+            {/* REMARKS */}
+
             <div className="col-md-4">
               <label>Remarks</label>
+
               <input
                 type="text"
                 className="form-control"
@@ -256,24 +313,35 @@ const [filterYear, setFilterYear] = useState("");
                 onChange={(e) => setRemarks(e.target.value)}
               />
             </div>
+
           </div>
 
           <button
-            className={`btn ${editId ? "btn-warning" : "btn-danger"} mt-3`}
+            className={`btn ${
+              editId ? "btn-warning" : "btn-danger"
+            } mt-3`}
             onClick={addExpense}
           >
-            {editId ? "✏ Update Expense" : "➕ Save Expense"}
+            {editId
+              ? "✏ Update Expense"
+              : "➕ Save Expense"}
           </button>
         </div>
 
-        {/* Summary Cards */}
+        {/* =========================================================
+            SUMMARY CARDS
+        ========================================================= */}
 
         <div className="row mb-4">
+
           <div className="col-md-4">
             <div className="card bg-danger text-white shadow-sm">
               <div className="card-body text-center">
                 <h6>Total Expense</h6>
-                <h3>৳ {totalExpense}</h3>
+
+                <h3>
+                  ৳ {totalExpense.toLocaleString()}
+                </h3>
               </div>
             </div>
           </div>
@@ -282,63 +350,75 @@ const [filterYear, setFilterYear] = useState("");
             <div className="card bg-primary text-white shadow-sm">
               <div className="card-body text-center">
                 <h6>Total Transactions</h6>
+
                 <h3>{filteredExpenses.length}</h3>
               </div>
             </div>
           </div>
+
         </div>
 
-        {/* Filter */}
-
-              {/* Filter */}
+        {/* =========================================================
+            FILTER
+        ========================================================= */}
 
         <div className="card shadow-sm p-3 mb-4">
+
           <h5>🔍 Expense Filter</h5>
 
           <div className="row g-3">
 
-            {/* Search */}
+            {/* SEARCH */}
+
             <div className="col-md-3">
               <label>Search Expense</label>
+
               <input
                 type="text"
                 className="form-control"
                 placeholder="Search by Title"
                 value={searchTitle}
-                onChange={(e) => setSearchTitle(e.target.value)}
+                onChange={(e) =>
+                  setSearchTitle(e.target.value)
+                }
               />
             </div>
 
-            {/* Category */}
+            {/* CATEGORY FILTER */}
+
             <div className="col-md-3">
               <label>Category</label>
 
               <select
                 className="form-select"
                 value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
+                onChange={(e) =>
+                  setFilterCategory(e.target.value)
+                }
               >
-                <option value="">All Category</option>
-                <option>Office</option>
-                <option>Education</option>
-                <option>Medical</option>
-                <option>Relief</option>
-                <option>Event</option>
-                <option>Travel</option>
-                <option>Food</option>
-                <option>Maintenance</option>
-                <option>Others</option>
+                <option value="">
+                  All Categories
+                </option>
+
+                {EXPENSE_CATEGORIES.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
               </select>
             </div>
 
-            {/* Month */}
+            {/* MONTH */}
+
             <div className="col-md-2">
               <label>Month</label>
 
               <select
                 className="form-select"
                 value={filterMonth}
-                onChange={(e) => setFilterMonth(e.target.value)}
+                onChange={(e) =>
+                  setFilterMonth(e.target.value)
+                }
               >
                 <option value="">All Months</option>
                 <option value="01">January</option>
@@ -356,796 +436,979 @@ const [filterYear, setFilterYear] = useState("");
               </select>
             </div>
 
-            {/* Year */}
+            {/* YEAR */}
+
             <div className="col-md-2">
               <label>Year</label>
 
               <select
                 className="form-select"
                 value={filterYear}
-                onChange={(e) => setFilterYear(e.target.value)}
+                onChange={(e) =>
+                  setFilterYear(e.target.value)
+                }
               >
-                <option value="">All Year</option>
+                <option value="">All Years</option>
 
-{Array.from({ length: 5 }, (_, index) => {
-  const yearOption = new Date().getFullYear() + index;
+                {Array.from(
+                  { length: 5 },
+                  (_, index) => {
+                    const yearOption =
+                      new Date().getFullYear() + index;
 
-  return (
-    <option key={yearOption} value={yearOption}>
-      {yearOption}
-    </option>
-  );
-})}
+                    return (
+                      <option
+                        key={yearOption}
+                        value={yearOption}
+                      >
+                        {yearOption}
+                      </option>
+                    );
+                  }
+                )}
               </select>
             </div>
 
-            {/* Report */}
+            {/* REPORT */}
+
             <div className="col-md-2 d-flex align-items-end">
+
               <button
                 className="btn btn-primary w-100"
                 onClick={() => setShowReport(true)}
               >
                 👁 Report
               </button>
+
             </div>
 
           </div>
         </div>
-        {/* Report Modal */}
 
-    
-{/* ================= EXPENSE REPORT MODAL ================= */}
+        {/* =========================================================
+            CATEGORY PIE CHART
+        ========================================================= */}
 
-{showReport && (
-  <div
-    className="modal fade show d-block"
-    style={{
-      backgroundColor: "rgba(0,0,0,0.6)",
-      zIndex: 1055,
-    }}
-  >
-    <div
-      className="modal-dialog modal-xl modal-dialog-centered"
-      style={{
-        maxWidth: "95%",
-      }}
-    >
-      <div className="modal-content">
+        <div className="card shadow-sm p-3 mb-4">
 
-        {/* MODAL HEADER */}
-        <div className="modal-header">
-          <h5 className="modal-title">
-            💸 Expense Report
+          <h5 className="mb-3">
+            📊 Expense by Category
           </h5>
 
-          <button
-            className="btn-close"
-            onClick={() => setShowReport(false)}
-          />
+          {categoryExpenseData.length === 0 ? (
+
+            <div className="text-center text-muted py-5">
+              No expense data available for the selected filter.
+            </div>
+
+          ) : (
+
+            <div
+              style={{
+                width: "100%",
+                height: "450px",
+              }}
+            >
+
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+              >
+
+                <PieChart>
+
+                  <Pie
+                    data={categoryExpenseData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={145}
+                    innerRadius={60}
+                    paddingAngle={2}
+                    label={({ name, percent }) =>
+                      `${name} ${((percent ?? 0) * 100).toFixed(1)}%`
+                    }
+                  >
+
+                    {categoryExpenseData.map(
+                      (_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                        />
+                      )
+                    )}
+
+                  </Pie>
+
+                  <Tooltip
+                    formatter={(value) =>
+                      `৳ ${Number(value).toLocaleString()}`
+                    }
+                  />
+
+                  <Legend />
+
+                </PieChart>
+
+              </ResponsiveContainer>
+
+            </div>
+          )}
+
         </div>
 
+        {/* =========================================================
+            EXPENSE REPORT MODAL
+        ========================================================= */}
 
-        {/* ================= REPORT AREA ================= */}
-
-        <div
-          className="modal-body"
-          style={{
-            padding: "20px",
-            overflowX: "auto",
-            background: "#eeeeee",
-          }}
-        >
+        {showReport && (
 
           <div
-            ref={reportRef}
-             className="expense-report-page"
+            className="modal fade show d-block"
             style={{
-              width: "210mm",
-              minWidth: "210mm",
-              margin: "0 auto",
-              background: "#ffffff",
-              fontFamily: '"Noto Sans Bengali", "Noto Sans", sans-serif',
-              boxShadow: "0 0 15px rgba(0,0,0,0.15)",
-              position: "relative",
-              overflow: "hidden",
+              backgroundColor: "rgba(0,0,0,0.6)",
+              zIndex: 1055,
             }}
           >
 
-            {/* ================= HEADER ================= */}
-
             <div
+              className="modal-dialog modal-xl modal-dialog-centered"
               style={{
-                height: "43mm",
-                background:
-                  "linear-gradient(100deg, #08aeea 0%, #078dbb 35%, #075f7d 65%, #101c31 100%)",
-                color: "#ffffff",
-                position: "relative",
-                overflow: "hidden",
+                maxWidth: "95%",
               }}
             >
 
-              {/* HEADER MAIN */}
+              <div className="modal-content">
 
-              <div
-                style={{
-                  height: "36mm",
-                  position: "relative",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
+                {/* MODAL HEADER */}
 
-                {/* LOGO */}
+                <div className="modal-header">
 
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "28mm",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    width: "18mm",
-                    height: "18mm",
-                    background: "#ffffff",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <img
-                    src="/logo.png"
-                    alt="Badokhali Youth Foundation"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                      borderRadius: "50%",
-                    }}
+                  <h5 className="modal-title">
+                    💸 Expense Report
+                  </h5>
+
+                  <button
+                    className="btn-close"
+                    onClick={() =>
+                      setShowReport(false)
+                    }
                   />
+
                 </div>
 
-
-                {/* ORGANIZATION NAME */}
+                {/* REPORT AREA */}
 
                 <div
+                  className="modal-body"
                   style={{
-                    textAlign: "center",
-                    marginTop: "2mm",
+                    padding: "20px",
+                    overflowX: "auto",
+                    background: "#eeeeee",
                   }}
                 >
 
                   <div
+                    ref={reportRef}
+                    className="expense-report-page"
                     style={{
-                      fontSize: "35px",
-                      fontWeight: 800,
-                      lineHeight: 1.2,
-                      whiteSpace: "nowrap",
+                      width: "210mm",
+                      minWidth: "210mm",
+                      margin: "0 auto",
+                      background: "#ffffff",
+                      fontFamily:
+                        '"Noto Sans Bengali", "Noto Sans", sans-serif',
+                      boxShadow:
+                        "0 0 15px rgba(0,0,0,0.15)",
+                      position: "relative",
+                      overflow: "hidden",
                     }}
                   >
-                    বাদোখালী ইয়ুথ ফাউন্ডেশন
-                  </div>
 
-                  <div
-                    style={{
-                      fontFamily: "Arial, sans-serif",
-                      fontSize: "25px",
-                      fontWeight: 700,
-                      lineHeight: 1.2,
-                      marginTop: "2px",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Badokhali Youth Foundation
-                  </div>
+                    {/* HEADER */}
 
-                </div>
-
-
-                {/* SLOGAN */}
-
-                <div
-                  style={{
-                    position: "absolute",
-                    right: "11mm",
-                    top: "3mm",
-                    fontSize: "10px",
-                    fontWeight: 500,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  তারুণ্যের স্পন্দন, সেবার বন্ধন
-                </div>
-
-              </div>
-
-
-              {/* HEADER DESIGN */}
-
-              <div
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  height: "7mm",
-                  display: "flex",
-                  background: "#ffffff",
-                }}
-              >
-
-                <div
-                  style={{
-                    width: "31%",
-                    background:
-                      "linear-gradient(90deg, #12324a, #087b9e)",
-                  }}
-                />
-
-                <div
-                  style={{
-                    width: "38%",
-                    background: "#08aeea",
-                    clipPath:
-                      "polygon(8% 0, 92% 0, 84% 100%, 16% 100%)",
-                  }}
-                />
-
-                <div
-                  style={{
-                    width: "31%",
-                    background:
-                      "linear-gradient(90deg, #087b9e, #12324a)",
-                  }}
-                />
-
-              </div>
-
-            </div>
-
-
-            {/* ================= WATERMARK ================= */}
-
-            <img
-              src="/logo.png"
-              alt=""
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: "105mm",
-                height: "105mm",
-                objectFit: "contain",
-                opacity: 0.045,
-                pointerEvents: "none",
-                zIndex: 0,
-              }}
-            />
-
-
-            {/* ================= CONTENT ================= */}
-
-            <div
-              style={{
-                position: "relative",
-                zIndex: 2,
-                padding: "8mm 15mm 5mm",
-              }}
-            >
-
-              {/* META */}
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "13px",
-                  marginBottom: "5mm",
-                }}
-              >
-
-                <div>
-                  <strong>রিপোর্ট:</strong> Expense Report
-                </div>
-
-                <div>
-                  <strong>তারিখ:</strong>{" "}
-                  {new Date().toLocaleDateString("en-GB")}
-                </div>
-
-              </div>
-
-
-              {/* TITLE */}
-
-              <h2
-                style={{
-                  textAlign: "center",
-                  fontSize: "23px",
-                  fontWeight: 800,
-                  textDecoration: "underline",
-                  textUnderlineOffset: "5px",
-                  margin: "0 0 7mm",
-                }}
-              >
-                Expense Report
-              </h2>
-
-
-              {/* TABLE */}
-
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  tableLayout: "fixed",
-                  fontSize: "12px",
-                }}
-              >
-
-                <thead>
-
-                  <tr>
-
-                    <th
+                    <div
                       style={{
-                        border: "1px solid #555",
-                        padding: "8px 5px",
-                        width: "7%",
-                        background: "#f0f5f2",
+                        height: "43mm",
+                        background:
+                          "linear-gradient(100deg, #08aeea 0%, #078dbb 35%, #075f7d 65%, #101c31 100%)",
+                        color: "#ffffff",
+                        position: "relative",
+                        overflow: "hidden",
                       }}
                     >
-                      #
-                    </th>
 
-                    <th
-                      style={{
-                        border: "1px solid #555",
-                        padding: "8px 5px",
-                        width: "27%",
-                        background: "#f0f5f2",
-                      }}
-                    >
-                      Title
-                    </th>
-
-                    <th
-                      style={{
-                        border: "1px solid #555",
-                        padding: "8px 5px",
-                        width: "16%",
-                        background: "#f0f5f2",
-                      }}
-                    >
-                      Category
-                    </th>
-
-                    <th
-                      style={{
-                        border: "1px solid #555",
-                        padding: "8px 5px",
-                        width: "15%",
-                        background: "#f0f5f2",
-                      }}
-                    >
-                      Amount
-                    </th>
-
-                    <th
-                      style={{
-                        border: "1px solid #555",
-                        padding: "8px 5px",
-                        width: "17%",
-                        background: "#f0f5f2",
-                      }}
-                    >
-                      Method
-                    </th>
-
-                    <th
-                      style={{
-                        border: "1px solid #555",
-                        padding: "8px 5px",
-                        width: "18%",
-                        background: "#f0f5f2",
-                      }}
-                    >
-                      Date
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                  {filteredExpenses.map((item, index) => (
-
-                    <tr key={item.id}>
-
-                      <td
+                      <div
                         style={{
-                          border: "1px solid #555",
-                          padding: "7px 5px",
+                          height: "36mm",
+                          position: "relative",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+
+                        {/* LOGO */}
+
+                        <div
+                          style={{
+                            position: "absolute",
+                            left: "28mm",
+                            top: "50%",
+                            transform:
+                              "translateY(-50%)",
+                            width: "18mm",
+                            height: "18mm",
+                            background: "#ffffff",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+
+                          <img
+                            src="/logo.png"
+                            alt="Badokhali Youth Foundation"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                              borderRadius: "50%",
+                            }}
+                          />
+
+                        </div>
+
+                        {/* ORGANIZATION NAME */}
+
+                        <div
+                          style={{
+                            textAlign: "center",
+                            marginTop: "2mm",
+                          }}
+                        >
+
+                          <div
+                            style={{
+                              fontSize: "35px",
+                              fontWeight: 800,
+                              lineHeight: 1.2,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            বাদোখালী ইয়ুথ ফাউন্ডেশন
+                          </div>
+
+                          <div
+                            style={{
+                              fontFamily:
+                                "Arial, sans-serif",
+                              fontSize: "25px",
+                              fontWeight: 700,
+                              lineHeight: 1.2,
+                              marginTop: "2px",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            Badokhali Youth Foundation
+                          </div>
+
+                        </div>
+
+                        {/* SLOGAN */}
+
+                        <div
+                          style={{
+                            position: "absolute",
+                            right: "11mm",
+                            top: "3mm",
+                            fontSize: "10px",
+                            fontWeight: 500,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          তারুণ্যের স্পন্দন, সেবার বন্ধন
+                        </div>
+
+                      </div>
+
+                      {/* HEADER DESIGN */}
+
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: "7mm",
+                          display: "flex",
+                          background: "#ffffff",
+                        }}
+                      >
+
+                        <div
+                          style={{
+                            width: "31%",
+                            background:
+                              "linear-gradient(90deg, #12324a, #087b9e)",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            width: "38%",
+                            background: "#08aeea",
+                            clipPath:
+                              "polygon(8% 0, 92% 0, 84% 100%, 16% 100%)",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            width: "31%",
+                            background:
+                              "linear-gradient(90deg, #087b9e, #12324a)",
+                          }}
+                        />
+
+                      </div>
+
+                    </div>
+
+                    {/* WATERMARK */}
+
+                    <img
+                      src="/logo.png"
+                      alt=""
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform:
+                          "translate(-50%, -50%)",
+                        width: "105mm",
+                        height: "105mm",
+                        objectFit: "contain",
+                        opacity: 0.045,
+                        pointerEvents: "none",
+                        zIndex: 0,
+                      }}
+                    />
+
+                    {/* CONTENT */}
+
+                    <div
+                      style={{
+                        position: "relative",
+                        zIndex: 2,
+                        padding: "8mm 15mm 5mm",
+                      }}
+                    >
+
+                      {/* META */}
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent:
+                            "space-between",
+                          fontSize: "13px",
+                          marginBottom: "5mm",
+                        }}
+                      >
+
+                        <div>
+                          <strong>রিপোর্ট:</strong>{" "}
+                          Expense Report
+                        </div>
+
+                        <div>
+                          <strong>তারিখ:</strong>{" "}
+                          {new Date().toLocaleDateString(
+                            "en-GB"
+                          )}
+                        </div>
+
+                      </div>
+
+                      {/* TITLE */}
+
+                      <h2
+                        style={{
                           textAlign: "center",
-                          verticalAlign: "middle",
-                          wordBreak: "break-word",
+                          fontSize: "23px",
+                          fontWeight: 800,
+                          textDecoration: "underline",
+                          textUnderlineOffset: "5px",
+                          margin: "0 0 7mm",
                         }}
                       >
-                        {index + 1}
-                      </td>
+                        Expense Report
+                      </h2>
 
-                      <td
+                      {/* TABLE */}
+
+                      <table
                         style={{
-                          border: "1px solid #555",
-                          padding: "7px 5px",
-                          verticalAlign: "middle",
-                          wordBreak: "break-word",
+                          width: "100%",
+                          borderCollapse:
+                            "collapse",
+                          tableLayout: "fixed",
+                          fontSize: "12px",
                         }}
                       >
-                        {item.title}
-                      </td>
 
-                      <td
-                        style={{
-                          border: "1px solid #555",
-                          padding: "7px 5px",
-                          textAlign: "center",
-                          verticalAlign: "middle",
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {item.category}
-                      </td>
+                        <thead>
 
-                      <td
+                          <tr>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 5px",
+                                width: "7%",
+                                background:
+                                  "#f0f5f2",
+                              }}
+                            >
+                              #
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 5px",
+                                width: "27%",
+                                background:
+                                  "#f0f5f2",
+                              }}
+                            >
+                              Title
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 5px",
+                                width: "16%",
+                                background:
+                                  "#f0f5f2",
+                              }}
+                            >
+                              Category
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 5px",
+                                width: "15%",
+                                background:
+                                  "#f0f5f2",
+                              }}
+                            >
+                              Amount
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 5px",
+                                width: "17%",
+                                background:
+                                  "#f0f5f2",
+                              }}
+                            >
+                              Method
+                            </th>
+
+                            <th
+                              style={{
+                                border:
+                                  "1px solid #555",
+                                padding:
+                                  "8px 5px",
+                                width: "18%",
+                                background:
+                                  "#f0f5f2",
+                              }}
+                            >
+                              Date
+                            </th>
+
+                          </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                          {filteredExpenses.map(
+                            (item, index) => (
+
+                              <tr key={item.id}>
+
+                                <td
+                                  style={{
+                                    border:
+                                      "1px solid #555",
+                                    padding:
+                                      "7px 5px",
+                                    textAlign:
+                                      "center",
+                                    verticalAlign:
+                                      "middle",
+                                    wordBreak:
+                                      "break-word",
+                                  }}
+                                >
+                                  {index + 1}
+                                </td>
+
+                                <td
+                                  style={{
+                                    border:
+                                      "1px solid #555",
+                                    padding:
+                                      "7px 5px",
+                                    verticalAlign:
+                                      "middle",
+                                    wordBreak:
+                                      "break-word",
+                                  }}
+                                >
+                                  {item.title}
+                                </td>
+
+                                <td
+                                  style={{
+                                    border:
+                                      "1px solid #555",
+                                    padding:
+                                      "7px 5px",
+                                    textAlign:
+                                      "center",
+                                    verticalAlign:
+                                      "middle",
+                                    wordBreak:
+                                      "break-word",
+                                  }}
+                                >
+                                  {item.category}
+                                </td>
+
+                                <td
+                                  style={{
+                                    border:
+                                      "1px solid #555",
+                                    padding:
+                                      "7px 5px",
+                                    textAlign:
+                                      "right",
+                                    verticalAlign:
+                                      "middle",
+                                    whiteSpace:
+                                      "nowrap",
+                                  }}
+                                >
+                                  ৳ {item.amount}
+                                </td>
+
+                                <td
+                                  style={{
+                                    border:
+                                      "1px solid #555",
+                                    padding:
+                                      "7px 5px",
+                                    textAlign:
+                                      "center",
+                                    verticalAlign:
+                                      "middle",
+                                    wordBreak:
+                                      "break-word",
+                                  }}
+                                >
+                                  {item.paymentMethod}
+                                </td>
+
+                                <td
+                                  style={{
+                                    border:
+                                      "1px solid #555",
+                                    padding:
+                                      "7px 5px",
+                                    textAlign:
+                                      "center",
+                                    verticalAlign:
+                                      "middle",
+                                    whiteSpace:
+                                      "nowrap",
+                                  }}
+                                >
+                                  {item.expenseDate}
+                                </td>
+
+                              </tr>
+                            )
+                          )}
+
+                        </tbody>
+
+                      </table>
+
+                      {/* TOTAL */}
+
+                      <div
                         style={{
-                          border: "1px solid #555",
-                          padding: "7px 5px",
+                          marginTop: "6mm",
                           textAlign: "right",
-                          verticalAlign: "middle",
-                          whiteSpace: "nowrap",
+                          fontSize: "16px",
+                          fontWeight: 800,
                         }}
                       >
-                        ৳ {item.amount}
-                      </td>
+                        Total Expense : ৳{" "}
+                        {totalExpense.toLocaleString()}
+                      </div>
 
-                      <td
+                      {/* SIGNATURE AREA */}
+
+                      <div
                         style={{
-                          border: "1px solid #555",
-                          padding: "7px 5px",
-                          textAlign: "center",
-                          verticalAlign: "middle",
-                          wordBreak: "break-word",
+                          display: "flex",
+                          justifyContent:
+                            "space-between",
+                          alignItems:
+                            "flex-end",
+                          marginTop: "12mm",
+                          minHeight: "35mm",
                         }}
                       >
-                        {item.paymentMethod}
-                      </td>
 
-                      <td
+                        {/* SEAL */}
+
+                        <div
+                          style={{
+                            width: "50%",
+                            paddingLeft: "10px",
+                          }}
+                        >
+
+                          <img
+                            src="/roundseal.png"
+                            alt="Official Seal"
+                            style={{
+                              width: "90px",
+                              height: "90px",
+                              objectFit:
+                                "contain",
+                            }}
+                          />
+
+                        </div>
+
+                        {/* SIGNATURE */}
+
+                        <div
+                          style={{
+                            width: "50%",
+                            textAlign: "center",
+                            fontSize: "13px",
+                          }}
+                        >
+
+                          <div
+                            style={{
+                              width: "180px",
+                              margin:
+                                "0 auto 5px",
+                              borderTop:
+                                "1px solid #222",
+                            }}
+                          />
+
+                          <strong>
+                            Suman Roy
+                          </strong>
+
+                          <div>
+                            Treasurer
+                          </div>
+
+                          <div>
+                            Badokhali Youth Foundation
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* FOOTER */}
+
+                    <div
+                      style={{
+                        position: "relative",
+                        zIndex: 2,
+                        padding: "3mm 15mm 0",
+                        background: "#ffffff",
+                      }}
+                    >
+
+                      {/* ELECTRONIC NOTICE */}
+
+                      <div
                         style={{
-                          border: "1px solid #555",
-                          padding: "7px 5px",
+                          borderTop:
+                            "1px solid #d5d5d5",
+                          paddingTop: "8px",
                           textAlign: "center",
-                          verticalAlign: "middle",
-                          whiteSpace: "nowrap",
+                          fontSize: "10px",
+                          color: "#888",
                         }}
                       >
-                        {item.expenseDate}
-                      </td>
+                        “This is electronically generated. No signature is required.”
+                      </div>
 
-                    </tr>
+                      {/* FOOTER INFORMATION */}
 
-                  ))}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent:
+                            "space-between",
+                          gap: "8mm",
+                          marginTop: "4mm",
+                        }}
+                      >
 
-                </tbody>
+                        {/* PHONE */}
 
-              </table>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "5px",
+                            fontSize: "9.5px",
+                            lineHeight: 1.5,
+                          }}
+                        >
 
+                          <span
+                            style={{
+                              fontSize: "14px",
+                            }}
+                          >
+                            ☎
+                          </span>
 
-              {/* TOTAL */}
+                          <div>
+                            <div>
+                              +8801738126875
+                            </div>
 
-              <div
-                style={{
-                  marginTop: "6mm",
-                  textAlign: "right",
-                  fontSize: "16px",
-                  fontWeight: 800,
-                }}
-              >
-                Total Expense : ৳ {totalExpense}
-              </div>
+                            <div>
+                              +8801714597343
+                            </div>
+                          </div>
 
+                        </div>
 
-              {/* SIGNATURE AREA */}
+                        {/* ADDRESS */}
 
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-end",
-                  marginTop: "12mm",
-                  minHeight: "35mm",
-                }}
-              >
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "5px",
+                            fontSize: "9.5px",
+                            lineHeight: 1.5,
+                          }}
+                        >
 
-                {/* SEAL */}
+                          <span
+                            style={{
+                              fontSize: "14px",
+                            }}
+                          >
+                            📍
+                          </span>
 
-                <div
-                  style={{
-                    width: "50%",
-                    paddingLeft: "10px",
-                  }}
-                >
-                  <img
-                    src="/roundseal.png"
-                    alt="Official Seal"
-                    style={{
-                      width: "90px",
-                      height: "90px",
-                      objectFit: "contain",
-                    }}
-                  />
-                </div>
+                          <div>
+                            Badokhali, Mograhat-9300,
+                            <br />
+                            Bagerhat
+                          </div>
 
+                        </div>
 
-                {/* SIGNATURE */}
+                        {/* EMAIL */}
 
-                <div
-                  style={{
-                    width: "50%",
-                    textAlign: "center",
-                    fontSize: "13px",
-                  }}
-                >
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "5px",
+                            fontSize: "9.5px",
+                            lineHeight: 1.5,
+                          }}
+                        >
 
-                  <div
-                    style={{
-                      width: "180px",
-                      margin: "0 auto 5px",
-                      borderTop: "1px solid #222",
-                    }}
-                  />
+                          <span
+                            style={{
+                              fontSize: "14px",
+                            }}
+                          >
+                            ✉
+                          </span>
 
-                  <strong>
-                    Suman Roy
-                  </strong>
+                          <div>
+                            badokhaliyouthfoundation@gmail.com
+                            <br />
+                            youtube.com/@badokhaliyyouthfoundation
+                          </div>
 
-                  <div>
-                    Treasurer
-                  </div>
+                        </div>
 
-                  <div>
-                    Badokhali Youth Foundation
-                  </div>
+                        {/* QR */}
 
-                </div>
+                        <div>
 
-              </div>
+                          <img
+                            src="/qr-code.jpeg"
+                            alt="QR Code"
+                            style={{
+                              width: "20mm",
+                              height: "20mm",
+                              objectFit:
+                                "contain",
+                            }}
+                          />
 
-            </div>
+                        </div>
 
+                      </div>
 
-            {/* ================= FOOTER ================= */}
+                      {/* FOOTER DESIGN */}
 
-            <div
-              style={{
-                position: "relative",
-                zIndex: 2,
-                padding: "3mm 15mm 0",
-                background: "#ffffff",
-              }}
-            >
+                      <div
+                        style={{
+                          height: "12mm",
+                          marginTop: "4mm",
+                          position: "relative",
+                          overflow: "hidden",
+                        }}
+                      >
 
-              {/* ELECTRONIC NOTICE */}
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            left: 0,
+                            top: 0,
+                            width: "35%",
+                            height: "4px",
+                            background:
+                              "#292929",
+                          }}
+                        />
 
-              <div
-                style={{
-                  borderTop: "1px solid #d5d5d5",
-                  paddingTop: "8px",
-                  textAlign: "center",
-                  fontSize: "10px",
-                  color: "#888",
-                }}
-              >
-                “This is electronically generated. No signature is required.”
-              </div>
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            left: "27%",
+                            right: "27%",
+                            top: 0,
+                            bottom: 0,
+                            background:
+                              "#08aeea",
+                            clipPath:
+                              "polygon(13% 0, 87% 0, 74% 100%, 26% 100%)",
+                          }}
+                        />
 
+                        <div
+                          style={{
+                            position:
+                              "absolute",
+                            right: 0,
+                            top: 0,
+                            width: "28%",
+                            height: "4px",
+                            background:
+                              "#292929",
+                          }}
+                        />
 
-              {/* FOOTER INFORMATION */}
+                      </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "8mm",
-                  marginTop: "4mm",
-                }}
-              >
+                    </div>
 
-                {/* PHONE */}
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "5px",
-                    fontSize: "9.5px",
-                    lineHeight: 1.5,
-                  }}
-                >
-
-                  <span style={{ fontSize: "14px" }}>
-                    ☎
-                  </span>
-
-                  <div>
-                    <div>+8801738126875</div>
-                    <div>+8801714597343</div>
-                  </div>
-
-                </div>
-
-
-                {/* ADDRESS */}
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "5px",
-                    fontSize: "9.5px",
-                    lineHeight: 1.5,
-                  }}
-                >
-
-                  <span style={{ fontSize: "14px" }}>
-                    📍
-                  </span>
-
-                  <div>
-                    Badokhali, Mograhat-9300,
-                    <br />
-                    Bagerhat
-                  </div>
-
-                </div>
-
-
-                {/* EMAIL */}
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "5px",
-                    fontSize: "9.5px",
-                    lineHeight: 1.5,
-                  }}
-                >
-
-                  <span style={{ fontSize: "14px" }}>
-                    ✉
-                  </span>
-
-                  <div>
-                    badokhaliyouthfoundation@gmail.com
-                    <br />
-                    youtube.com/@badokhaliyyouthfoundation
                   </div>
 
                 </div>
 
+                {/* MODAL FOOTER */}
 
-                {/* QR */}
+                <div className="modal-footer">
 
-                <div>
-                  <img
-                    src="/qr-code.jpeg"
-                    alt="QR Code"
-                    style={{
-                      width: "20mm",
-                      height: "20mm",
-                      objectFit: "contain",
-                    }}
-                  />
+                  <button
+                    className="btn btn-success"
+                    onClick={
+                      downloadExpenseReport
+                    }
+                  >
+                    📥 Download Report
+                  </button>
+
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() =>
+                      setShowReport(false)
+                    }
+                  >
+                    Close
+                  </button>
+
                 </div>
-
-              </div>
-
-
-              {/* FOOTER DESIGN */}
-
-              <div
-                style={{
-                  height: "12mm",
-                  marginTop: "4mm",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-
-                <div
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    width: "35%",
-                    height: "4px",
-                    background: "#292929",
-                  }}
-                />
-
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "27%",
-                    right: "27%",
-                    top: 0,
-                    bottom: 0,
-                    background: "#08aeea",
-                    clipPath:
-                      "polygon(13% 0, 87% 0, 74% 100%, 26% 100%)",
-                  }}
-                />
-
-                <div
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    top: 0,
-                    width: "28%",
-                    height: "4px",
-                    background: "#292929",
-                  }}
-                />
 
               </div>
 
             </div>
 
           </div>
+        )}
 
-        </div>
-
-
-        {/* ================= MODAL FOOTER ================= */}
-
-        <div className="modal-footer">
-
-          <button
-            className="btn btn-success"
-            onClick={downloadExpenseReport}
-          >
-            📥 Download Report
-          </button>
-
-          <button
-            className="btn btn-secondary"
-            onClick={() => setShowReport(false)}
-          >
-            Close
-          </button>
-
-        </div>
-
-      </div>
-    </div>
-  </div>
-)}
-
-
-
-        {/* Expense History */}
+        {/* =========================================================
+            EXPENSE HISTORY
+        ========================================================= */}
 
         <div className="card shadow-sm">
+
           <div className="card-header bg-dark text-white">
-            <h5 className="mb-0">Expense History</h5>
+
+            <h5 className="mb-0">
+              Expense History
+            </h5>
+
           </div>
 
           <div className="table-responsive">
+
             <table className="table table-bordered table-hover mb-0">
+
               <thead className="table-dark">
+
                 <tr>
                   <th>#</th>
                   <th>Title</th>
@@ -1156,62 +1419,121 @@ const [filterYear, setFilterYear] = useState("");
                   <th>Remarks</th>
                   <th>Action</th>
                 </tr>
+
               </thead>
 
               <tbody>
+
                 {filteredExpenses.length === 0 ? (
+
                   <tr>
-                    <td colSpan={8} className="text-center">
+
+                    <td
+                      colSpan={8}
+                      className="text-center"
+                    >
                       No Expense Found
                     </td>
+
                   </tr>
+
                 ) : (
-                  filteredExpenses.map((item, index) => (
-                    <tr key={item.id}>
-                      <td>{index + 1}</td>
 
-                      <td>{item.title}</td>
+                  filteredExpenses.map(
+                    (item, index) => (
 
-                      <td>{item.category}</td>
+                      <tr key={item.id}>
 
-                      <td>৳ {item.amount}</td>
+                        <td>
+                          {index + 1}
+                        </td>
 
-                      <td>{item.paymentMethod}</td>
+                        <td>
+                          {item.title}
+                        </td>
 
-                      <td>{item.expenseDate}</td>
+                        <td>
+                          {item.category}
+                        </td>
 
-                      <td>{item.remarks}</td>
+                        <td>
+                          ৳{" "}
+                          {Number(
+                            item.amount
+                          ).toLocaleString()}
+                        </td>
 
-                      <td>
-                        <button
-                          className="btn btn-sm btn-primary me-2"
-                          onClick={() => {
-                            setEditId(item.id);
-                            setTitle(item.title);
-                            setCategory(item.category);
-                            setAmount(item.amount);
-                            setPaymentMethod(item.paymentMethod);
-                            setExpenseDate(item.expenseDate);
-                            setRemarks(item.remarks);
-                          }}
-                        >
-                          Edit
-                        </button>
+                        <td>
+                          {item.paymentMethod}
+                        </td>
 
-                        <button
-                          className="btn btn-sm btn-danger"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                        <td>
+                          {item.expenseDate}
+                        </td>
+
+                        <td>
+                          {item.remarks}
+                        </td>
+
+                        <td>
+
+                          <button
+                            className="btn btn-sm btn-primary me-2"
+                            onClick={() => {
+                              setEditId(
+                                item.id
+                              );
+                              setTitle(
+                                item.title
+                              );
+                              setCategory(
+                                item.category
+                              );
+                              setAmount(
+                                item.amount
+                              );
+                              setPaymentMethod(
+                                item.paymentMethod
+                              );
+                              setExpenseDate(
+                                item.expenseDate
+                              );
+                              setRemarks(
+                                item.remarks
+                              );
+                            }}
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() =>
+                              handleDelete(
+                                item.id
+                              )
+                            }
+                          >
+                            Delete
+                          </button>
+
+                        </td>
+
+                      </tr>
+
+                    )
+                  )
+
                 )}
+
               </tbody>
+
             </table>
+
           </div>
+
         </div>
+
       </div>
     </AdminLayout>
   );

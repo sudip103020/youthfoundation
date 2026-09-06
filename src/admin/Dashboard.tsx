@@ -24,11 +24,20 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+
 // =====================================================
 // MONTHLY SUBSCRIPTION CONFIG
 // =====================================================
 
-const DEFAULT_MONTHLY_SUBSCRIPTION_AMOUNT = 100;
+const DEFAULT_MONTHLY_SUBSCRIPTION_AMOUNT = 0;
 
 const MONTHS = [
   "January",
@@ -44,6 +53,7 @@ const MONTHS = [
   "November",
   "December",
 ];
+
 
 // =====================================================
 // MEMBER DATA
@@ -167,6 +177,10 @@ const Dashboard = () => {
   const [loadingMonthlyCollection, setLoadingMonthlyCollection] =
     useState(false);
 
+    const [expenseChartData, setExpenseChartData] = useState<
+  { name: string; value: number }[]
+>([]);
+
   // ===================================================
   // PAID MEMBER MODAL STATES
   // ===================================================
@@ -179,6 +193,21 @@ const Dashboard = () => {
 
   const [loadingPaidMembers, setLoadingPaidMembers] =
     useState(false);
+
+    const EXPENSE_COLORS = [
+  "#4F46E5",
+  "#16A34A",
+  "#DC2626",
+  "#F59E0B",
+  "#0891B2",
+  "#9333EA",
+  "#EA580C",
+  "#0D9488",
+  "#2563EB",
+  "#DB2777",
+  "#65A30D",
+  "#7C3AED",
+];
 
   // ===================================================
   // CHAT STATES
@@ -345,22 +374,38 @@ const Dashboard = () => {
           )
         );
 
-      let expenseTotal = 0;
+     let expenseTotal = 0;
 
-      expenseSnapshot.forEach(
-        (item) => {
+const categoryTotals: Record<string, number> = {};
 
-          expenseTotal +=
-            Number(
-              item.data().amount || 0
-            );
+expenseSnapshot.forEach((item) => {
+  const data = item.data();
 
-        }
-      );
+  const amount = Number(data.amount || 0);
+  const category = String(
+    data.category || "Other Expenses"
+  ).trim();
 
-      setTotalExpense(
-        expenseTotal
-      );
+  expenseTotal += amount;
+
+  if (categoryTotals[category]) {
+    categoryTotals[category] += amount;
+  } else {
+    categoryTotals[category] = amount;
+  }
+});
+
+setTotalExpense(expenseTotal);
+
+const chartData = Object.entries(categoryTotals)
+  .map(([name, value]) => ({
+    name,
+    value,
+  }))
+  .filter((item) => item.value > 0)
+  .sort((a, b) => b.value - a.value);
+
+setExpenseChartData(chartData);
 
     } catch (error) {
 
@@ -371,6 +416,10 @@ const Dashboard = () => {
 
     }
   };
+
+  {/* =================================================
+    EXPENSE PIE CHART
+================================================= */}
 
 
 
@@ -454,6 +503,7 @@ const Dashboard = () => {
       );
 
       let monthlyExpenseTotal = 0;
+      const categoryTotals: Record<string, number> = {};
 
       expenseSnapshot.forEach((expenseDoc) => {
         const data = expenseDoc.data();
@@ -615,19 +665,37 @@ const Dashboard = () => {
             selectedMonth
           );
 
-        if (
-          normalizedExpenseMonth ===
-          normalizedSelectedMonth &&
-          Number(expenseYear) ===
-          Number(selectedYear)
-        ) {
-          monthlyExpenseTotal += amount;
-        }
+      if (
+  normalizedExpenseMonth === normalizedSelectedMonth &&
+  Number(expenseYear) === Number(selectedYear)
+) {
+  monthlyExpenseTotal += amount;
+
+  const category = String(
+    data.category || "Other Expenses"
+  ).trim();
+
+  if (categoryTotals[category]) {
+    categoryTotals[category] += amount;
+  } else {
+    categoryTotals[category] = amount;
+  }
+}
       });
 
       setMonthlyExpense(
         monthlyExpenseTotal
       );
+
+      const chartData = Object.entries(categoryTotals)
+  .map(([name, value]) => ({
+    name,
+    value,
+  }))
+  .filter((item) => item.value > 0)
+  .sort((a, b) => b.value - a.value);
+
+setExpenseChartData(chartData);
 
       // -----------------------------------------------
       // GET SUBSCRIPTIONS
@@ -3997,6 +4065,116 @@ const Dashboard = () => {
           </div>
 
         </div>
+
+
+        {/* =================================================
+    EXPENSE PIE CHART
+================================================= */}
+
+<div className="row mt-4">
+  <div className="col-12">
+    <div className="card border-0 shadow-sm">
+
+      {/* HEADER */}
+      <div className="card-header bg-white p-4">
+        <div>
+          <h5 className="mb-1 fw-bold">
+            💸 Expense Overview
+          </h5>
+
+          <small className="text-muted">
+            Category-wise expense breakdown for{" "}
+            {selectedMonth} {selectedYear}
+          </small>
+        </div>
+      </div>
+
+      {/* BODY */}
+      <div className="card-body p-4">
+
+        {expenseChartData.length === 0 ? (
+
+          <div className="text-center text-muted py-5">
+
+            <div
+              style={{
+                fontSize: "50px",
+              }}
+            >
+              📊
+            </div>
+
+            <h6 className="mt-3">
+              No expense data available
+            </h6>
+
+            <p className="mb-0">
+              No expenses found for{" "}
+              {selectedMonth} {selectedYear}.
+            </p>
+
+          </div>
+
+        ) : (
+
+          <div
+            style={{
+              width: "100%",
+              height: "500px",
+            }}
+          >
+
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+
+              <PieChart>
+
+                <Pie
+  
+  data={expenseChartData}
+  dataKey="value"
+  nameKey="name"
+  cx="50%"
+  cy="50%"
+  innerRadius={75}
+  outerRadius={170}
+  paddingAngle={2}
+  label={({ percent }) =>
+    `${((percent || 0) * 100).toFixed(1)}%`
+  }
+>
+  {expenseChartData.map((_, index) => (
+    <Cell
+      key={`expense-cell-${index}`}
+      fill={EXPENSE_COLORS[index % EXPENSE_COLORS.length]}
+    />
+  ))}
+</Pie>
+
+
+<Tooltip
+  formatter={(value) =>
+    `৳ ${Number(value).toLocaleString()}`
+  }
+/>
+
+<Legend />
+
+              </PieChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        )}
+
+      </div>
+
+    </div>
+  </div>
+</div>
 
         {/* =================================================
             INBOX

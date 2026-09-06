@@ -320,6 +320,9 @@ const Members = () => {
                     <option>
                       Publicity and Publication Secretary
                     </option>
+                    <option>
+                    Women's Affairs Secretary
+                    </option>
 
                   </select>
 
