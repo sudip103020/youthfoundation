@@ -1,0 +1,717 @@
+
+/* =========================================================
+   PUBLIC VILLAGE MAP
+   Clean + Responsive
+   ========================================================= */
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.village-map-page {
+  width: 100%;
+  padding: 20px 0;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.village-map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.village-map-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.village-map-title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #eff6ff;
+  font-size: 26px;
+}
+
+.village-map-title h2 {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 700;
+}
+
+.village-map-title p {
+  margin: 3px 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+
+/* =========================================================
+   STATS
+   ========================================================= */
+
+.village-map-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.public-map-stat {
+  min-width: 82px;
+  padding: 9px 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.public-map-stat strong {
+  display: block;
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.public-map-stat span {
+  display: block;
+  margin-top: 3px;
+  color: #6b7280;
+  font-size: 0.7rem;
+}
+
+
+/* =========================================================
+   CATEGORY FILTER
+   ========================================================= */
+
+.village-map-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 11px;
+  background: #ffffff;
+  scrollbar-width: thin;
+}
+
+.map-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.map-filter-btn:hover {
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.map-filter-btn.active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.map-filter-btn small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 0.65rem;
+}
+
+.map-filter-btn.active small {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+
+/* =========================================================
+   MAP WRAPPER
+   ========================================================= */
+
+.village-public-map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 680px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #f8fafc;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   MAP
+   ========================================================= */
+
+.village-public-map {
+  width: 100%;
+  height: 100%;
+  min-height: 680px;
+  z-index: 1;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.village-map-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(3px);
+}
+
+.village-map-loading .spinner-border {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+.village-map-loading p {
+  margin-top: 12px;
+  margin-bottom: 0;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+
+/* =========================================================
+   CUSTOM MARKER
+   ========================================================= */
+
+.public-map-marker-wrapper {
+  background: transparent !important;
+  border: none !important;
+}
+
+.public-map-marker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 3px solid #ffffff;
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  transform: rotate(-45deg);
+}
+
+.public-map-marker span {
+  display: block;
+  font-size: 19px;
+  line-height: 1;
+  transform: rotate(45deg);
+}
+
+
+/* =========================================================
+   LEAFLET ZOOM
+   ========================================================= */
+
+.village-public-map .leaflet-control-zoom {
+  margin-top: 12px;
+  margin-right: 12px;
+  border: none;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.village-public-map .leaflet-control-zoom a {
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  border: none;
+  background: #ffffff;
+  color: #374151;
+  font-size: 18px;
+}
+
+.village-public-map .leaflet-control-zoom a:hover {
+  background: #f3f4f6;
+}
+
+
+/* =========================================================
+   POPUP
+   ========================================================= */
+
+.village-public-map .leaflet-popup-content-wrapper {
+  border-radius: 11px;
+}
+
+.village-public-map .leaflet-popup-content {
+  min-width: 190px;
+  margin: 13px 15px;
+}
+
+.public-map-popup {
+  color: #1f2937;
+}
+
+.public-popup-category {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
+  color: #6b7280;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.public-popup-category span {
+  font-size: 16px;
+}
+
+.public-popup-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.public-popup-description {
+  margin-top: 6px;
+  color: #4b5563;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.public-popup-meta {
+  margin-top: 7px;
+  color: #6b7280;
+  font-size: 0.7rem;
+}
+
+.public-popup-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.75rem;
+}
+
+.public-popup-status span {
+  color: #6b7280;
+}
+
+.public-popup-status strong {
+  color: #16a34a;
+}
+
+.public-popup-coordinates {
+  margin-top: 7px;
+  color: #9ca3af;
+  font-size: 0.65rem;
+}
+
+
+/* =========================================================
+   MAP LEGEND
+   ========================================================= */
+
+.village-map-legend {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 1000;
+  min-width: 175px;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(5px);
+}
+
+.legend-title {
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  color: #4b5563;
+  font-size: 0.72rem;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 25px;
+  height: 4px;
+  border-radius: 5px;
+}
+
+.legend-line.road {
+  background: #dc2626;
+}
+
+.legend-line.boundary {
+  height: 3px;
+  border: 1px dashed #2563eb;
+  background: rgba(59, 130, 246, 0.2);
+}
+
+
+/* =========================================================
+   ACTIVE FILTER INFO
+   ========================================================= */
+
+.active-filter-info {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1000;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #374151;
+  font-size: 0.78rem;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(5px);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.village-map-empty {
+  margin-top: 16px;
+  padding: 35px 20px;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+  background: #f9fafb;
+  text-align: center;
+}
+
+.empty-icon {
+  margin-bottom: 8px;
+  font-size: 35px;
+}
+
+.village-map-empty h5 {
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.village-map-empty p {
+  max-width: 500px;
+  margin: 0 auto;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+
+/* =========================================================
+   ALERT
+   ========================================================= */
+
+.village-map-page .alert {
+  border-radius: 9px;
+  font-size: 0.88rem;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 991.98px) {
+
+  .village-map-page {
+    padding: 15px 0;
+  }
+
+  .village-map-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .village-map-stats {
+    width: 100%;
+  }
+
+  .public-map-stat {
+    flex: 1;
+  }
+
+  .village-public-map-wrapper {
+    height: 600px;
+  }
+
+  .village-public-map {
+    min-height: 600px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 767.98px) {
+
+  .village-map-page {
+    padding: 10px 0;
+  }
+
+
+  /* Header */
+
+  .village-map-header {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .village-map-title {
+    gap: 9px;
+  }
+
+  .village-map-title-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
+    font-size: 22px;
+  }
+
+  .village-map-title h2 {
+    font-size: 1.35rem;
+  }
+
+  .village-map-title p {
+    font-size: 0.76rem;
+  }
+
+
+  /* Stats */
+
+  .village-map-stats {
+    gap: 6px;
+  }
+
+  .public-map-stat {
+    padding: 7px 10px;
+    border-radius: 8px;
+  }
+
+  .public-map-stat strong {
+    font-size: 1rem;
+  }
+
+  .public-map-stat span {
+    font-size: 0.63rem;
+  }
+
+
+  /* Filter */
+
+  .village-map-filter {
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 7px;
+    border-radius: 9px;
+  }
+
+  .map-filter-btn {
+    padding: 6px 9px;
+    font-size: 0.72rem;
+  }
+
+
+  /* Map */
+
+  .village-public-map-wrapper {
+    height: 500px;
+    border-radius: 10px;
+  }
+
+  .village-public-map {
+    min-height: 500px;
+  }
+
+
+  /* Legend */
+
+  .village-map-legend {
+    right: 9px;
+    bottom: 9px;
+    min-width: 145px;
+    padding: 8px 10px;
+  }
+
+  .legend-title {
+    margin-bottom: 5px;
+    font-size: 0.7rem;
+  }
+
+  .legend-item {
+    margin-top: 4px;
+    font-size: 0.64rem;
+  }
+
+  .legend-line {
+    width: 20px;
+  }
+
+
+  /* Active filter */
+
+  .active-filter-info {
+    top: 9px;
+    left: 9px;
+    max-width: calc(100% - 18px);
+    padding: 6px 9px;
+    font-size: 0.68rem;
+  }
+
+
+  /* Zoom */
+
+  .village-public-map .leaflet-control-zoom {
+    margin-top: 8px;
+    margin-right: 8px;
+  }
+
+  .village-public-map .leaflet-control-zoom a {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+  }
+
+
+  /* Popup */
+
+  .village-public-map .leaflet-popup-content {
+    min-width: 150px;
+    margin: 10px 12px;
+  }
+
+  .public-popup-title {
+    font-size: 0.9rem;
+  }
+
+  .public-popup-description {
+    font-size: 0.74rem;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .village-map-page {
+    padding: 7px 0;
+  }
+
+
+  .village-map-title-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .village-map-title h2 {
+    font-size: 1.15rem;
+  }
+
+  .village-map-title p {
+    font-size: 0.7rem;
+  }
+
+
+  .public-map-stat {
+    padding: 6px 8px;
+  }
+
+  .public-map-stat strong {
+    font-size: 0.9rem;
+  }
+
+  .public-map-stat span {
+    font-size: 0.58rem;
+  }
+
+
+  .village-public-map-wrapper {
+    height: 430px;
+  }
+
+  .village-public-map {
+    min-height: 430px;
+  }
+
+
+  .village-map-legend {
+    display: none;
+  }
+
+
+  .village-public-map .leaflet-control-zoom {
+    display: none;
+  }
+
+}
+
+
+/* =========================================================
+   TOUCH DEVICE
+   ========================================================= */
+
+@media (hover: none) {
+
+  .map-filter-btn:hover {
+    transform: none;
+  }
+
+}
+

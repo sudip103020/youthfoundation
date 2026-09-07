@@ -13,6 +13,7 @@ const bn = {
     username: "ইউজার নেম",
     password: "পার্সওয়ার্ড",
     emergency: "জরুরি নম্বর",
+    ourVillage: "আমাদের গ্রাম",
     
      "supportUs": "আমাদের সহায়তা করুন",
   "chooseDonationAmount": "bKash-এর মাধ্যমে অনুদানের পরিমাণ নির্বাচন করুন",

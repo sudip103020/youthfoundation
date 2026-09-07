@@ -66,6 +66,10 @@ const Navigation = () => {
               {t("bloodBank")}
             </Nav.Link>
 
+             <Nav.Link as={Link} to="/ourvillage">
+              {t("ourVillage")}
+            </Nav.Link>
+
             {/* Language Switcher */}
             <LanguageSwitcher />
 

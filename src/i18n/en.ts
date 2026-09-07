@@ -9,6 +9,7 @@ const en = {
     donation: "Donation",
     feedback: "Feedback",
     bloodBank: "Blood Bank",
+    ourVillage: "Our Village",
 
     //notice page
     noticeBoard: "📢 Notice Board",

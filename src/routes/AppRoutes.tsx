@@ -12,6 +12,7 @@ import Donation from "../admin/Donation";
 import Expense from "../admin/Expense";
 import Notice from "../admin/Notice";
 import Settings from "../admin/Settings";
+import AdminVillageMap from "../admin/AdminVillageMap";
 import NoticePage from "../pages/Notice";
 import Contact from "../pages/contact";
 import DonationPage from "../pages/Donation";
@@ -27,6 +28,7 @@ import Reportacc from "../components/ReportPadaccount"
 import EmergencyNumbers from "../admin/EmergencyNumbers";
 import EmergencyNumberspublic from "../pages/EmergencyNumbers";
 import Bikaspayment from "../pages/bikaspayment";
+import OurVillage from "../pages/OurVillage";
 
 const AppRoutes = () => {
   return (
@@ -50,6 +52,7 @@ const AppRoutes = () => {
   <Route path="/reportacc" element={<Reportacc />} />
   <Route path="/emergency" element={<EmergencyNumberspublic />} />
    <Route path="/bikaspayment" element={<Bikaspayment />} />
+    <Route path="/ourvillage" element={<OurVillage />} />
 </Route>
 
 
@@ -111,6 +114,17 @@ const AppRoutes = () => {
             <ProtectedRoute>
               <RoleRoute roles={["admin"]}>
                 <Donation />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+
+         <Route
+          path="/admin/adminvillagemap"
+          element={
+            <ProtectedRoute>
+              <RoleRoute roles={["admin"]}>
+                <AdminVillageMap />
               </RoleRoute>
             </ProtectedRoute>
           }

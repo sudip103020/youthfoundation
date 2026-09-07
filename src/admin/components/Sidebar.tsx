@@ -221,6 +221,25 @@ const Sidebar = () => {
             </li>
           )}
 
+          {/* Admin Village Map */}
+          {role === "admin" && (
+            <li className="nav-item">
+              <NavLink
+                to="/admin/adminvillagemap"
+                onClick={handleMenuClick}
+                className={({ isActive }) =>
+                  `nav-link ${
+                    isActive
+                      ? "bg-primary text-white rounded"
+                      : "text-white"
+                  }`
+                }
+              >
+                🗺️ Admin Village Map
+              </NavLink>
+            </li>
+          )}
+
 
           {/* Expense */}
           {(role === "admin" || role === "account") && (
