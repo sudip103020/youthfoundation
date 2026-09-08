@@ -30,12 +30,12 @@ import {
   FaUndo,
   FaTrash,
   FaSave,
-  
   FaTimes,
   FaEdit,
 } from "react-icons/fa";
 
 import "./AdminVillageMap.css";
+import AdminLayout from "./AdminLayout";
 
 /* =========================================================
    TYPES
@@ -54,23 +54,33 @@ type LocationType =
   | "tree"
   | "school"
   | "mosque"
-  | "clinic"
-  | "water"
+  | "mondir"
+  | "home"
   | "important";
+
+/* =========================================================
+   ROAD FEATURE
+========================================================= */
 
 interface RoadFeature {
   id: string;
   type: "road";
-  name: string;
+  nameBn: string;
+  nameEn: string;
   description: string;
   points: LatLngPoint[];
   createdAt?: Timestamp;
 }
 
+/* =========================================================
+   MAP LOCATION FEATURE
+========================================================= */
+
 interface MapFeature {
   id: string;
   type: LocationType;
-  name: string;
+  nameBn: string;
+  nameEn: string;
   description: string;
   lat: number;
   lng: number;
@@ -125,8 +135,8 @@ const LOCATION_ICONS: Record<
   tree: createIcon("🌳"),
   school: createIcon("🏫"),
   mosque: createIcon("🕌"),
-  clinic: createIcon("🏥"),
-  water: createIcon("💧"),
+  mondir: createIcon("⛪"),
+  home: createIcon("🏠"),
   important: createIcon("📍"),
 };
 
@@ -136,7 +146,7 @@ const LOCATION_ICONS: Record<
 
 const getLocationLabel = (
   type: LocationType
-) => {
+): string => {
   switch (type) {
     case "streetLight":
       return "💡 Street Light";
@@ -150,11 +160,11 @@ const getLocationLabel = (
     case "mosque":
       return "🕌 Mosque";
 
-    case "clinic":
-      return "🏥 Clinic";
+    case "mondir":
+      return "⛪ Mondir";
 
-    case "water":
-      return "💧 Water";
+    case "home":
+      return "🏠 Home";
 
     case "important":
       return "📍 Important Place";
@@ -173,32 +183,14 @@ const VALID_LOCATION_TYPES: LocationType[] = [
   "tree",
   "school",
   "mosque",
-  "clinic",
-  "water",
+  "mondir",
+  "home",
   "important",
 ];
 
 /* =========================================================
    FIRESTORE POINT PARSER
 ========================================================= */
-
-/*
-  Firestore nested arrays support করে না।
-
-  Leaflet:
-  [
-    [22.69, 89.74],
-    [22.70, 89.75]
-  ]
-
-  Firestore:
-  [
-    { lat: 22.69, lng: 89.74 },
-    { lat: 22.70, lng: 89.75 }
-  ]
-
-  এই function দুই format-ই read করতে পারবে।
-*/
 
 const parseLatLngPoints = (
   points: unknown
@@ -294,15 +286,6 @@ const MapClickHandler = ({
   return null;
 };
 
-const LOCATION_EMOJIS: Record<LocationType, string> = {
-  streetLight: "💡",
-  tree: "🌳",
-  school: "🏫",
-  mosque: "🕌",
-  clinic: "🏥",
-  water: "💧",
-  important: "📍",
-};
 /* =========================================================
    MAP RESIZE CONTROLLER
 ========================================================= */
@@ -405,7 +388,14 @@ const AdminVillageMap = () => {
   const [message, setMessage] =
     useState("");
 
-  const [name, setName] =
+  /* =======================================================
+     NAME STATES
+  ======================================================= */
+
+  const [nameBn, setNameBn] =
+    useState("");
+
+  const [nameEn, setNameEn] =
     useState("");
 
   const [description, setDescription] =
@@ -413,6 +403,10 @@ const AdminVillageMap = () => {
 
   const [status, setStatus] =
     useState("");
+
+  /* =======================================================
+     LOCATION COORDINATES
+  ======================================================= */
 
   const [selectedPoint, setSelectedPoint] =
     useState<LatLngPoint | null>(null);
@@ -509,11 +503,32 @@ const AdminVillageMap = () => {
 
             loadedRoads.push({
               id: item.id,
+
               type: "road",
 
-              name:
-                typeof data.name ===
+              /*
+                New format:
+                nameBn + nameEn
+
+                Old format:
+                name
+              */
+
+              nameBn:
+                typeof data.nameBn ===
                 "string"
+                  ? data.nameBn
+                  : typeof data.name ===
+                    "string"
+                  ? data.name
+                  : "",
+
+              nameEn:
+                typeof data.nameEn ===
+                "string"
+                  ? data.nameEn
+                  : typeof data.name ===
+                    "string"
                   ? data.name
                   : "",
 
@@ -551,9 +566,29 @@ const AdminVillageMap = () => {
               type:
                 data.type as LocationType,
 
-              name:
-                typeof data.name ===
+              /*
+                New format:
+                nameBn + nameEn
+
+                Old format:
+                name
+              */
+
+              nameBn:
+                typeof data.nameBn ===
                 "string"
+                  ? data.nameBn
+                  : typeof data.name ===
+                    "string"
+                  ? data.name
+                  : "",
+
+              nameEn:
+                typeof data.nameEn ===
+                "string"
+                  ? data.nameEn
+                  : typeof data.name ===
+                    "string"
                   ? data.name
                   : "",
 
@@ -694,7 +729,9 @@ const AdminVillageMap = () => {
 
     setEditingLocationId(null);
 
-    setName("");
+    setNameBn("");
+
+    setNameEn("");
 
     setDescription("");
 
@@ -736,6 +773,14 @@ const AdminVillageMap = () => {
 
     setEditingLocationId(null);
 
+    setNameBn("");
+
+    setNameEn("");
+
+    setDescription("");
+
+    setStatus("");
+
     setMessage(
       "✏️ Boundary edit mode active. Map-এ point add/remove করতে পারবেন."
     );
@@ -760,13 +805,13 @@ const AdminVillageMap = () => {
 
     setRoadPoints([]);
 
-    setBoundaryPoints([]);
-
     setSelectedPoint(null);
 
     setEditingLocationId(null);
 
-    setName("");
+    setNameBn("");
+
+    setNameEn("");
 
     setDescription("");
 
@@ -806,8 +851,12 @@ const AdminVillageMap = () => {
 
     setEditingLocationId(null);
 
-    setName(
-      road.name
+    setNameBn(
+      road.nameBn
+    );
+
+    setNameEn(
+      road.nameEn
     );
 
     setDescription(
@@ -817,7 +866,7 @@ const AdminVillageMap = () => {
     setStatus("");
 
     setMessage(
-      `✏️ "${road.name}" edit mode active.`
+      `✏️ "${road.nameBn}" edit mode active.`
     );
   };
 
@@ -844,13 +893,17 @@ const AdminVillageMap = () => {
 
     setLongitude("");
 
-    setName("");
+    setNameBn("");
+
+    setNameEn("");
 
     setDescription("");
 
     setStatus("");
 
     setRoadPoints([]);
+
+    setBoundaryPoints([]);
 
     setMessage(
       "📍 Map-এ click করে location select করুন."
@@ -891,8 +944,12 @@ const AdminVillageMap = () => {
       location.lng.toFixed(7)
     );
 
-    setName(
-      location.name
+    setNameBn(
+      location.nameBn
+    );
+
+    setNameEn(
+      location.nameEn
     );
 
     setDescription(
@@ -908,7 +965,7 @@ const AdminVillageMap = () => {
     setBoundaryPoints([]);
 
     setMessage(
-      `✏️ "${location.name}" edit mode active.`
+      `✏️ "${location.nameBn}" edit mode active.`
     );
   };
 
@@ -941,15 +998,16 @@ const AdminVillageMap = () => {
 
     setLongitude("");
 
-    setName("");
+    setNameBn("");
+
+    setNameEn("");
 
     setDescription("");
 
     setStatus("");
 
     /*
-      Important:
-      Cancel করার সময় existing boundary
+      Existing saved boundary
       clear করা হবে না।
     */
 
@@ -1007,11 +1065,6 @@ const AdminVillageMap = () => {
 
     try {
       setSaving(true);
-
-      /*
-        Convert Leaflet nested array
-        to Firestore object array.
-      */
 
       const firestorePoints =
         boundaryPoints.map(
@@ -1081,10 +1134,11 @@ const AdminVillageMap = () => {
     }
 
     if (
-      !name.trim()
+      !nameBn.trim() ||
+      !nameEn.trim()
     ) {
       setMessage(
-        "⚠️ Road-এর নাম দিন."
+        "⚠️ Road-এর বাংলা এবং English দুইটি নামই দিন."
       );
 
       return;
@@ -1092,14 +1146,6 @@ const AdminVillageMap = () => {
 
     try {
       setSaving(true);
-
-      /*
-        Convert Leaflet format:
-        [lat, lng]
-
-        to Firestore:
-        { lat, lng }
-      */
 
       const firestorePoints =
         roadPoints.map(
@@ -1125,8 +1171,18 @@ const AdminVillageMap = () => {
           {
             type: "road",
 
+            nameBn:
+              nameBn.trim(),
+
+            nameEn:
+              nameEn.trim(),
+
+            /*
+              Backward compatibility
+              পুরনো public map-এর জন্য
+            */
             name:
-              name.trim(),
+              nameBn.trim(),
 
             description:
               description.trim(),
@@ -1147,12 +1203,20 @@ const AdminVillageMap = () => {
                 editingRoadId
                   ? {
                       ...road,
-                      name:
-                        name.trim(),
+
+                      nameBn:
+                        nameBn.trim(),
+
+                      nameEn:
+                        nameEn.trim(),
+
                       description:
                         description.trim(),
+
                       points:
-                        [...roadPoints],
+                        [
+                          ...roadPoints,
+                        ],
                     }
                   : road
             )
@@ -1170,8 +1234,17 @@ const AdminVillageMap = () => {
           type:
             "road" as const,
 
+          nameBn:
+            nameBn.trim(),
+
+          nameEn:
+            nameEn.trim(),
+
+          /*
+            Backward compatibility
+          */
           name:
-            name.trim(),
+            nameBn.trim(),
 
           description:
             description.trim(),
@@ -1193,12 +1266,17 @@ const AdminVillageMap = () => {
           );
 
         const newRoad: RoadFeature = {
-          id: roadRef.id,
+          id:
+            roadRef.id,
 
-          type: "road",
+          type:
+            "road",
 
-          name:
-            roadData.name,
+          nameBn:
+            roadData.nameBn,
+
+          nameEn:
+            roadData.nameEn,
 
           description:
             roadData.description,
@@ -1224,7 +1302,9 @@ const AdminVillageMap = () => {
 
       setRoadPoints([]);
 
-      setName("");
+      setNameBn("");
+
+      setNameEn("");
 
       setDescription("");
 
@@ -1255,10 +1335,11 @@ const AdminVillageMap = () => {
 
   const saveLocation = async () => {
     if (
-      !name.trim()
+      !nameBn.trim() ||
+      !nameEn.trim()
     ) {
       setMessage(
-        "⚠️ Location-এর নাম দিন."
+        "⚠️ বাংলা এবং English দুইটি নামই দিন."
       );
 
       return;
@@ -1329,8 +1410,17 @@ const AdminVillageMap = () => {
             type:
               locationType,
 
+            nameBn:
+              nameBn.trim(),
+
+            nameEn:
+              nameEn.trim(),
+
+            /*
+              Backward compatibility
+            */
             name:
-              name.trim(),
+              nameBn.trim(),
 
             description:
               description.trim(),
@@ -1359,8 +1449,11 @@ const AdminVillageMap = () => {
                       type:
                         locationType,
 
-                      name:
-                        name.trim(),
+                      nameBn:
+                        nameBn.trim(),
+
+                      nameEn:
+                        nameEn.trim(),
 
                       description:
                         description.trim(),
@@ -1388,8 +1481,17 @@ const AdminVillageMap = () => {
           type:
             locationType,
 
+          nameBn:
+            nameBn.trim(),
+
+          nameEn:
+            nameEn.trim(),
+
+          /*
+            Backward compatibility
+          */
           name:
-            name.trim(),
+            nameBn.trim(),
 
           description:
             description.trim(),
@@ -1422,8 +1524,11 @@ const AdminVillageMap = () => {
             type:
               locationType,
 
-            name:
-              locationData.name,
+            nameBn:
+              locationData.nameBn,
+
+            nameEn:
+              locationData.nameEn,
 
             description:
               locationData.description,
@@ -1461,7 +1566,9 @@ const AdminVillageMap = () => {
 
       setLongitude("");
 
-      setName("");
+      setNameBn("");
+
+      setNameEn("");
 
       setDescription("");
 
@@ -1652,9 +1759,7 @@ const AdminVillageMap = () => {
           )
         );
 
-        setBoundaryPoints(
-          []
-        );
+        setBoundaryPoints([]);
 
         setEditingBoundary(
           false
@@ -1698,332 +1803,326 @@ const AdminVillageMap = () => {
   ======================================================= */
 
   return (
-    <div className="admin-village-map">
-      {/* =================================================
-          HEADER
-      ================================================= */}
+    <AdminLayout>
+      <div className="admin-village-map">
 
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <div>
-          <h3 className="fw-bold mb-1">
-            🗺️ Village Map Management
-          </h3>
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
-          <p className="text-muted mb-0">
-            Village boundary, roads এবং
-            important locations manage করুন
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="btn btn-outline-secondary"
-          onClick={
-            loadMapData
-          }
-          disabled={
-            loading ||
-            saving
-          }
-        >
-          🔄 Refresh
-        </button>
-      </div>
-
-      {/* =================================================
-          MESSAGE
-      ================================================= */}
-
-      {message && (
-        <div
-          className={`alert ${
-            message.startsWith(
-              "❌"
-            )
-              ? "alert-danger"
-              : message.startsWith(
-                  "⚠️"
-                )
-              ? "alert-warning"
-              : "alert-success"
-          } d-flex justify-content-between align-items-center`}
-        >
-          <span>
-            {message}
-          </span>
+        <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
+          <div>
+            <h3 className="fw-bold mb-1">
+              🗺️ Village Map Management
+            </h3>
+          </div>
 
           <button
             type="button"
-            className="btn btn-sm"
-            onClick={() =>
-              setMessage("")
+            className="btn btn-outline-secondary"
+            onClick={loadMapData}
+            disabled={
+              loading ||
+              saving
             }
           >
-            <FaTimes />
+            🔄 Refresh
           </button>
         </div>
-      )}
 
-      {/* =================================================
-          TOOLBAR
-      ================================================= */}
+        {/* =================================================
+            MESSAGE
+        ================================================= */}
 
-      <div className="card shadow-sm mb-3">
-        <div className="card-body">
-          <div className="d-flex flex-wrap gap-2">
-            {/* =========================================
-                BOUNDARY
-            ========================================= */}
-
-            <button
-              type="button"
-              className={`btn ${
-                drawMode ===
-                "boundary"
-                  ? "btn-danger"
-                  : "btn-primary"
-              }`}
-              onClick={
-                drawMode ===
-                "boundary"
-                  ? cancelDrawing
-                  : startBoundary
-              }
-              disabled={
-                saving
-              }
-            >
-              📐{" "}
-              {drawMode ===
-              "boundary"
-                ? "Cancel Boundary"
-                : "Draw Boundary"}
-            </button>
-
-            {/* =========================================
-                EDIT BOUNDARY
-            ========================================= */}
-
-            {boundaryPoints.length >=
-              3 &&
-              drawMode ===
-                "none" && (
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  onClick={
-                    editBoundary
-                  }
-                  disabled={
-                    saving
-                  }
-                >
-                  <FaEdit className="me-1" />
-                  Edit Boundary
-                </button>
-              )}
-
-            {/* =========================================
-                ROAD
-            ========================================= */}
+        {message && (
+          <div
+            className={`alert ${
+              message.startsWith("❌")
+                ? "alert-danger"
+                : message.startsWith("⚠️")
+                ? "alert-warning"
+                : "alert-success"
+            } d-flex justify-content-between align-items-center`}
+          >
+            <span>
+              {message}
+            </span>
 
             <button
               type="button"
-              className={`btn ${
-                drawMode ===
-                "road"
-                  ? "btn-danger"
-                  : "btn-success"
-              }`}
-              onClick={
-                drawMode ===
-                "road"
-                  ? cancelDrawing
-                  : startRoad
-              }
-              disabled={
-                saving
+              className="btn btn-sm"
+              onClick={() =>
+                setMessage("")
               }
             >
-              <FaRoad className="me-1" />
-
-              {drawMode ===
-              "road"
-                ? editingRoadId
-                  ? "Cancel Road Edit"
-                  : "Cancel Road"
-                : "Draw Road"}
+              <FaTimes />
             </button>
+          </div>
+        )}
 
-            {/* =========================================
-                LOCATION
-            ========================================= */}
+        {/* =================================================
+            TOOLBAR
+        ================================================= */}
 
-            <button
-              type="button"
-              className={`btn ${
-                drawMode ===
-                "location"
-                  ? "btn-danger"
-                  : "btn-warning"
-              }`}
-              onClick={
-                drawMode ===
-                "location"
-                  ? cancelDrawing
-                  : startLocation
-              }
-              disabled={
-                saving
-              }
-            >
-              📍{" "}
-              {drawMode ===
-              "location"
-                ? editingLocationId
-                  ? "Cancel Location Edit"
-                  : "Cancel Location"
-                : "Add Location"}
-            </button>
+        <div className="card shadow-sm mb-3">
+          <div className="card-body">
 
-            {/* =========================================
-                UNDO
-            ========================================= */}
+            <div className="d-flex flex-wrap gap-2">
 
-            {(drawMode ===
-              "boundary" ||
-              drawMode ===
-                "road") && (
+              {/* =========================================
+                  BOUNDARY
+              ========================================= */}
+
               <button
                 type="button"
-                className="btn btn-outline-secondary"
+                className={`btn ${
+                  drawMode ===
+                  "boundary"
+                    ? "btn-danger"
+                    : "btn-primary"
+                }`}
                 onClick={
-                  undoLastPoint
-                }
-                disabled={
-                  saving ||
-                  (drawMode ===
-                    "boundary" &&
-                    boundaryPoints.length ===
-                      0) ||
-                  (drawMode ===
-                    "road" &&
-                    roadPoints.length ===
-                      0)
-                }
-              >
-                <FaUndo className="me-1" />
-                Undo
-              </button>
-            )}
-
-            {/* =========================================
-                CANCEL
-            ========================================= */}
-
-            {drawMode !==
-              "none" && (
-              <button
-                type="button"
-                className="btn btn-outline-danger"
-                onClick={
-                  cancelDrawing
+                  drawMode ===
+                  "boundary"
+                    ? cancelDrawing
+                    : startBoundary
                 }
                 disabled={
                   saving
                 }
               >
-                <FaTimes className="me-1" />
-                Cancel
+                📐{" "}
+                {drawMode ===
+                "boundary"
+                  ? "Cancel Boundary"
+                  : "Draw Boundary"}
               </button>
+
+              {/* =========================================
+                  EDIT BOUNDARY
+              ========================================= */}
+
+              {boundaryPoints.length >=
+                3 &&
+                drawMode ===
+                  "none" && (
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={
+                      editBoundary
+                    }
+                    disabled={
+                      saving
+                    }
+                  >
+                    <FaEdit className="me-1" />
+                    Edit Boundary
+                  </button>
+                )}
+
+              {/* =========================================
+                  ROAD
+              ========================================= */}
+
+              <button
+                type="button"
+                className={`btn ${
+                  drawMode ===
+                  "road"
+                    ? "btn-danger"
+                    : "btn-success"
+                }`}
+                onClick={
+                  drawMode ===
+                  "road"
+                    ? cancelDrawing
+                    : startRoad
+                }
+                disabled={
+                  saving
+                }
+              >
+                <FaRoad className="me-1" />
+
+                {drawMode ===
+                "road"
+                  ? editingRoadId
+                    ? "Cancel Road Edit"
+                    : "Cancel Road"
+                  : "Draw Road"}
+              </button>
+
+              {/* =========================================
+                  LOCATION
+              ========================================= */}
+
+              <button
+                type="button"
+                className={`btn ${
+                  drawMode ===
+                  "location"
+                    ? "btn-danger"
+                    : "btn-warning"
+                }`}
+                onClick={
+                  drawMode ===
+                  "location"
+                    ? cancelDrawing
+                    : startLocation
+                }
+                disabled={
+                  saving
+                }
+              >
+                📍{" "}
+                {drawMode ===
+                "location"
+                  ? editingLocationId
+                    ? "Cancel Location Edit"
+                    : "Cancel Location"
+                  : "Add Location"}
+              </button>
+
+              {/* =========================================
+                  UNDO
+              ========================================= */}
+
+              {(drawMode ===
+                "boundary" ||
+                drawMode ===
+                  "road") && (
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={
+                    undoLastPoint
+                  }
+                  disabled={
+                    saving ||
+                    (drawMode ===
+                      "boundary" &&
+                      boundaryPoints.length ===
+                        0) ||
+                    (drawMode ===
+                      "road" &&
+                      roadPoints.length ===
+                        0)
+                  }
+                >
+                  <FaUndo className="me-1" />
+                  Undo
+                </button>
+              )}
+
+              {/* =========================================
+                  CANCEL
+              ========================================= */}
+
+              {drawMode !==
+                "none" && (
+                <button
+                  type="button"
+                  className="btn btn-outline-danger"
+                  onClick={
+                    cancelDrawing
+                  }
+                  disabled={
+                    saving
+                  }
+                >
+                  <FaTimes className="me-1" />
+                  Cancel
+                </button>
+              )}
+            </div>
+
+            {/* =========================================
+                BOUNDARY INFO
+            ========================================= */}
+
+            {drawMode ===
+              "boundary" && (
+              <div className="alert alert-info mt-3 mb-0">
+                {editingBoundary
+                  ? "✏️ Boundary edit mode active."
+                  : "📍 Boundary draw mode active."}
+
+                <br />
+
+                Map-এ click করে
+                boundary points দিন।
+
+                <br />
+
+                Current points:{" "}
+                <strong>
+                  {
+                    boundaryPoints.length
+                  }
+                </strong>
+              </div>
+            )}
+
+            {/* =========================================
+                ROAD INFO
+            ========================================= */}
+
+            {drawMode ===
+              "road" && (
+              <div className="alert alert-info mt-3 mb-0">
+                {editingRoadId
+                  ? "✏️ Road edit mode active."
+                  : "🛣️ Road draw mode active."}
+
+                <br />
+
+                Map-এ click করে road
+                points add করুন।
+
+                <br />
+
+                Current points:{" "}
+                <strong>
+                  {
+                    roadPoints.length
+                  }
+                </strong>
+              </div>
+            )}
+
+            {/* =========================================
+                LOCATION INFO
+            ========================================= */}
+
+            {drawMode ===
+              "location" && (
+              <div className="alert alert-info mt-3 mb-0">
+                {editingLocationId
+                  ? "✏️ Location edit mode active."
+                  : "📍 Location mode active."}
+
+                <br />
+
+                {editingLocationId
+                  ? "Map-এ click করলে location-এর coordinates পরিবর্তন হবে।"
+                  : "Map-এ click করে একটি location select করুন।"}
+              </div>
             )}
           </div>
-
-          {/* =========================================
-              BOUNDARY INFO
-          ========================================= */}
-
-          {drawMode ===
-            "boundary" && (
-            <div className="alert alert-info mt-3 mb-0">
-              {editingBoundary
-                ? "✏️ Boundary edit mode active."
-                : "📍 Boundary draw mode active."}
-
-              <br />
-
-              Map-এ click করে
-              boundary points দিন।
-
-              <br />
-
-              Current points:{" "}
-              <strong>
-                {
-                  boundaryPoints.length
-                }
-              </strong>
-            </div>
-          )}
-
-          {/* =========================================
-              ROAD INFO
-          ========================================= */}
-
-          {drawMode ===
-            "road" && (
-            <div className="alert alert-info mt-3 mb-0">
-              {editingRoadId
-                ? "✏️ Road edit mode active."
-                : "🛣️ Road draw mode active."}
-
-              <br />
-
-              Map-এ click করে road
-              points add করুন।
-
-              <br />
-
-              Current points:{" "}
-              <strong>
-                {
-                  roadPoints.length
-                }
-              </strong>
-            </div>
-          )}
-
-          {/* =========================================
-              LOCATION INFO
-          ========================================= */}
-
-          {drawMode ===
-            "location" && (
-            <div className="alert alert-info mt-3 mb-0">
-              {editingLocationId
-                ? "✏️ Location edit mode active."
-                : "📍 Location mode active."}
-
-              <br />
-
-              {editingLocationId
-                ? "Map-এ click করলে location-এর coordinates পরিবর্তন হবে।"
-                : "Map-এ click করে একটি location select করুন।"}
-            </div>
-          )}
         </div>
-      </div>
 
-      {/* =================================================
-          BOUNDARY FORM
-      ================================================= */}
+        {/* =================================================
+            BOUNDARY FORM
+        ================================================= */}
 
-      {drawMode ===
-        "boundary" &&
-        boundaryPoints.length >=
-          3 && (
+        {drawMode ===
+          "boundary" &&
+          boundaryPoints.length >=
+            3 && (
           <div className="card shadow-sm mb-3">
             <div className="card-body">
+
               <h5 className="fw-bold">
                 📐{" "}
                 {editingBoundary
@@ -2039,6 +2138,7 @@ const AdminVillageMap = () => {
               </p>
 
               <div className="d-flex flex-wrap gap-2">
+
                 <button
                   type="button"
                   className="btn btn-primary"
@@ -2077,16 +2177,17 @@ const AdminVillageMap = () => {
           </div>
         )}
 
-      {/* =================================================
-          ROAD FORM
-      ================================================= */}
+        {/* =================================================
+            ROAD FORM
+        ================================================= */}
 
-      {drawMode ===
-        "road" &&
-        roadPoints.length >=
-          2 && (
+        {drawMode ===
+          "road" &&
+          roadPoints.length >=
+            2 && (
           <div className="card shadow-sm mb-3">
             <div className="card-body">
+
               <h5 className="fw-bold">
                 🛣️{" "}
                 {editingRoadId
@@ -2095,22 +2196,24 @@ const AdminVillageMap = () => {
               </h5>
 
               <div className="row g-3">
+
+                {/* ROAD NAME BANGLA */}
+
                 <div className="col-md-6">
                   <label className="form-label">
-                    Road Name
+                    Road Name (বাংলা)
                   </label>
 
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="যেমন: Main Road"
+                    placeholder="যেমন: প্রধান সড়ক"
                     value={
-                      name
+                      nameBn
                     }
                     onChange={(e) =>
-                      setName(
-                        e.target
-                          .value
+                      setNameBn(
+                        e.target.value
                       )
                     }
                     disabled={
@@ -2119,7 +2222,34 @@ const AdminVillageMap = () => {
                   />
                 </div>
 
+                {/* ROAD NAME ENGLISH */}
+
                 <div className="col-md-6">
+                  <label className="form-label">
+                    Road Name (English)
+                  </label>
+
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="e.g. Main Road"
+                    value={
+                      nameEn
+                    }
+                    onChange={(e) =>
+                      setNameEn(
+                        e.target.value
+                      )
+                    }
+                    disabled={
+                      saving
+                    }
+                  />
+                </div>
+
+                {/* DESCRIPTION */}
+
+                <div className="col-md-12">
                   <label className="form-label">
                     Description
                   </label>
@@ -2133,8 +2263,7 @@ const AdminVillageMap = () => {
                     }
                     onChange={(e) =>
                       setDescription(
-                        e.target
-                          .value
+                        e.target.value
                       )
                     }
                     disabled={
@@ -2145,6 +2274,7 @@ const AdminVillageMap = () => {
               </div>
 
               <div className="d-flex gap-2 mt-3">
+
                 <button
                   type="button"
                   className="btn btn-success"
@@ -2181,15 +2311,16 @@ const AdminVillageMap = () => {
           </div>
         )}
 
-      {/* =================================================
-          LOCATION FORM
-      ================================================= */}
+        {/* =================================================
+            LOCATION FORM
+        ================================================= */}
 
-      {drawMode ===
-        "location" &&
-        selectedPoint && (
+        {drawMode ===
+          "location" &&
+          selectedPoint && (
           <div className="card shadow-sm mb-3">
             <div className="card-body">
+
               <h5 className="fw-bold">
                 📍{" "}
                 {editingLocationId
@@ -2198,6 +2329,7 @@ const AdminVillageMap = () => {
               </h5>
 
               <div className="row g-3">
+
                 {/* TYPE */}
 
                 <div className="col-md-4">
@@ -2212,8 +2344,7 @@ const AdminVillageMap = () => {
                     }
                     onChange={(e) =>
                       setStatus(
-                        e.target
-                          .value
+                        e.target.value
                       )
                     }
                     disabled={
@@ -2240,12 +2371,12 @@ const AdminVillageMap = () => {
                       🕌 Mosque
                     </option>
 
-                    <option value="clinic">
-                      🏥 Clinic
+                    <option value="mondir">
+                      🏥 mondir
                     </option>
 
-                    <option value="water">
-                      💧 Water
+                    <option value="home">
+                      🏠 Home
                     </option>
 
                     <option value="important">
@@ -2254,24 +2385,48 @@ const AdminVillageMap = () => {
                   </select>
                 </div>
 
-                {/* NAME */}
+                {/* NAME BANGLA */}
 
                 <div className="col-md-4">
                   <label className="form-label">
-                    Name
+                    Name (বাংলা)
                   </label>
 
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Location name"
+                    placeholder="যেমন: সুদীপের বাড়ি"
                     value={
-                      name
+                      nameBn
                     }
                     onChange={(e) =>
-                      setName(
-                        e.target
-                          .value
+                      setNameBn(
+                        e.target.value
+                      )
+                    }
+                    disabled={
+                      saving
+                    }
+                  />
+                </div>
+
+                {/* NAME ENGLISH */}
+
+                <div className="col-md-4">
+                  <label className="form-label">
+                    Name (English)
+                  </label>
+
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="e.g. Sudip's House"
+                    value={
+                      nameEn
+                    }
+                    onChange={(e) =>
+                      setNameEn(
+                        e.target.value
                       )
                     }
                     disabled={
@@ -2296,8 +2451,7 @@ const AdminVillageMap = () => {
                     }
                     onChange={(e) =>
                       setDescription(
-                        e.target
-                          .value
+                        e.target.value
                       )
                     }
                     disabled={
@@ -2322,8 +2476,7 @@ const AdminVillageMap = () => {
                     }
                     onChange={(e) =>
                       setLatitude(
-                        e.target
-                          .value
+                        e.target.value
                       )
                     }
                     disabled={
@@ -2348,8 +2501,7 @@ const AdminVillageMap = () => {
                     }
                     onChange={(e) =>
                       setLongitude(
-                        e.target
-                          .value
+                        e.target.value
                       )
                     }
                     disabled={
@@ -2360,6 +2512,7 @@ const AdminVillageMap = () => {
               </div>
 
               <div className="d-flex gap-2 mt-3">
+
                 <button
                   type="button"
                   className="btn btn-warning"
@@ -2396,115 +2549,117 @@ const AdminVillageMap = () => {
           </div>
         )}
 
-      {/* =================================================
-          MAP
-      ================================================= */}
+        {/* =================================================
+            MAP
+        ================================================= */}
 
-      <div
-        className="card shadow-sm overflow-hidden"
-        style={{
-          borderRadius:
-            "12px",
-        }}
-      >
         <div
+          className="card shadow-sm overflow-hidden"
           style={{
-            height:
-              "650px",
-            width: "100%",
+            borderRadius:
+              "12px",
           }}
         >
-          {loading ? (
-            <div className="h-100 d-flex align-items-center justify-content-center">
-              <div className="text-center">
-                <div
-                  className="spinner-border text-primary mb-3"
-                  role="status"
-                />
+          <div
+            style={{
+              height:
+                "650px",
+              width: "100%",
+            }}
+          >
+            {loading ? (
+              <div className="h-100 d-flex align-items-center justify-content-center">
+                <div className="text-center">
 
-                <div>
-                  Loading map...
+                  <div
+                    className="spinner-border text-primary mb-3"
+                    role="status"
+                  />
+
+                  <div>
+                    Loading map...
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <MapContainer
-              center={
-                VILLAGE_CENTER
-              }
-              zoom={16}
-              scrollWheelZoom={
-                true
-              }
-              style={{
-                height:
-                  "100%",
-                width: "100%",
-              }}
-            >
-              {/* =========================================
-                  TILE LAYER
-              ========================================= */}
-
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-
-              {/* =========================================
-                  MAP CONTROLLERS
-              ========================================= */}
-
-              <MapResizeController />
-
-              <MapClickHandler
-                drawMode={
-                  drawMode
+            ) : (
+              <MapContainer
+                center={
+                  VILLAGE_CENTER
                 }
-                onMapClick={
-                  handleMapClick
+                zoom={16}
+                scrollWheelZoom={
+                  true
                 }
-              />
+                style={{
+                  height:
+                    "100%",
+                  width: "100%",
+                }}
+              >
 
-              <FlyToLocation
-                location={
-                  flyLocation
-                }
-              />
+                {/* =========================================
+                    TILE LAYER
+                ========================================= */}
 
-              {/* =========================================
-                  SAVED VILLAGE BOUNDARY
-              ========================================= */}
-
-              {boundaryPoints.length >=
-                3 && (
-                <Polygon
-                  positions={
-                    boundaryPoints
-                  }
-                  pathOptions={{
-                    color:
-                      "#0d6efd",
-
-                    weight: 4,
-
-                    fillColor:
-                      "#0d6efd",
-
-                    fillOpacity:
-                      0.12,
-                  }}
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-              )}
 
-              {/* =========================================
-                  CURRENT BOUNDARY
-              ========================================= */}
+                {/* =========================================
+                    MAP CONTROLLERS
+                ========================================= */}
 
-              {drawMode ===
-                "boundary" &&
-                boundaryPoints.length >=
-                  2 && (
+                <MapResizeController />
+
+                <MapClickHandler
+                  drawMode={
+                    drawMode
+                  }
+                  onMapClick={
+                    handleMapClick
+                  }
+                />
+
+                <FlyToLocation
+                  location={
+                    flyLocation
+                  }
+                />
+
+                {/* =========================================
+                    SAVED VILLAGE BOUNDARY
+                ========================================= */}
+
+                {boundaryPoints.length >=
+                  3 && (
+                  <Polygon
+                    positions={
+                      boundaryPoints
+                    }
+                    pathOptions={{
+                      color:
+                        "#0d6efd",
+
+                      weight: 4,
+
+                      fillColor:
+                        "#0d6efd",
+
+                      fillOpacity:
+                        0.12,
+                    }}
+                  />
+                )}
+
+                {/* =========================================
+                    CURRENT BOUNDARY
+                ========================================= */}
+
+                {drawMode ===
+                  "boundary" &&
+                  boundaryPoints.length >=
+                    2 && (
                   <Polyline
                     positions={
                       boundaryPoints
@@ -2523,14 +2678,14 @@ const AdminVillageMap = () => {
                   />
                 )}
 
-              {/* =========================================
-                  CURRENT ROAD
-              ========================================= */}
+                {/* =========================================
+                    CURRENT ROAD
+                ========================================= */}
 
-              {drawMode ===
-                "road" &&
-                roadPoints.length >=
-                  2 && (
+                {drawMode ===
+                  "road" &&
+                  roadPoints.length >=
+                    2 && (
                   <Polyline
                     positions={
                       roadPoints
@@ -2549,73 +2704,240 @@ const AdminVillageMap = () => {
                   />
                 )}
 
-              {/* =========================================
-                  SAVED ROADS
-              ========================================= */}
+                {/* =========================================
+                    SAVED ROADS
+                ========================================= */}
 
-              {roads.map(
-                (road) =>
-                  road.points.length >=
-                    2 && (
-                    <Polyline
-                      key={
-                        road.id
-                      }
-                      positions={
-                        road.points
-                      }
-                      pathOptions={{
-                        color:
-                          editingRoadId ===
+                {roads.map(
+                  (road) =>
+                    road.points.length >=
+                      2 && (
+                      <Polyline
+                        key={
                           road.id
-                            ? "#6f42c1"
-                            : "#ff6600",
+                        }
+                        positions={
+                          road.points
+                        }
+                        pathOptions={{
+                          color:
+                            editingRoadId ===
+                            road.id
+                              ? "#6f42c1"
+                              : "#ff6600",
 
-                        weight: 5,
-                      }}
+                          weight: 5,
+                        }}
+                      >
+                        <Popup>
+                          <div
+                            style={{
+                              minWidth:
+                                "240px",
+                            }}
+                          >
+
+                            <h6 className="fw-bold mb-1">
+                              🛣️{" "}
+                              {
+                                road.nameBn
+                              }
+                            </h6>
+
+                            <div className="small text-muted mb-2">
+                              {
+                                road.nameEn
+                              }
+                            </div>
+
+                            {road.description && (
+                              <p className="mb-2 small">
+                                {
+                                  road.description
+                                }
+                              </p>
+                            )}
+
+                            <div className="small text-muted mb-2">
+                              Points:{" "}
+                              <strong>
+                                {
+                                  road
+                                    .points
+                                    .length
+                                }
+                              </strong>
+                            </div>
+
+                            <hr className="my-2" />
+
+                            <div className="d-flex gap-2">
+
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-primary flex-fill"
+                                onClick={() =>
+                                  editRoad(
+                                    road
+                                  )
+                                }
+                                disabled={
+                                  saving
+                                }
+                              >
+                                <FaEdit className="me-1" />
+                                Edit
+                              </button>
+
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-danger flex-fill"
+                                onClick={() =>
+                                  deleteRoad(
+                                    road.id
+                                  )
+                                }
+                                disabled={
+                                  saving
+                                }
+                              >
+                                <FaTrash className="me-1" />
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        </Popup>
+                      </Polyline>
+                    )
+                )}
+
+                {/* =========================================
+                    SELECTED LOCATION
+                ========================================= */}
+
+                {selectedPoint && (
+                  <Marker
+                    position={
+                      selectedPoint
+                    }
+                    icon={
+                      LOCATION_ICONS
+                        .important
+                    }
+                  >
+                    <Popup>
+
+                      <strong>
+                        {editingLocationId
+                          ? "Editing Location"
+                          : "Selected Location"}
+                      </strong>
+
+                      <br />
+
+                      Lat:{" "}
+                      {
+                        selectedPoint[0]
+                      }
+
+                      <br />
+
+                      Lng:{" "}
+                      {
+                        selectedPoint[1]
+                      }
+                    </Popup>
+                  </Marker>
+                )}
+
+                {/* =========================================
+                    SAVED LOCATIONS
+                ========================================= */}
+
+                {locations.map(
+                  (
+                    location
+                  ) => (
+                    <Marker
+                      key={
+                        location.id
+                      }
+                      position={[
+                        location.lat,
+                        location.lng,
+                      ]}
+                      icon={
+                        LOCATION_ICONS[
+                          location.type
+                        ] ??
+                        LOCATION_ICONS
+                          .important
+                      }
                     >
                       <Popup>
+
                         <div
                           style={{
                             minWidth:
-                              "220px",
+                              "240px",
                           }}
                         >
+
                           <h6 className="fw-bold mb-1">
-                            🛣️{" "}
                             {
-                              road.name
+                              getLocationLabel(
+                                location.type
+                              )
                             }
                           </h6>
 
-                          {road.description && (
-                            <p className="mb-2 small">
+                          <div className="fw-semibold mb-1">
+                            {
+                              location.nameBn
+                            }
+                          </div>
+
+                          <div className="small text-muted mb-2">
+                            {
+                              location.nameEn
+                            }
+                          </div>
+
+                          {location.description && (
+                            <p className="small text-muted mb-2">
                               {
-                                road.description
+                                location.description
                               }
                             </p>
                           )}
 
-                          <div className="small text-muted mb-2">
-                            Points:{" "}
+                          <div className="small mb-3">
+
                             <strong>
-                              {
-                                road
-                                  .points
-                                  .length
-                              }
-                            </strong>
+                              Latitude:
+                            </strong>{" "}
+                            {
+                              location.lat
+                            }
+
+                            <br />
+
+                            <strong>
+                              Longitude:
+                            </strong>{" "}
+                            {
+                              location.lng
+                            }
                           </div>
 
-                          <hr className="my-2" />
-
                           <div className="d-flex gap-2">
+
                             <button
                               type="button"
                               className="btn btn-sm btn-primary flex-fill"
                               onClick={() =>
-                                editRoad(
-                                  road
+                                editLocation(
+                                  location
                                 )
                               }
                               disabled={
@@ -2630,8 +2952,8 @@ const AdminVillageMap = () => {
                               type="button"
                               className="btn btn-sm btn-danger flex-fill"
                               onClick={() =>
-                                deleteRoad(
-                                  road.id
+                                deleteLocation(
+                                  location.id
                                 )
                               }
                               disabled={
@@ -2644,761 +2966,554 @@ const AdminVillageMap = () => {
                           </div>
                         </div>
                       </Popup>
-                    </Polyline>
+                    </Marker>
                   )
-              )}
+                )}
 
-              {/* =========================================
-                  SELECTED LOCATION
-              ========================================= */}
+                {/* =========================================
+                    BOUNDARY POINT MARKERS
+                ========================================= */}
 
-              {selectedPoint && (
-                <Marker
-                  position={
-                    selectedPoint
-                  }
-                  icon={
-                    LOCATION_ICONS.important
-                  }
-                >
-                  <Popup>
-                    <strong>
-                      {editingLocationId
-                        ? "Editing Location"
-                        : "Selected Location"}
-                    </strong>
-
-                    <br />
-
-                    Lat:{" "}
-                    {
-                      selectedPoint[0]
-                    }
-
-                    <br />
-
-                    Lng:{" "}
-                    {
-                      selectedPoint[1]
-                    }
-                  </Popup>
-                </Marker>
-              )}
-
-              {/* =========================================
-                  SAVED LOCATIONS
-              ========================================= */}
-
-              {locations.map(
-                (
-                  location
-                ) => (
-                  <Marker
-                    key={
-                      location.id
-                    }
-                    position={[
-                      location.lat,
-                      location.lng,
-                    ]}
-                    icon={
-                      LOCATION_ICONS[
-                        location.type
-                      ] ??
-                      LOCATION_ICONS
-                        .important
-                    }
-                  >
-                    <Popup>
-                      <div
-                        style={{
-                          minWidth:
-                            "230px",
-                        }}
+                {drawMode ===
+                  "boundary" &&
+                  boundaryPoints.map(
+                    (
+                      point,
+                      index
+                    ) => (
+                      <Marker
+                        key={`boundary-point-${index}`}
+                        position={
+                          point
+                        }
                       >
-                        <h6 className="fw-bold mb-1">
-                          {
-                            getLocationLabel(
-                              location.type
-                            )
-                          }
-                        </h6>
+                        <Popup>
 
-                        <div className="fw-semibold mb-1">
-                          {
-                            location.name
-                          }
-                        </div>
-
-                        {location.description && (
-                          <p className="small text-muted mb-2">
-                            {
-                              location.description
-                            }
-                          </p>
-                        )}
-
-                        <div className="small mb-3">
                           <strong>
-                            Latitude:
-                          </strong>{" "}
+                            Boundary Point{" "}
+                            {index +
+                              1}
+                          </strong>
+
+                          <br />
+
+                          Lat:{" "}
                           {
-                            location.lat
+                            point[0]
                           }
 
                           <br />
 
+                          Lng:{" "}
+                          {
+                            point[1]
+                          }
+                        </Popup>
+                      </Marker>
+                    )
+                  )}
+
+                {/* =========================================
+                    ROAD POINT MARKERS
+                ========================================= */}
+
+                {drawMode ===
+                  "road" &&
+                  roadPoints.map(
+                    (
+                      point,
+                      index
+                    ) => (
+                      <Marker
+                        key={`road-point-${index}`}
+                        position={
+                          point
+                        }
+                      >
+                        <Popup>
+
                           <strong>
-                            Longitude:
-                          </strong>{" "}
+                            Road Point{" "}
+                            {index +
+                              1}
+                          </strong>
+
+                          <br />
+
+                          Lat:{" "}
+                          {
+                            point[0]
+                          }
+
+                          <br />
+
+                          Lng:{" "}
+                          {
+                            point[1]
+                          }
+                        </Popup>
+                      </Marker>
+                    )
+                  )}
+              </MapContainer>
+            )}
+          </div>
+        </div>
+
+        {/* =================================================
+            DATA SUMMARY
+        ================================================= */}
+
+        <div className="row g-3 mt-1">
+
+          {/* ===============================================
+              BOUNDARY
+          =============================================== */}
+
+          <div className="col-md-4">
+            <div className="card shadow-sm h-100">
+              <div className="card-body">
+
+                <h6 className="fw-bold">
+                  📐 Village Boundary
+                </h6>
+
+                <div className="mb-3">
+                  Points:{" "}
+                  <strong>
+                    {
+                      boundaryPoints.length
+                    }
+                  </strong>
+                </div>
+
+                <div className="d-flex flex-wrap gap-2">
+
+                  {boundaryPoints.length >=
+                    3 && (
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={
+                          editBoundary
+                        }
+                        disabled={
+                          saving
+                        }
+                      >
+                        <FaEdit className="me-1" />
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={
+                          deleteBoundary
+                        }
+                        disabled={
+                          saving
+                        }
+                      >
+                        <FaTrash className="me-1" />
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===============================================
+              ROADS
+          =============================================== */}
+
+          <div className="col-md-4">
+            <div className="card shadow-sm h-100">
+              <div className="card-body">
+
+                <h6 className="fw-bold">
+                  🛣️ Roads
+                </h6>
+
+                <div>
+                  Total Roads:{" "}
+                  <strong>
+                    {
+                      roads.length
+                    }
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===============================================
+              LOCATIONS
+          =============================================== */}
+
+          <div className="col-md-4">
+            <div className="card shadow-sm h-100">
+              <div className="card-body">
+
+                <h6 className="fw-bold">
+                  📍 Locations
+                </h6>
+
+                <div>
+                  Total Locations:{" "}
+                  <strong>
+                    {
+                      locations.length
+                    }
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* =================================================
+            LOCATION LIST
+        ================================================= */}
+
+        {locations.length >
+          0 && (
+          <div className="card shadow-sm mt-3">
+
+            <div className="card-header bg-white">
+              <h5 className="fw-bold mb-0">
+                📍 Saved Locations
+              </h5>
+            </div>
+
+            <div className="table-responsive">
+
+              <table className="table table-hover align-middle mb-0">
+
+                <thead>
+                  <tr>
+
+                    <th>
+                      Type
+                    </th>
+
+                    <th>
+                      Name (বাংলা)
+                    </th>
+
+                    <th>
+                      Name (English)
+                    </th>
+
+                    <th>
+                      Description
+                    </th>
+
+                    <th>
+                      Latitude
+                    </th>
+
+                    <th>
+                      Longitude
+                    </th>
+
+                    <th className="text-end">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  {locations.map(
+                    (
+                      location
+                    ) => (
+                      <tr
+                        key={
+                          location.id
+                        }
+                      >
+
+                        <td>
+                          {getLocationLabel(
+                            location.type
+                          )}
+                        </td>
+
+                        <td className="fw-semibold">
+                          {
+                            location.nameBn
+                          }
+                        </td>
+
+                        <td className="fw-semibold">
+                          {
+                            location.nameEn
+                          }
+                        </td>
+
+                        <td>
+                          {
+                            location.description ||
+                            "-"
+                          }
+                        </td>
+
+                        <td>
+                          {
+                            location.lat
+                          }
+                        </td>
+
+                        <td>
                           {
                             location.lng
                           }
-                        </div>
+                        </td>
 
-                        <div className="d-flex gap-2">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-primary flex-fill"
-                            onClick={() =>
-                              editLocation(
-                                location
+                        <td className="text-end">
+
+                          <div className="d-flex justify-content-end gap-2">
+
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() =>
+                                editLocation(
+                                  location
+                                )
+                              }
+                              disabled={
+                                saving
+                              }
+                              title="Edit Location"
+                            >
+                              <FaEdit />
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() =>
+                                deleteLocation(
+                                  location.id
+                                )
+                              }
+                              disabled={
+                                saving
+                              }
+                              title="Delete Location"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* =================================================
+            ROAD LIST
+        ================================================= */}
+
+        {roads.length >
+          0 && (
+          <div className="card shadow-sm mt-3">
+
+            <div className="card-header bg-white">
+              <h5 className="fw-bold mb-0">
+                🛣️ Saved Roads
+              </h5>
+            </div>
+
+            <div className="table-responsive">
+
+              <table className="table table-hover align-middle mb-0">
+
+                <thead>
+                  <tr>
+
+                    <th>
+                      Road (বাংলা)
+                    </th>
+
+                    <th>
+                      Road (English)
+                    </th>
+
+                    <th>
+                      Description
+                    </th>
+
+                    <th>
+                      Points
+                    </th>
+
+                    <th className="text-end">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  {roads.map(
+                    (
+                      road
+                    ) => (
+                      <tr
+                        key={
+                          road.id
+                        }
+                      >
+
+                        <td className="fw-semibold">
+
+                          <FaRoad className="me-2" />
+
+                          {
+                            road.nameBn
+                          }
+                        </td>
+
+                        <td className="fw-semibold">
+                          {
+                            road.nameEn
+                          }
+                        </td>
+
+                        <td>
+                          {
+                            road.description ||
+                            "-"
+                          }
+                        </td>
+
+                        <td>
+                          {
+                            road.points
+                              .length
+                          }
+                        </td>
+
+                        <td className="text-end">
+
+                          <div className="d-flex justify-content-end gap-2">
+
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() =>
+                                editRoad(
+                                  road
+                                )
+                              }
+                              disabled={
+                                saving
+                              }
+                              title="Edit Road"
+                            >
+                              <FaEdit />
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() =>
+                                deleteRoad(
+                                  road.id
+                                )
+                              }
+                              disabled={
+                                saving
+                              }
+                              title="Delete Road"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* =================================================
+            LOCATION TYPE SUMMARY
+        ================================================= */}
+
+        {locations.length >
+          0 && (
+          <div className="card shadow-sm mt-3">
+
+            <div className="card-header bg-white">
+              <h5 className="fw-bold mb-0">
+                📊 Location Summary
+              </h5>
+            </div>
+
+            <div className="card-body">
+
+              <div className="row g-3">
+
+                {VALID_LOCATION_TYPES.map(
+                  (type) => {
+                    const count =
+                      locations.filter(
+                        (location) =>
+                          location.type ===
+                          type
+                      ).length;
+
+                    return (
+                      <div
+                        className="col-6 col-md-3"
+                        key={
+                          type
+                        }
+                      >
+
+                        <div className="border rounded p-3 text-center h-100">
+
+                         
+
+                          <div className="small fw-semibold">
+                            {
+                              getLocationLabel(
+                                type
                               )
                             }
-                            disabled={
-                              saving
-                            }
-                          >
-                            <FaEdit className="me-1" />
-                            Edit
-                          </button>
+                          </div>
 
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-danger flex-fill"
-                            onClick={() =>
-                              deleteLocation(
-                                location.id
-                              )
-                            }
-                            disabled={
-                              saving
-                            }
-                          >
-                            <FaTrash className="me-1" />
-                            Delete
-                          </button>
+                          <div className="fs-5 fw-bold mt-1">
+                            {count}
+                          </div>
                         </div>
                       </div>
-                    </Popup>
-                  </Marker>
-                )
-              )}
-
-              {/* =========================================
-                  BOUNDARY POINT MARKERS
-              ========================================= */}
-
-              {drawMode ===
-                "boundary" &&
-                boundaryPoints.map(
-                  (
-                    point,
-                    index
-                  ) => (
-                    <Marker
-                      key={`boundary-point-${index}`}
-                      position={
-                        point
-                      }
-                    >
-                      <Popup>
-                        <strong>
-                          Boundary Point{" "}
-                          {index +
-                            1}
-                        </strong>
-
-                        <br />
-
-                        Lat:{" "}
-                        {
-                          point[0]
-                        }
-
-                        <br />
-
-                        Lng:{" "}
-                        {
-                          point[1]
-                        }
-                      </Popup>
-                    </Marker>
-                  )
-                )}
-
-              {/* =========================================
-                  ROAD POINT MARKERS
-              ========================================= */}
-
-              {drawMode ===
-                "road" &&
-                roadPoints.map(
-                  (
-                    point,
-                    index
-                  ) => (
-                    <Marker
-                      key={`road-point-${index}`}
-                      position={
-                        point
-                      }
-                    >
-                      <Popup>
-                        <strong>
-                          Road Point{" "}
-                          {index +
-                            1}
-                        </strong>
-
-                        <br />
-
-                        Lat:{" "}
-                        {
-                          point[0]
-                        }
-
-                        <br />
-
-                        Lng:{" "}
-                        {
-                          point[1]
-                        }
-                      </Popup>
-                    </Marker>
-                  )
-                )}
-            </MapContainer>
-          )}
-        </div>
-      </div>
-
-      {/* =================================================
-          DATA SUMMARY
-      ================================================= */}
-
-      <div className="row g-3 mt-1">
-        {/* ===============================================
-            BOUNDARY
-        =============================================== */}
-
-        <div className="col-md-4">
-          <div className="card shadow-sm h-100">
-            <div className="card-body">
-              <h6 className="fw-bold">
-                📐 Village Boundary
-              </h6>
-
-              <div className="mb-3">
-                Points:{" "}
-                <strong>
-                  {
-                    boundaryPoints.length
+                    );
                   }
-                </strong>
-              </div>
-
-              <div className="d-flex flex-wrap gap-2">
-                {boundaryPoints.length >=
-                  3 && (
-                  <>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-primary"
-                      onClick={
-                        editBoundary
-                      }
-                      disabled={
-                        saving
-                      }
-                    >
-                      <FaEdit className="me-1" />
-                      Edit
-                    </button>
-
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={
-                        deleteBoundary
-                      }
-                      disabled={
-                        saving
-                      }
-                    >
-                      <FaTrash className="me-1" />
-                      Delete
-                    </button>
-                  </>
                 )}
               </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* ===============================================
-            ROADS
-        =============================================== */}
-
-        <div className="col-md-4">
-          <div className="card shadow-sm h-100">
-            <div className="card-body">
-              <h6 className="fw-bold">
-                🛣️ Roads
-              </h6>
-
-              <div>
-                Total Roads:{" "}
-                <strong>
-                  {
-                    roads.length
-                  }
-                </strong>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ===============================================
-            LOCATIONS
-        =============================================== */}
-
-        <div className="col-md-4">
-          <div className="card shadow-sm h-100">
-            <div className="card-body">
-              <h6 className="fw-bold">
-                📍 Locations
-              </h6>
-
-              <div>
-                Total Locations:{" "}
-                <strong>
-                  {
-                    locations.length
-                  }
-                </strong>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-
-      {/* =================================================
-          LOCATION LIST
-      ================================================= */}
-
-      {locations.length >
-        0 && (
-        <div className="card shadow-sm mt-3">
-          <div className="card-header bg-white">
-            <h5 className="fw-bold mb-0">
-              📍 Saved Locations
-            </h5>
-          </div>
-
-          <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0">
-              <thead>
-                <tr>
-                  <th>
-                    Type
-                  </th>
-
-                  <th>
-                    Name
-                  </th>
-
-                  <th>
-                    Description
-                  </th>
-
-                  <th>
-                    Latitude
-                  </th>
-
-                  <th>
-                    Longitude
-                  </th>
-
-                  <th className="text-end">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {locations.map(
-                  (
-                    location
-                  ) => (
-                    <tr
-                      key={
-                        location.id
-                      }
-                    >
-                      <td>
-                        {getLocationLabel(
-                          location.type
-                        )}
-                      </td>
-
-                      <td className="fw-semibold">
-                        {
-                          location.name
-                        }
-                      </td>
-
-                      <td>
-                        {
-                          location.description ||
-                          "-"
-                        }
-                      </td>
-
-                      <td>
-                        {
-                          location.lat
-                        }
-                      </td>
-
-                      <td>
-                        {
-                          location.lng
-                        }
-                      </td>
-
-                      <td className="text-end">
-                        <div className="d-flex justify-content-end gap-2">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() =>
-                              editLocation(
-                                location
-                              )
-                            }
-                            disabled={
-                              saving
-                            }
-                            title="Edit Location"
-                          >
-                            <FaEdit />
-                          </button>
-
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() =>
-                              deleteLocation(
-                                location.id
-                              )
-                            }
-                            disabled={
-                              saving
-                            }
-                            title="Delete Location"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* =================================================
-          ROAD LIST
-      ================================================= */}
-
-      {roads.length >
-        0 && (
-        <div className="card shadow-sm mt-3">
-          <div className="card-header bg-white">
-            <h5 className="fw-bold mb-0">
-              🛣️ Saved Roads
-            </h5>
-          </div>
-
-          <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0">
-              <thead>
-                <tr>
-                  <th>
-                    Road
-                  </th>
-
-                  <th>
-                    Description
-                  </th>
-
-                  <th>
-                    Points
-                  </th>
-
-                  <th className="text-end">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {roads.map(
-                  (
-                    road
-                  ) => (
-                    <tr
-                      key={
-                        road.id
-                      }
-                    >
-                      <td className="fw-semibold">
-                        <FaRoad className="me-2" />
-
-                        {
-                          road.name
-                        }
-                      </td>
-
-                      <td>
-                        {
-                          road.description ||
-                          "-"
-                        }
-                      </td>
-
-                      <td>
-                        {
-                          road.points
-                            .length
-                        }
-                      </td>
-
-                      <td className="text-end">
-                        <div className="d-flex justify-content-end gap-2">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() =>
-                              editRoad(
-                                road
-                              )
-                            }
-                            disabled={
-                              saving
-                            }
-                            title="Edit Road"
-                          >
-                            <FaEdit />
-                          </button>
-
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() =>
-                              deleteRoad(
-                                road.id
-                              )
-                            }
-                            disabled={
-                              saving
-                            }
-                            title="Delete Road"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* =================================================
-          LOCATION TYPE SUMMARY
-      ================================================= */}
-
-      {locations.length >
-        0 && (
-        <div className="card shadow-sm mt-3">
-          <div className="card-header bg-white">
-            <h5 className="fw-bold mb-0">
-              📊 Location Summary
-            </h5>
-          </div>
-
-          <div className="card-body">
-            <div className="row g-3">
-              {VALID_LOCATION_TYPES.map(
-                (type) => {
-                  const count =
-                    locations.filter(
-                      (location) =>
-                        location.type ===
-                        type
-                    ).length;
-
-                  return (
-                    <div
-                      className="col-6 col-md-3"
-                      key={
-                        type
-                      }
-                    >
-                      <div className="border rounded p-3 text-center h-100">
-                        <div
-                          style={{
-                            fontSize:
-                              "25px",
-                          }}
-                        >
-                          {
-                           <div>
-  {LOCATION_EMOJIS[type]}
-</div>
-                          }
-                        </div>
-
-                        <div className="small fw-semibold">
-                          {
-                            getLocationLabel(
-                              type
-                            )
-                          }
-                        </div>
-
-                        <div className="fs-5 fw-bold mt-1">
-                          {count}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =================================================
-          INSTRUCTIONS
-      ================================================= */}
-
-      <div className="card shadow-sm mt-3">
-        <div className="card-body">
-          <h5 className="fw-bold mb-3">
-            ℹ️ How to use
-          </h5>
-
-          <div className="row g-3">
-            {/* BOUNDARY */}
-
-            <div className="col-md-4">
-              <div className="border rounded p-3 h-100">
-                <div className="fw-bold mb-2">
-                  📐 Draw / Edit Boundary
-                </div>
-
-                <small className="text-muted">
-                  Draw Boundary click
-                  করে map-এর চারপাশে
-                  কমপক্ষে 3টি point দিন।
-                  Save Boundary করুন।
-                  Existing boundary edit
-                  করতে Edit Boundary
-                  ব্যবহার করুন।
-                </small>
-              </div>
-            </div>
-
-            {/* ROAD */}
-
-            <div className="col-md-4">
-              <div className="border rounded p-3 h-100">
-                <div className="fw-bold mb-2">
-                  🛣️ Draw / Edit Road
-                </div>
-
-                <small className="text-muted">
-                  Draw Road click করে
-                  road-এর points দিন।
-                  Road name ও description
-                  দিয়ে Save করুন। Existing
-                  road-এর Edit button দিয়ে
-                  আবার points edit করতে
-                  পারবেন।
-                </small>
-              </div>
-            </div>
-
-            {/* LOCATION */}
-
-            <div className="col-md-4">
-              <div className="border rounded p-3 h-100">
-                <div className="fw-bold mb-2">
-                  📍 Add / Edit Location
-                </div>
-
-                <small className="text-muted">
-                  Add Location click করে
-                  map-এ point select করুন।
-                  তারপর type, name,
-                  description ও coordinates
-                  দিয়ে save করুন। Existing
-                  location-এর Edit button
-                  দিয়ে update করুন।
-                </small>
-              </div>
-            </div>
-          </div>
-
-          {/* LOCATION TYPES */}
-
-          <div className="mt-4">
-            <div className="fw-bold mb-2">
-              Available Location Types:
-            </div>
-
-            <div className="d-flex flex-wrap gap-2">
-              {VALID_LOCATION_TYPES.map(
-                (type) => (
-                  <span
-                    key={
-                      type
-                    }
-                    className="badge bg-light text-dark border p-2"
-                  >
-                    {getLocationLabel(
-                      type
-                    )}
-                  </span>
-                )
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </AdminLayout>
   );
 };
 
 export default AdminVillageMap;
-

@@ -14,7 +14,41 @@ const bn = {
     password: "পার্সওয়ার্ড",
     emergency: "জরুরি নম্বর",
     ourVillage: "আমাদের গ্রাম",
-    
+    ourVillageDescription: "বাদোখালী গ্রাম, গুরুত্বপূর্ণ স্থান ও আমাদের বিভিন্ন সেবাসমূহ এক নজরে দেখুন",
+
+mapAll: "সব",
+mapRoad: "রাস্তা",
+mapVillageBoundary: "গ্রামের সীমানা",
+
+streetLight: "স্ট্রিট লাইট",
+tree: "গাছ",
+school: "স্কুল",
+mosque: "মসজিদ",
+temple: "মন্দির",
+clinic: "ক্লিনিক",
+waterPoint: "পানির স্থান",
+homemap: "বাড়ি",
+importantPlace: "গুরুত্বপূর্ণ স্থান",
+
+road: "রাস্তা", 
+status: "অবস্থা",
+coordinates: "স্থানাঙ্ক",
+
+mapLegend: "মানচিত্রের নির্দেশিকা",
+location: "স্থান",
+locations: "স্থানসমূহ",
+
+villageMapLoading: "গ্রামের মানচিত্র লোড হচ্ছে...",
+villageBoundaryLoadError:
+  "গ্রামের সীমানা লোড করতে সমস্যা হয়েছে।",
+villageMapLoadError:
+  "গ্রামের মানচিত্র লোড করতে সমস্যা হয়েছে।",
+
+villageMapPreparing:
+  "গ্রামের মানচিত্র প্রস্তুত করা হচ্ছে",
+villageMapPreparingDescription:
+  "প্রশাসক কর্তৃক তথ্য যোগ করা হলে এখানে গ্রামের মানচিত্রের তথ্য দেখা যাবে।",
+
      "supportUs": "আমাদের সহায়তা করুন",
   "chooseDonationAmount": "bKash-এর মাধ্যমে অনুদানের পরিমাণ নির্বাচন করুন",
   "openingBkash": "bKash খোলা হচ্ছে...",

@@ -2543,86 +2543,52 @@ const Dashboard = () => {
     EXPENSE PIE CHART
 ================================================= */}
 
-        <div className="row mt-4">
-          <div className="col-12">
-            <div className="card border-0 shadow-sm">
-              {/* HEADER */}
-              <div className="card-header bg-white p-4">
-                <div>
-                  <h5 className="mb-1 fw-bold">💸 Expense Overview</h5>
+     <div
+  style={{
+    width: "100%",
+    height: "clamp(300px, 60vw, 500px)",
+  }}
+>
+  <ResponsiveContainer width="100%" height="100%">
+    <PieChart>
+      <Pie
+        data={expenseChartData}
+        dataKey="value"
+        nameKey="name"
+        cx="50%"
+        cy="45%"
+        innerRadius="25%"
+        outerRadius="42%"
+        paddingAngle={2}
+        label={({ percent }) =>
+          `${((percent || 0) * 100).toFixed(1)}%`
+        }
+        labelLine={false}
+      >
+        {expenseChartData.map((_, index) => (
+          <Cell
+            key={`expense-cell-${index}`}
+            fill={
+              EXPENSE_COLORS[index % EXPENSE_COLORS.length]
+            }
+          />
+        ))}
+      </Pie>
 
-                  <small className="text-muted">
-                    Category-wise expense breakdown for {selectedMonth}{" "}
-                    {selectedYear}
-                  </small>
-                </div>
-              </div>
+      <Tooltip
+        formatter={(value) =>
+          `৳ ${Number(value).toLocaleString()}`
+        }
+      />
 
-              {/* BODY */}
-              <div className="card-body p-4">
-                {expenseChartData.length === 0 ? (
-                  <div className="text-center text-muted py-5">
-                    <div
-                      style={{
-                        fontSize: "50px",
-                      }}
-                    >
-                      📊
-                    </div>
-
-                    <h6 className="mt-3">No expense data available</h6>
-
-                    <p className="mb-0">
-                      No expenses found for {selectedMonth} {selectedYear}.
-                    </p>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "500px",
-                    }}
-                  >
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={expenseChartData}
-                          dataKey="value"
-                          nameKey="name"
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={75}
-                          outerRadius={170}
-                          paddingAngle={2}
-                          label={({ percent }) =>
-                            `${((percent || 0) * 100).toFixed(1)}%`
-                          }
-                        >
-                          {expenseChartData.map((_, index) => (
-                            <Cell
-                              key={`expense-cell-${index}`}
-                              fill={
-                                EXPENSE_COLORS[index % EXPENSE_COLORS.length]
-                              }
-                            />
-                          ))}
-                        </Pie>
-
-                        <Tooltip
-                          formatter={(value) =>
-                            `৳ ${Number(value).toLocaleString()}`
-                          }
-                        />
-
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+      <Legend
+        wrapperStyle={{
+          fontSize: "13px",
+        }}
+      />
+    </PieChart>
+  </ResponsiveContainer>
+</div>
 
         {/* =================================================
             INBOX

@@ -10,7 +10,43 @@ const en = {
     feedback: "Feedback",
     bloodBank: "Blood Bank",
     ourVillage: "Our Village",
+    ourVillageDescription: "Explore Badokhali village, important places, and our community services at a glance.",
+//map
 
+mapAll: "All",
+mapRoad: "Road",
+mapVillageBoundary: "Village Boundary",
+
+streetLight: "Street Light",
+tree: "Tree",
+school: "School",
+mosque: "Mosque",
+temple: "Temple",
+clinic: "Clinic",
+waterPoint: "Water Point",
+homemap: "Home",
+importantPlace: "Important Place",
+
+road: "Road",
+status: "Status",
+coordinates: "Coordinates",
+
+mapLegend: "Map Legend",
+location: "Location",
+locations: "locations",
+
+villageMapLoading: "Village map loading...",
+villageBoundaryLoadError:
+  "There was a problem loading the village boundary.",
+villageMapLoadError:
+  "There was a problem loading the village map.",
+
+villageMapPreparing:
+  "Village map is being prepared",
+villageMapPreparingDescription:
+  "Map information will appear here once it is added by the administrator.",
+
+    // 
     //notice page
     noticeBoard: "📢 Notice Board",
     searchNotice: "Search Notice...",

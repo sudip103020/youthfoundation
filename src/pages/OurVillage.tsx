@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   MapContainer,
@@ -20,6 +19,7 @@ import {
 import { db } from "../firebase/firebase";
 
 import "./OurVillage.css";
+import { useTranslation } from "react-i18next";
 
 // ======================================================
 // TYPES
@@ -30,8 +30,8 @@ type MapFeatureType =
   | "tree"
   | "school"
   | "mosque"
-  | "clinic"
-  | "water"
+  | "mondir"
+  | "home"
   | "important";
 
 type LatLngPoint = [number, number];
@@ -39,18 +39,35 @@ type LatLngPoint = [number, number];
 interface MapFeature {
   id: string;
   type: MapFeatureType;
-  name: string;
+
+  // New format
+  nameBn: string;
+  nameEn: string;
+
+  // Old format - backward compatibility
+  name?: string;
+
   description?: string;
+
   lat: number;
   lng: number;
+
   status?: string;
 }
 
 interface RoadFeature {
   id: string;
   type: "road";
-  name: string;
+
+  // New format
+  nameBn: string;
+  nameEn: string;
+
+  // Old format - backward compatibility
+  name?: string;
+
   points: LatLngPoint[];
+
   description?: string;
 }
 
@@ -70,49 +87,51 @@ const VILLAGE_CENTER: LatLngPoint = [
 const categoryConfig: Record<
   MapFeatureType,
   {
-    label: string;
+    labelKey: string;
     emoji: string;
     color: string;
   }
 > = {
   streetLight: {
-    label: "Street Light",
+    labelKey: "streetLight",
     emoji: "💡",
     color: "#f59e0b",
   },
 
   tree: {
-    label: "Tree",
+    labelKey: "tree",
     emoji: "🌳",
     color: "#16a34a",
   },
 
   school: {
-    label: "School",
+    labelKey: "school",
     emoji: "🏫",
     color: "#2563eb",
   },
 
   mosque: {
-    label: "Mosque",
+    labelKey: "mosque",
     emoji: "🕌",
     color: "#059669",
   },
 
-  clinic: {
-    label: "Clinic",
-    emoji: "🏥",
-    color: "#dc2626",
+  mondir: {
+    labelKey: "temple",
+    emoji: "⛪",
+    color: "#9333ea",
   },
 
-  water: {
-    label: "Water Point",
-    emoji: "🚰",
-    color: "#0891b2",
+ 
+
+  home: {
+    labelKey: "homemap",
+    emoji: "🏠",
+    color: "#ea580c",
   },
 
   important: {
-    label: "Important Place",
+    labelKey: "importantPlace",
     emoji: "📍",
     color: "#7c3aed",
   },
@@ -134,20 +153,6 @@ const isMapFeatureType = (
 // ======================================================
 // LAT LNG PARSER
 // ======================================================
-// Supports both:
-//
-// NEW FORMAT:
-// [
-//   { lat: 22.123, lng: 89.123 },
-//   { lat: 22.124, lng: 89.124 }
-// ]
-//
-// OLD FORMAT:
-// [
-//   [22.123, 89.123],
-//   [22.124, 89.124]
-// ]
-// ======================================================
 
 const parseLatLngPoints = (
   points: unknown
@@ -158,11 +163,8 @@ const parseLatLngPoints = (
 
   return points
     .map((point: unknown) => {
-
-      // ================================================
-      // NEW FIRESTORE FORMAT
+      // New Firestore format
       // { lat, lng }
-      // ================================================
 
       if (
         point &&
@@ -186,10 +188,8 @@ const parseLatLngPoints = (
         }
       }
 
-      // ================================================
-      // OLD ARRAY FORMAT
+      // Old array format
       // [lat, lng]
-      // ================================================
 
       if (
         Array.isArray(point) &&
@@ -220,7 +220,6 @@ const parseLatLngPoints = (
 const createMarkerIcon = (
   type: MapFeatureType
 ) => {
-
   const config = categoryConfig[type];
 
   return L.divIcon({
@@ -246,11 +245,9 @@ const createMarkerIcon = (
 // ======================================================
 
 const MapResizeController = () => {
-
   const map = useMap();
 
   useEffect(() => {
-
     const timer = window.setTimeout(() => {
       map.invalidateSize();
     }, 300);
@@ -258,7 +255,6 @@ const MapResizeController = () => {
     return () => {
       window.clearTimeout(timer);
     };
-
   }, [map]);
 
   return null;
@@ -275,11 +271,9 @@ interface FitBoundaryProps {
 const FitBoundary = ({
   points,
 }: FitBoundaryProps) => {
-
   const map = useMap();
 
   useEffect(() => {
-
     if (points.length < 3) {
       return;
     }
@@ -291,7 +285,6 @@ const FitBoundary = ({
       padding: [30, 30],
       maxZoom: 17,
     });
-
   }, [map, points]);
 
   return null;
@@ -302,6 +295,41 @@ const FitBoundary = ({
 // ======================================================
 
 const VillageMap = () => {
+  const { t, i18n } = useTranslation();
+
+  // ====================================================
+  // LANGUAGE
+  // ====================================================
+
+  const isBangla =
+    i18n.language === "bn" ||
+    i18n.language.startsWith("bn");
+
+  // ====================================================
+  // NAME HELPER
+  // ====================================================
+
+  const getName = (
+    nameBn: string,
+    nameEn: string,
+    legacyName?: string
+  ) => {
+    if (isBangla) {
+      return (
+        nameBn ||
+        nameEn ||
+        legacyName ||
+        ""
+      );
+    }
+
+    return (
+      nameEn ||
+      nameBn ||
+      legacyName ||
+      ""
+    );
+  };
 
   // ====================================================
   // STATE
@@ -327,14 +355,15 @@ const VillageMap = () => {
   // ====================================================
 
   const [activeCategory, setActiveCategory] =
-    useState<MapFeatureType | "all">("all");
+    useState<
+      MapFeatureType | "all"
+    >("all");
 
   // ====================================================
   // LOAD BOUNDARY
   // ====================================================
 
   useEffect(() => {
-
     const boundaryRef = doc(
       db,
       "villageMap",
@@ -344,26 +373,14 @@ const VillageMap = () => {
     const unsubscribe =
       onSnapshot(
         boundaryRef,
-
         (snapshot) => {
-
-          // ============================================
-          // NO BOUNDARY
-          // ============================================
-
           if (!snapshot.exists()) {
-
             setBoundaryPoints([]);
-
             return;
           }
 
           const data =
             snapshot.data();
-
-          // ============================================
-          // PARSE BOUNDARY
-          // ============================================
 
           const validPoints =
             parseLatLngPoints(
@@ -374,16 +391,14 @@ const VillageMap = () => {
             validPoints
           );
         },
-
         (snapshotError) => {
-
           console.error(
             "Boundary listener error:",
             snapshotError
           );
 
           setError(
-            "Village boundary load করতে সমস্যা হয়েছে."
+            t("villageBoundaryLoadError")
           );
         }
       );
@@ -391,34 +406,31 @@ const VillageMap = () => {
     return () => {
       unsubscribe();
     };
-
-  }, []);
+  }, [t]);
 
   // ====================================================
   // LOAD ROADS + LOCATIONS
   // ====================================================
 
   useEffect(() => {
-
     const mapRef =
-      collection(db, "villageMap");
+      collection(
+        db,
+        "villageMap"
+      );
 
     const unsubscribe =
       onSnapshot(
         mapRef,
-
         (snapshot) => {
+          const loadedRoads:
+            RoadFeature[] = [];
 
-          const loadedRoads: RoadFeature[] = [];
-
-          const loadedLocations: MapFeature[] = [];
+          const loadedLocations:
+            MapFeature[] = [];
 
           snapshot.forEach((item) => {
-
-            // ==========================================
-            // SKIP BOUNDARY DOCUMENT
-            // ==========================================
-
+            // Skip boundary
             if (
               item.id ===
               "villageBoundary"
@@ -436,39 +448,65 @@ const VillageMap = () => {
             if (
               data.type === "road"
             ) {
+              if (
+                !Array.isArray(
+                  data.points
+                )
+              ) {
+                return;
+              }
+
+              const validPoints =
+                parseLatLngPoints(
+                  data.points
+                );
 
               if (
-                typeof data.name === "string" &&
-                Array.isArray(data.points)
+                validPoints.length < 2
               ) {
-
-                const validPoints =
-                  parseLatLngPoints(
-                    data.points
-                  );
-
-                if (
-                  validPoints.length >= 2
-                ) {
-
-                  loadedRoads.push({
-                    id: item.id,
-
-                    type: "road",
-
-                    name: data.name,
-
-                    description:
-                      typeof data.description ===
-                      "string"
-                        ? data.description
-                        : "",
-
-                    points:
-                      validPoints,
-                  });
-                }
+                return;
               }
+
+              const legacyName =
+                typeof data.name ===
+                "string"
+                  ? data.name
+                  : "";
+
+              const nameBn =
+                typeof data.nameBn ===
+                "string"
+                  ? data.nameBn
+                  : legacyName;
+
+              const nameEn =
+                typeof data.nameEn ===
+                "string"
+                  ? data.nameEn
+                  : legacyName;
+
+              loadedRoads.push({
+                id: item.id,
+
+                type: "road",
+
+                nameBn,
+
+                nameEn,
+
+                name:
+                  legacyName ||
+                  nameBn,
+
+                description:
+                  typeof data.description ===
+                  "string"
+                    ? data.description
+                    : "",
+
+                points:
+                  validPoints,
+              });
 
               return;
             }
@@ -478,44 +516,72 @@ const VillageMap = () => {
             // ==========================================
 
             if (
-              isMapFeatureType(
+              !isMapFeatureType(
                 data.type
-              ) &&
-              typeof data.name === "string" &&
-              typeof data.lat === "number" &&
-              typeof data.lng === "number"
+              )
             ) {
-
-              loadedLocations.push({
-                id: item.id,
-
-                type: data.type,
-
-                name: data.name,
-
-                description:
-                  typeof data.description ===
-                  "string"
-                    ? data.description
-                    : "",
-
-                lat: data.lat,
-
-                lng: data.lng,
-
-                status:
-                  typeof data.status ===
-                  "string"
-                    ? data.status
-                    : "",
-              });
+              return;
             }
+
+            if (
+              typeof data.lat !==
+                "number" ||
+              typeof data.lng !==
+                "number"
+            ) {
+              return;
+            }
+
+            const legacyName =
+              typeof data.name ===
+              "string"
+                ? data.name
+                : "";
+
+            const nameBn =
+              typeof data.nameBn ===
+              "string"
+                ? data.nameBn
+                : legacyName;
+
+            const nameEn =
+              typeof data.nameEn ===
+              "string"
+                ? data.nameEn
+                : legacyName;
+
+            loadedLocations.push({
+              id: item.id,
+
+              type: data.type,
+
+              nameBn,
+
+              nameEn,
+
+              name:
+                legacyName ||
+                nameBn,
+
+              description:
+                typeof data.description ===
+                "string"
+                  ? data.description
+                  : "",
+
+              lat: data.lat,
+
+              lng: data.lng,
+
+              status:
+                typeof data.status ===
+                "string"
+                  ? data.status
+                  : "",
+            });
           });
 
-          // ==========================================
-          // UPDATE STATE
-          // ==========================================
-
+          // Update state
           setRoads(
             loadedRoads
           );
@@ -528,9 +594,7 @@ const VillageMap = () => {
 
           setError("");
         },
-
         (snapshotError) => {
-
           console.error(
             "Village map listener error:",
             snapshotError
@@ -539,7 +603,7 @@ const VillageMap = () => {
           setLoading(false);
 
           setError(
-            "Village map load করতে সমস্যা হয়েছে."
+            t("villageMapLoadError")
           );
         }
       );
@@ -547,8 +611,7 @@ const VillageMap = () => {
     return () => {
       unsubscribe();
     };
-
-  }, []);
+  }, [t]);
 
   // ====================================================
   // FILTERED LOCATIONS
@@ -574,64 +637,20 @@ const VillageMap = () => {
           HEADER
       ================================================= */}
 
+      <div className="text-center mb-4">
+
+        <h2 className="fw-bold">
+          🗺️ {t("ourVillage")}
+        </h2>
+
+        <p className="text-muted mb-0">
+          {t("ourVillageDescription")}
+        </p>
+
+      </div>
+
       <div className="village-map-header">
-
-        <div>
-
-          <div className="village-map-title">
-
-            <span className="village-map-title-icon">
-              🗺️
-            </span>
-
-            <div>
-
-              <h2>
-                Village Map
-              </h2>
-
-              <p>
-                Explore Badokhali village
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* ===============================================
-            STATS
-        =============================================== */}
-
-        <div className="village-map-stats">
-
-          <div className="public-map-stat">
-
-            <strong>
-              {roads.length}
-            </strong>
-
-            <span>
-              Roads
-            </span>
-
-          </div>
-
-          <div className="public-map-stat">
-
-            <strong>
-              {locations.length}
-            </strong>
-
-            <span>
-              Places
-            </span>
-
-          </div>
-
-        </div>
-
+        {/* Stats can be added here later */}
       </div>
 
       {/* =================================================
@@ -639,14 +658,12 @@ const VillageMap = () => {
       ================================================= */}
 
       {error && (
-
         <div
           className="alert alert-danger"
           role="alert"
         >
           {error}
         </div>
-
       )}
 
       {/* =================================================
@@ -654,7 +671,6 @@ const VillageMap = () => {
       ================================================= */}
 
       {!loading && (
-
         <div className="village-map-filter">
 
           {/* ALL */}
@@ -670,13 +686,9 @@ const VillageMap = () => {
               setActiveCategory("all")
             }
           >
+            <span>🌐</span>
 
-            <span>
-              🌐
-            </span>
-
-            All
-
+            {t("mapAll")}
           </button>
 
           {/* CATEGORIES */}
@@ -693,45 +705,43 @@ const VillageMap = () => {
             const count =
               locations.filter(
                 (location) =>
-                  location.type === type
+                  location.type ===
+                  type
               ).length;
 
             return (
-
               <button
                 key={type}
                 type="button"
                 className={
-                  activeCategory === type
+                  activeCategory ===
+                  type
                     ? "map-filter-btn active"
                     : "map-filter-btn"
                 }
                 onClick={() =>
-                  setActiveCategory(type)
+                  setActiveCategory(
+                    type
+                  )
                 }
               >
-
                 <span>
                   {config.emoji}
                 </span>
 
-                {config.label}
+                <span>
+                  {t(config.labelKey)}
+                </span>
 
                 {count > 0 && (
-
                   <small>
                     {count}
                   </small>
-
                 )}
-
               </button>
-
             );
           })}
-
         </div>
-
       )}
 
       {/* =================================================
@@ -740,12 +750,9 @@ const VillageMap = () => {
 
       <div className="village-public-map-wrapper">
 
-        {/* ===============================================
-            LOADING
-        =============================================== */}
+        {/* LOADING */}
 
         {loading && (
-
           <div className="village-map-loading">
 
             <div
@@ -754,15 +761,16 @@ const VillageMap = () => {
             />
 
             <p>
-              Village map loading...
+              {t("villageMapLoading")}
             </p>
 
           </div>
-
         )}
 
         <MapContainer
-          center={VILLAGE_CENTER}
+          center={
+            VILLAGE_CENTER
+          }
           zoom={15}
           minZoom={13}
           maxZoom={19}
@@ -774,41 +782,30 @@ const VillageMap = () => {
           className="village-public-map"
         >
 
-          {/* =============================================
-              TILE
-          ============================================= */}
+          {/* TILE */}
 
           <TileLayer
             attribution="&copy; OpenStreetMap contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* =============================================
-              MAP RESIZE
-          ============================================= */}
+          {/* MAP RESIZE */}
 
           <MapResizeController />
 
-          {/* =============================================
-              FIT BOUNDARY
-          ============================================= */}
+          {/* FIT BOUNDARY */}
 
           {boundaryPoints.length >= 3 && (
-
             <FitBoundary
               points={
                 boundaryPoints
               }
             />
-
           )}
 
-          {/* =============================================
-              VILLAGE BOUNDARY
-          ============================================= */}
+          {/* VILLAGE BOUNDARY */}
 
           {boundaryPoints.length >= 3 && (
-
             <Polygon
               positions={
                 boundaryPoints
@@ -820,58 +817,81 @@ const VillageMap = () => {
                 weight: 3,
               }}
             />
-
           )}
 
-          {/* =============================================
+          {/* =================================================
               ROADS
-          ============================================= */}
+          ================================================= */}
 
-          {roads.map((road) => (
+          {roads.map(
+            (road) => (
+              <Polyline
+                key={
+                  road.id
+                }
+                positions={
+                  road.points
+                }
+                pathOptions={{
+                  color: "#dc2626",
+                  weight: 5,
+                  opacity: 0.85,
+                }}
+              >
 
-            <Polyline
-              key={road.id}
-              positions={
-                road.points
-              }
-              pathOptions={{
-                color: "#dc2626",
-                weight: 5,
-                opacity: 0.85,
-              }}
-            >
+                <Popup>
 
-              <Popup>
+                  <div className="public-map-popup">
 
-                <div className="public-map-popup">
+                    {/* ROAD CATEGORY */}
 
-                  <div className="public-popup-title">
-                    🛣️ {road.name}
-                  </div>
-
-                  {road.description && (
-
-                    <div className="public-popup-description">
-                      {road.description}
+                    <div className="public-popup-category">
+                      🛣️ {t("road")}
                     </div>
 
-                  )}
+                    {/* NAME */}
 
-                  <div className="public-popup-meta">
-                    Road
+                    <div
+                      className="public-popup-title"
+                      style={{
+                        marginBottom:
+                          "4px",
+                      }}
+                    >
+                      {getName(
+                        road.nameBn,
+                        road.nameEn,
+                        road.name
+                      )}
+                    </div>
+
+                    {/* DESCRIPTION */}
+
+                    {road.description && (
+                      <div className="public-popup-description">
+                        {
+                          road.description
+                        }
+                      </div>
+                    )}
+
+                    {/* META */}
+
+                    <div className="public-popup-meta">
+                      🛣️ {t("road")}
+                    </div>
+
                   </div>
 
-                </div>
+                </Popup>
 
-              </Popup>
+              </Polyline>
+            )
+          )}
 
-            </Polyline>
-
-          ))}
-
-          {/* =============================================
+          {/* =================================================
               LOCATIONS
-          ============================================= */}
+          ================================================= */}
 
           {filteredLocations.map(
             (location) => {
@@ -882,9 +902,10 @@ const VillageMap = () => {
                 ];
 
               return (
-
                 <Marker
-                  key={location.id}
+                  key={
+                    location.id
+                  }
                   position={[
                     location.lat,
                     location.lng,
@@ -905,43 +926,50 @@ const VillageMap = () => {
                       <div className="public-popup-category">
 
                         <span>
-                          {config.emoji}
+                          {
+                            config.emoji
+                          }
                         </span>
 
-                        {config.label}
+                        {t(
+                          config.labelKey
+                        )}
 
                       </div>
 
                       {/* NAME */}
 
-                      <div className="public-popup-title">
-
-                        {location.name}
-
+                      <div
+                        className="public-popup-title"
+                        style={{
+                          marginBottom:
+                            "4px",
+                        }}
+                      >
+                        {getName(
+                          location.nameBn,
+                          location.nameEn,
+                          location.name
+                        )}
                       </div>
 
                       {/* DESCRIPTION */}
 
                       {location.description && (
-
                         <div className="public-popup-description">
-
                           {
                             location.description
                           }
-
                         </div>
-
                       )}
 
                       {/* STATUS */}
 
                       {location.status && (
-
                         <div className="public-popup-status">
 
                           <span>
-                            Status
+                            {t("status")}
                           </span>
 
                           <strong>
@@ -951,7 +979,6 @@ const VillageMap = () => {
                           </strong>
 
                         </div>
-
                       )}
 
                       {/* COORDINATES */}
@@ -971,7 +998,6 @@ const VillageMap = () => {
                   </Popup>
 
                 </Marker>
-
               );
             }
           )}
@@ -985,7 +1011,7 @@ const VillageMap = () => {
         <div className="village-map-legend">
 
           <div className="legend-title">
-            Map Legend
+            {t("mapLegend")}
           </div>
 
           {/* ROAD */}
@@ -996,7 +1022,7 @@ const VillageMap = () => {
               className="legend-line road"
             />
 
-            Road
+            {t("mapRoad")}
 
           </div>
 
@@ -1008,7 +1034,7 @@ const VillageMap = () => {
               className="legend-line boundary"
             />
 
-            Village Boundary
+            {t("mapVillageBoundary")}
 
           </div>
 
@@ -1024,7 +1050,6 @@ const VillageMap = () => {
               categoryConfig[type];
 
             return (
-
               <div
                 key={type}
                 className="legend-item"
@@ -1037,13 +1062,16 @@ const VillageMap = () => {
                       config.color,
                   }}
                 >
-                  {config.emoji}
+                  {
+                    config.emoji
+                  }
                 </span>
 
-                {config.label}
+                {t(
+                  config.labelKey
+                )}
 
               </div>
-
             );
           })}
 
@@ -1054,39 +1082,39 @@ const VillageMap = () => {
         ================================================= */}
 
         {!loading &&
-          activeCategory !== "all" && (
+          activeCategory !==
+            "all" && (
 
-            <div className="active-filter-info">
+          <div className="active-filter-info">
 
-              {categoryConfig[
+            {
+              categoryConfig[
                 activeCategory
-              ].emoji}
+              ].emoji
+            }
 
-              {" "}
+            {" "}
 
-              <strong>
-                {
-                  categoryConfig[
-                    activeCategory
-                  ].label
-                }
-              </strong>
+            <strong>
+              {t(
+                categoryConfig[
+                  activeCategory
+                ].labelKey
+              )}
+            </strong>
 
-              {" — "}
+            {" — "}
 
-              {filteredLocations.length}
+            {
+              filteredLocations.length
+            }
 
-              {" "}
+            {" "}
 
-              location
+            {t("locations")}
 
-              {filteredLocations.length !== 1
-                ? "s"
-                : ""}
-
-            </div>
-
-          )}
+          </div>
+        )}
 
       </div>
 
@@ -1099,24 +1127,26 @@ const VillageMap = () => {
         roads.length === 0 &&
         boundaryPoints.length === 0 && (
 
-          <div className="village-map-empty">
+        <div className="village-map-empty">
 
-            <div className="empty-icon">
-              🗺️
-            </div>
-
-            <h5>
-              Village map is being prepared
-            </h5>
-
-            <p>
-              Map information will appear here
-              once it is added by the administrator.
-            </p>
-
+          <div className="empty-icon">
+            🗺️
           </div>
 
-        )}
+          <h5>
+            {t(
+              "villageMapPreparing"
+            )}
+          </h5>
+
+          <p>
+            {t(
+              "villageMapPreparingDescription"
+            )}
+          </p>
+
+        </div>
+      )}
 
     </div>
   );

@@ -326,7 +326,7 @@ const Location = () => {
                       opacity={1}
                       permanent={false}
                     >
-                      বাদোখালী ইয়ুথ ফাউন্ডেশন
+                      {t("foundationName")}
                     </Tooltip>
 
                     {/* =================================================
@@ -341,7 +341,7 @@ const Location = () => {
                         }}
                       >
                         <strong>
-                          বাদোখালী ইয়ুথ ফাউন্ডেশন
+                          {t("foundationName")}
                         </strong>
 
                         <br />
