@@ -32,12 +32,20 @@ const DonorList = () => {
       }));
 
       // Latest donation first
-      data.sort((a, b) => {
-        const aTime = a.createdAt?.seconds || 0;
-        const bTime = b.createdAt?.seconds || 0;
+      // Sort by donation amount: Highest to Lowest
+data.sort((a, b) => {
+  const amountA =
+    a.donationType === "Cash"
+      ? Number(String(a.amount || "0").replace(/,/g, ""))
+      : 0;
 
-        return bTime - aTime;
-      });
+  const amountB =
+    b.donationType === "Cash"
+      ? Number(String(b.amount || "0").replace(/,/g, ""))
+      : 0;
+
+  return amountB - amountA;
+});
 
       setDonors(data);
     } catch (error) {
