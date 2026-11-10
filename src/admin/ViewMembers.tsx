@@ -23,8 +23,13 @@ interface Member {
   name: string;
   nameBn?: string;
 
+  memberCategory?: string;
+
   designation: string;
   designationBn?: string;
+
+  shortBio?: string;
+  shortBioBn?: string;
 
   memberType: string;
   phone: string;
@@ -36,8 +41,9 @@ interface Member {
   photo: string;
   status: string;
 
-  // Monthly Subscription
+  // Monthly Subscription (support old and new field names)
   monthlySubscriptionAmount?: number;
+  monthlyAmount?: number;
 }
 
 interface ChatMessage {
@@ -247,18 +253,16 @@ const ViewMembers = () => {
   // EDIT MEMBER
   // =====================================================
 
-  const handleEdit = (
-    member: Member
-  ) => {
+  const handleEdit = (member: Member) => {
     setSelectedMember({
       ...member,
-
-      // Old members without amount
-      // will show 0
+      memberCategory: member.memberCategory || "executive",
+      designation: member.designation || "",
+      designationBn: member.designationBn || "",
+      shortBio: member.shortBio || "",
+      shortBioBn: member.shortBioBn || "",
       monthlySubscriptionAmount:
-        Number(
-          member.monthlySubscriptionAmount
-        ) || 0,
+        Number(member.monthlySubscriptionAmount ?? member.monthlyAmount) || 0,
     });
 
     setNewPhoto(null);
@@ -335,120 +339,79 @@ const ViewMembers = () => {
   // UPDATE MEMBER
   // =====================================================
 
-  const handleUpdate =
-    async () => {
-      if (!selectedMember) return;
+  const handleUpdate = async () => {
+    if (!selectedMember) return;
 
-      if (
-        !selectedMember.name.trim()
-      ) {
-        alert(
-          "Please enter member name."
-        );
+    if (!selectedMember.name.trim()) {
+      alert("Please enter member name.");
+      return;
+    }
 
-        return;
-      }
+    if (!selectedMember.nameBn?.trim()) {
+      alert("Please enter Bengali member name.");
+      return;
+    }
 
-      if (
-        !selectedMember.designation.trim()
-      ) {
-        alert(
-          "Please enter designation."
-        );
+    const category = selectedMember.memberCategory || "executive";
 
-        return;
-      }
+    if (
+      category === "executive" &&
+      (!selectedMember.designation?.trim() || !selectedMember.designationBn?.trim())
+    ) {
+      alert("Please enter both English and Bengali designation.");
+      return;
+    }
 
-      try {
-        setUpdatingMember(true);
+    try {
+      setUpdatingMember(true);
 
-        const photoUrl =
-          await uploadPhoto();
+      const photoUrl = await uploadPhoto();
+      const monthlyAmount =
+        Number(selectedMember.monthlySubscriptionAmount) || 0;
 
-        await updateDoc(
-          doc(
-            db,
-            "members",
-            selectedMember.id
-          ),
-          {
-            name:
-              selectedMember.name.trim(),
+      await updateDoc(doc(db, "members", selectedMember.id), {
+        name: selectedMember.name.trim(),
+        nameBn: selectedMember.nameBn?.trim() || "",
 
-            nameBn:
-              selectedMember.nameBn?.trim() ||
-              "",
+        memberCategory: category,
+        designation:
+          category === "executive"
+            ? selectedMember.designation.trim()
+            : "",
+        designationBn:
+          category === "executive"
+            ? selectedMember.designationBn?.trim() || ""
+            : "",
 
-            designation:
-              selectedMember.designation.trim(),
+        shortBio: selectedMember.shortBio?.trim() || "",
+        shortBioBn: selectedMember.shortBioBn?.trim() || "",
 
-            designationBn:
-              selectedMember.designationBn?.trim() ||
-              "",
+        memberType: selectedMember.memberType?.trim() || "",
+        phone: selectedMember.phone?.trim() || "",
+        dateOfBirth: selectedMember.dateOfBirth || "",
+        bloodGroup: selectedMember.bloodGroup?.trim() || "",
+        address: selectedMember.address?.trim() || "",
+        email: selectedMember.email?.trim() || "",
+        status: selectedMember.status || "Active",
+        photo: photoUrl,
 
-            memberType:
-              selectedMember.memberType?.trim() ||
-              "",
+        // Keep compatibility with both subscription field names.
+        monthlyAmount,
+        monthlySubscriptionAmount: monthlyAmount,
 
-            phone:
-              selectedMember.phone?.trim() ||
-              "",
+        updatedAt: serverTimestamp(),
+      });
 
-            dateOfBirth:
-              selectedMember.dateOfBirth || "",
-
-            bloodGroup:
-              selectedMember.bloodGroup?.trim() ||
-              "",
-
-            address:
-              selectedMember.address?.trim() ||
-              "",
-
-            email:
-              selectedMember.email?.trim() ||
-              "",
-
-            status:
-              selectedMember.status || "Active",
-
-            photo: photoUrl,
-
-            // ==========================================
-            // MONTHLY SUBSCRIPTION AMOUNT
-            // ==========================================
-
-            monthlySubscriptionAmount:
-              Number(
-                selectedMember.monthlySubscriptionAmount
-              ) || 0,
-
-            updatedAt:
-              serverTimestamp(),
-          }
-        );
-
-        alert(
-          "Member updated successfully."
-        );
-
-        closeEditModal();
-
-        await fetchMembers();
-      } catch (error: any) {
-        console.error(
-          "Update error:",
-          error
-        );
-
-        alert(
-          error?.message ||
-            "Failed to update member."
-        );
-      } finally {
-        setUpdatingMember(false);
-      }
-    };
+      alert("Member updated successfully.");
+      closeEditModal();
+      await fetchMembers();
+    } catch (error: any) {
+      console.error("Update error:", error);
+      alert(error?.message || "Failed to update member.");
+    } finally {
+      setUpdatingMember(false);
+    }
+  };
 
   // =====================================================
   // OPEN EMAIL
@@ -1830,52 +1793,109 @@ const ViewMembers = () => {
 
                     </div>
 
-                    {/* DESIGNATION */}
+                    {/* MEMBER CATEGORY */}
 
                     <div className="col-md-6 mb-3">
-
-                      <label className="form-label">
-                        Designation
+                      <label className="form-label fw-semibold">
+                        Member Category
                       </label>
 
-                      <input
-                        className="form-control"
-                        value={
-                          selectedMember.designation
-                        }
-                        onChange={(e) =>
-                          updateSelectedMember(
-                            "designation",
-                            e.target.value
-                          )
-                        }
-                      />
+                      <select
+                        className="form-select"
+                        value={selectedMember.memberCategory || "executive"}
+                        onChange={(e) => {
+                          const category = e.target.value;
 
+                          setSelectedMember((previous) => {
+                            if (!previous) return previous;
+
+                            return {
+                              ...previous,
+                              memberCategory: category,
+                              designation:
+                                category === "executive"
+                                  ? previous.designation || ""
+                                  : "",
+                              designationBn:
+                                category === "executive"
+                                  ? previous.designationBn || ""
+                                  : "",
+                            };
+                          });
+                        }}
+                      >
+                        <option value="executive">Executive Member</option>
+                        <option value="founder">Founder Member</option>
+                        <option value="associate">Associate Member</option>
+                      </select>
                     </div>
 
-                    {/* BANGLA DESIGNATION */}
+                    {/* DESIGNATION - EXECUTIVE ONLY */}
+
+                    {(selectedMember.memberCategory || "executive") === "executive" && (
+                      <>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">
+                            Designation (English)
+                          </label>
+                          <input
+                            className="form-control"
+                            value={selectedMember.designation || ""}
+                            onChange={(e) =>
+                              updateSelectedMember("designation", e.target.value)
+                            }
+                            placeholder="Enter designation"
+                          />
+                        </div>
+
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">
+                            Designation (বাংলা)
+                          </label>
+                          <input
+                            className="form-control"
+                            value={selectedMember.designationBn || ""}
+                            onChange={(e) =>
+                              updateSelectedMember("designationBn", e.target.value)
+                            }
+                            placeholder="বাংলায় পদবি লিখুন"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* SHORT INTRODUCTION ENGLISH */}
 
                     <div className="col-md-6 mb-3">
-
                       <label className="form-label">
-                        বাংলা পদবি
+                        Short Introduction (English)
                       </label>
-
-                      <input
+                      <textarea
                         className="form-control"
-                        value={
-                          selectedMember.designationBn ||
-                          ""
-                        }
+                        rows={3}
+                        value={selectedMember.shortBio || ""}
                         onChange={(e) =>
-                          updateSelectedMember(
-                            "designationBn",
-                            e.target.value
-                          )
+                          updateSelectedMember("shortBio", e.target.value)
                         }
-                        placeholder="বাংলায় পদবি লিখুন"
+                        placeholder="Write short introduction..."
                       />
+                    </div>
 
+                    {/* SHORT INTRODUCTION BANGLA */}
+
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        সংক্ষিপ্ত পরিচিতি (বাংলা)
+                      </label>
+                      <textarea
+                        className="form-control"
+                        rows={3}
+                        value={selectedMember.shortBioBn || ""}
+                        onChange={(e) =>
+                          updateSelectedMember("shortBioBn", e.target.value)
+                        }
+                        placeholder="সদস্যের সংক্ষিপ্ত পরিচিতি লিখুন..."
+                      />
                     </div>
 
                     {/* MEMBER TYPE */}
@@ -2245,6 +2265,10 @@ const ViewMembers = () => {
 
                     <th>Name</th>
 
+                    <th>Category</th>
+
+                    <th>Short Introduction</th>
+
                     <th>Designation</th>
 
                     <th>Member Type</th>
@@ -2274,7 +2298,7 @@ const ViewMembers = () => {
                     <tr>
 
                       <td
-                        colSpan={11}
+                        colSpan={13}
                         className="text-center py-4"
                       >
 
@@ -2297,7 +2321,7 @@ const ViewMembers = () => {
                     <tr>
 
                       <td
-                        colSpan={11}
+                        colSpan={13}
                         className="text-center py-4"
                       >
                         No Members Found
@@ -2360,7 +2384,36 @@ const ViewMembers = () => {
                           {/* NAME */}
 
                           <td>
-                            {member.name}
+                            <div className="fw-semibold">{member.name}</div>
+                            {member.nameBn && (
+                              <small className="text-muted">{member.nameBn}</small>
+                            )}
+                          </td>
+
+                          {/* MEMBER CATEGORY */}
+
+                          <td>
+                            <span
+                              className={`badge ${
+                                member.memberCategory === "founder"
+                                  ? "bg-primary"
+                                  : member.memberCategory === "associate"
+                                  ? "bg-info text-dark"
+                                  : "bg-success"
+                              }`}
+                            >
+                              {member.memberCategory === "founder"
+                                ? "Founder"
+                                : member.memberCategory === "associate"
+                                ? "Associate"
+                                : "Executive"}
+                            </span>
+                          </td>
+
+                          {/* SHORT INTRODUCTION */}
+
+                          <td style={{ minWidth: "200px" }}>
+                            {member.shortBioBn || member.shortBio || "-"}
                           </td>
 
                           {/* DESIGNATION */}
@@ -2401,7 +2454,7 @@ const ViewMembers = () => {
                             <span className="fw-semibold text-success">
                               ৳{" "}
                               {Number(
-                                member.monthlySubscriptionAmount
+                                member.monthlySubscriptionAmount ?? member.monthlyAmount
                               ) || 0}
                             </span>
 
